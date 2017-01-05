@@ -358,6 +358,12 @@ public class ApiModelParser {
 			}
 
 			classes.add(classDoc);
+			if (classDoc.isInterface()) {
+				for (ClassDoc iClassDoc: classDoc.interfaces()) {
+					classes.add(iClassDoc);
+				}
+				break;
+			}
 			classDoc = classDoc.superclass();
 		}
 		Collections.reverse(classes);
