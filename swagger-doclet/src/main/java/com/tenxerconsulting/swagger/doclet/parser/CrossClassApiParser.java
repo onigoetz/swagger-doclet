@@ -1,15 +1,10 @@
 package com.tenxerconsulting.swagger.doclet.parser;
 
 import static com.google.common.base.Objects.equal;
+import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.collect.Maps.uniqueIndex;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.google.common.base.Function;
 import com.sun.javadoc.ClassDoc;
@@ -40,7 +35,7 @@ public class CrossClassApiParser {
 	private final String basePath;
 
 	private final Method parentMethod;
-	private final Map<Type, ClassDoc> subResourceClasses;
+	private final List<ClassDoc> subResourceClasses;
 	private final Collection<ClassDoc> typeClasses;
 
 	/**
@@ -54,7 +49,7 @@ public class CrossClassApiParser {
 	 * @param apiVersion Overall API version
 	 * @param basePath Overall base path
 	 */
-	public CrossClassApiParser(DocletOptions options, ClassDoc classDoc, Collection<ClassDoc> classes, Map<Type, ClassDoc> subResourceClasses,
+	public CrossClassApiParser(DocletOptions options, ClassDoc classDoc, Collection<ClassDoc> classes, List<ClassDoc> subResourceClasses,
 			Collection<ClassDoc> typeClasses, String swaggerVersion, String apiVersion, String basePath) {
 		super();
 		this.options = options;
@@ -82,7 +77,7 @@ public class CrossClassApiParser {
 	 * @param parentMethod The parent method that "owns" this sub resource
 	 * @param parentResourcePath The parent resource path
 	 */
-	public CrossClassApiParser(DocletOptions options, ClassDoc classDoc, Collection<ClassDoc> classes, Map<Type, ClassDoc> subResourceClasses,
+	public CrossClassApiParser(DocletOptions options, ClassDoc classDoc, Collection<ClassDoc> classes, List<ClassDoc> subResourceClasses,
 			Collection<ClassDoc> typeClasses, String swaggerVersion, String apiVersion, String basePath, Method parentMethod, String parentResourcePath) {
 		super();
 		this.options = options;
@@ -157,7 +152,7 @@ public class CrossClassApiParser {
 			String classResourceDescription = ParserHelper.getInheritableTagValue(currentClassDoc, this.options.getResourceDescriptionTags(), this.options);
 
 			// check if its a sub resource
-			boolean isSubResourceClass = this.subResourceClasses != null && this.subResourceClasses.values().contains(currentClassDoc);
+			boolean isSubResourceClass = this.subResourceClasses != null && this.subResourceClasses.contains(currentClassDoc);
 
 			// dont process a subresource outside the context of its parent method
 			if (isSubResourceClass && this.parentMethod == null) {
@@ -192,6 +187,12 @@ public class CrossClassApiParser {
 							System.out.println("parsing method: " + method.name() + " as a subresource");
 						}
 						ClassDoc subResourceClassDoc = classCache.findByType(method.returnType());
+						// look for a custom return type, this is useful where we return a jaxrs Resource in the method signature
+						// which typically returns a different subResource object
+						if (subResourceClassDoc == null) {
+						    Type customType = ParserHelper.readCustomType(method, this.options, this.classes);
+                            subResourceClassDoc = classCache.findByType(customType);
+						}
 						if (subResourceClassDoc != null) {
 							// delete class from the dictionary to handle recursive sub-resources
 							Collection<ClassDoc> shrunkClasses = new ArrayList<ClassDoc>(this.classes);

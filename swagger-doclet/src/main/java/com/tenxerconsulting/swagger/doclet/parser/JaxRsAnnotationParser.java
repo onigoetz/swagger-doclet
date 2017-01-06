@@ -33,6 +33,8 @@ import com.tenxerconsulting.swagger.doclet.model.Operation;
 import com.tenxerconsulting.swagger.doclet.model.ResourceListing;
 import com.tenxerconsulting.swagger.doclet.model.ResourceListingAPI;
 
+import static com.google.common.base.Objects.firstNonNull;
+
 @SuppressWarnings("javadoc")
 public class JaxRsAnnotationParser {
 
@@ -154,7 +156,7 @@ public class JaxRsAnnotationParser {
 			// do simple parsing to find sub resource classes
 			// these are ones referenced in the return types of methods
 			// which have a path but no http method
-			Map<Type, ClassDoc> subResourceClasses = new HashMap<Type, ClassDoc>();
+			List<ClassDoc> subResourceClasses = new ArrayList<>();
 			for (ClassDoc classDoc : docletClasses) {
 				ClassDoc currentClassDoc = classDoc;
 				while (currentClassDoc != null) {
@@ -163,12 +165,21 @@ public class JaxRsAnnotationParser {
 						// if the method has @Path but no Http method then its an entry point to a sub resource
 						if (!ParserHelper.resolveMethodPath(method, this.options).isEmpty() && HttpMethod.fromMethod(method) == null) {
 							ClassDoc subResourceClassDoc = classCache.findByType(method.returnType());
+							// look for a custom return type, this is useful where we return a jaxrs Resource in the method signature
+							// which typically returns a different subResource object
+							if (subResourceClassDoc == null) {
+								Type customType = ParserHelper.readCustomType(method, this.options, docletClasses);
+								subResourceClassDoc = classCache.findByType(customType);
+							}
 							if (subResourceClassDoc != null) {
 								if (this.options.isLogDebug()) {
 									System.out.println("Adding return type as sub resource class : " + subResourceClassDoc.name() + " for method "
 											+ method.name() + " of referencing class " + currentClassDoc.name());
 								}
-								subResourceClasses.put(method.returnType(), subResourceClassDoc);
+
+								if (!subResourceClasses.contains(subResourceClassDoc)) {
+									subResourceClasses.add(subResourceClassDoc);
+								}
 							}
 						}
 					}

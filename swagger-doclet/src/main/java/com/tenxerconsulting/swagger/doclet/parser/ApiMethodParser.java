@@ -678,7 +678,7 @@ public class ApiMethodParser {
 		}
 	}
 
-	private void raiseCustomTypeNotFoundError(String customType) {
+	static void raiseCustomTypeNotFoundError(String customType) {
 		throw new IllegalStateException(
 				"Could not find the source for the custom response class: "
 						+ customType

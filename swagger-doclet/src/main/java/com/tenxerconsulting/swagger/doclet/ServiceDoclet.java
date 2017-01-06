@@ -1,7 +1,10 @@
 package com.tenxerconsulting.swagger.doclet;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 import com.sun.javadoc.LanguageVersion;
 import com.sun.javadoc.RootDoc;

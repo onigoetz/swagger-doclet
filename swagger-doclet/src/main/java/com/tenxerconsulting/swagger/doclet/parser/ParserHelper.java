@@ -1,5 +1,6 @@
 package com.tenxerconsulting.swagger.doclet.parser;
 
+import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.collect.Lists.transform;
 import static java.util.Arrays.asList;
 
@@ -2040,4 +2041,23 @@ public class ParserHelper {
 		return newStr.length() == 0 ? null : newStr.toString().trim();
 	}
 
+	/**
+	 * This reads the javadoc, looking for any {@link DocletOptions#responseTypeTags}
+	 *
+	 * @param method    The method to look for responseTypeTags
+	 * @param options   The doclet options
+	 * @param classes   The model classes
+	 * @return {@link Type} if the javadoc contains a {@link DocletOptions#responseTypeTags}
+	 */
+	public static Type readCustomType(MethodDoc method, DocletOptions options, Collection<ClassDoc> classes) {
+		String customTypeName = ParserHelper.getInheritableTagValue(method, options.getResponseTypeTags(), options);
+		if (customTypeName != null) {
+			Type customType = ParserHelper.findModel(classes, customTypeName);
+			if (customType == null) {
+				ApiMethodParser.raiseCustomTypeNotFoundError(customTypeName);
+			}
+			return firstNonNull(ApiModelParser.getReturnType(options, customType), customType);
+		}
+		return null;
+	}
 }
