@@ -385,7 +385,7 @@ Note: If you are using a snapshot version then these are deployed in the sonatyp
 	
 	<tr><td>@apiDescription</td><td>This is used for the api description where an api can have multiple operations of different HTTP methods under the same path. As such any of the java methods that are used for the different operations of an api can specify the @apiDescription.</td><td>operations</td><td></td></tr>
 	
-	<tr><td>@description</td><td>For model properties this is used for the field description. For operations this is used for the notes. For operations if you do not use this then the notes will be taken from the commment text minus the first sentences of the javadoc.</td><td>operations, model methods</td><td>@comment, @return - (only for model methods)</td></tr>
+	<tr><td>@description</td><td>For model properties this is used for the field description. For operations this is used for the description. For operations if you do not use this then the description will be taken from the commment text minus the first sentences of the javadoc.</td><td>operations, model methods</td><td>@comment, @return - (only for model methods)</td></tr>
 	
 	<tr><td>@summary</td><td>This is used for the summary of the operation. If you do not use this then the summary will be taken from the first sentences of the javadoc.</td><td>operations</td><td>@endpointName</td></tr>
 	
@@ -557,7 +557,7 @@ These are the options that you may want to use to add additional functionality o
 
     "title": "Carma APIs",
     "description": "<p>This is an interactive API reference for the Carma APIs.</p><p>Below you will see the main sections of the API. Click each section in order to see the endpoints that are available in that category and use the 'Try it out' button to make API calls.</p><p>For endpoints that require authentication you can click the on/off toggle in the top right of the endpoint description, which will take you to a login form.</p><p>If you have not set up a Carma user account already you can do so <a href='https://rtr-dev.car.ma/login' target='_blank'>here</a>.",
-    "termsOfServiceUrl": "https://api-dev.car.ma/apidoc/terms.action",
+    "termsOfService": "https://api-dev.car.ma/apidoc/terms.action",
     "contact": "carma-apis@car.ma"
 
 }
@@ -584,7 +584,7 @@ These are the options that you may want to use to add additional functionality o
                     "nickname": "getTokenPasswordFlow",
                     "type": "Token",
                     "summary": "Password Authentication",
-                    "notes": "This is the Oauth 2.0 Password flow which allows you to provide your client application credentials and the user's login credentials and receive back an Oauth token for the user. This is only available to certain trusted clients.",
+                    "description": "This is the Oauth 2.0 Password flow which allows you to provide your client application credentials and the user's login credentials and receive back an Oauth token for the user. This is only available to certain trusted clients.",
                     "parameters": [
                         {
                             "paramType": "query",
@@ -786,7 +786,7 @@ These are options that you typically won't need to use unless for example, you w
 	
 	<tr><td>-operationSummaryTags</td><td>This adds additional tags to the set of javadoc tags used for setting the summary for an operation. The default set contains summary, endpointName. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
-	<tr><td>-operationNotesTags</td><td>This adds additional tags to the set of javadoc tags used for setting the notes for an operation. The default set contains description, notes, comment. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
+	<tr><td>-operationNotesTags</td><td>This adds additional tags to the set of javadoc tags used for setting the description for an operation. The default set contains description, description, comment. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
 	<tr><td>-fieldDescriptionTags</td><td>This adds additional tags to the list of javadoc tags used for setting the description of model field/methods. The default list contains description, comment, return. NOTE: The values in the doclet option should NOT have the @ symbol on them.</td></tr>
 	
@@ -894,7 +894,7 @@ You can also inspect the generated json:
 ```
 $ curl localhost:7070/apidocs/service.json
 {
-  "swaggerVersion" : "1.2",
+  "swagger" : "1.2",
   "apiVersion" : "1",
   "basePath" : "http://127.0.0.1:7070/apidocs",
   "apis" : [ {
