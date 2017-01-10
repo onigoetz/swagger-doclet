@@ -191,7 +191,7 @@ public class JaxRsAnnotationParser {
             Map<String, Path> resourceToDeclaration = new HashMap<>();
             for (ClassDoc classDoc : docletClasses) {
                 CrossClassApiParser classParser = new CrossClassApiParser(swagger, this.options, classDoc, docletClasses, subResourceClasses, typeClasses,
-                        tags, this.options.getApiVersion(), this.options.getApiBasePath());
+                        tags);
                 classParser.parse(resourceToDeclaration);
             }
 
@@ -290,7 +290,7 @@ public class JaxRsAnnotationParser {
             swagger.paths(declarations);
             swagger.setSchemes(schemes);
             swagger.setHost(this.options.getHost());
-            swagger.setBasePath(this.options.getDocBasePath());
+            swagger.setBasePath(this.options.getApiBasePath());
             swagger.setInfo(this.options.getApiInfo());
 
 

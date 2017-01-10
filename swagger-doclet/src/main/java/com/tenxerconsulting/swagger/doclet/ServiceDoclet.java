@@ -243,8 +243,4 @@ public class ServiceDoclet {
 		return LanguageVersion.JAVA_1_5;
 	}
 
-
-	public static void main(String[] args) throws FileNotFoundException {
-		com.sun.tools.javadoc.Main.main("@/Users/rjewing/IdeaProjects/biscicol-fims/build/tmp/generateRestApiDocs/javadoc.options");
-	}
 }

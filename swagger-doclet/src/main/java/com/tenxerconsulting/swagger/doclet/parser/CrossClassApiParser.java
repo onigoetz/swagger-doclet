@@ -29,8 +29,6 @@ public class CrossClassApiParser {
     private final ClassDoc classDoc;
     private final Collection<ClassDoc> classes;
     private final String rootPath;
-    private final String apiVersion;
-    private final String basePath;
 
     private final Method parentMethod;
     private final List<ClassDoc> subResourceClasses;
@@ -47,11 +45,9 @@ public class CrossClassApiParser {
      * @param typeClasses        Extra type classes that can be used as generic parameters
      * @param subResourceClasses Sub resource doclet classes
      * @param tags               List of TagWrappers
-     * @param apiVersion         Overall API version
-     * @param basePath           Overall base path
      */
     public CrossClassApiParser(Swagger swagger, DocletOptions options, ClassDoc classDoc, Collection<ClassDoc> classes, List<ClassDoc> subResourceClasses,
-                               Collection<ClassDoc> typeClasses, List<TagWrapper> tags, String apiVersion, String basePath) {
+                               Collection<ClassDoc> typeClasses, List<TagWrapper> tags) {
         super();
         this.swagger = swagger;
         this.options = options;
@@ -61,8 +57,6 @@ public class CrossClassApiParser {
         this.subResourceClasses = subResourceClasses;
         this.tags = tags;
         this.rootPath = ParserHelper.resolveClassPath(classDoc, options);
-        this.apiVersion = apiVersion;
-        this.basePath = basePath;
         this.parentMethod = null;
     }
 
@@ -76,13 +70,11 @@ public class CrossClassApiParser {
      * @param typeClasses        Extra type classes that can be used as generic parameters
      * @param subResourceClasses Sub resource doclet classes
      * @param tags               List of tagWrappers
-     * @param apiVersion         Overall API version
-     * @param basePath           Overall base path
      * @param parentMethod       The parent method that "owns" this sub resource
      * @param parentResourcePath The parent resource path
      */
     public CrossClassApiParser(Swagger swagger, DocletOptions options, ClassDoc classDoc, Collection<ClassDoc> classes, List<ClassDoc> subResourceClasses,
-                               Collection<ClassDoc> typeClasses, List<TagWrapper> tags, String apiVersion, String basePath, Method parentMethod, String parentResourcePath) {
+                               Collection<ClassDoc> typeClasses, List<TagWrapper> tags, Method parentMethod, String parentResourcePath) {
         super();
         this.swagger = swagger;
         this.options = options;
@@ -92,8 +84,6 @@ public class CrossClassApiParser {
         this.subResourceClasses = subResourceClasses;
         this.tags = tags;
         this.rootPath = parentResourcePath + ParserHelper.resolveClassPath(classDoc, options);
-        this.apiVersion = apiVersion;
-        this.basePath = basePath;
         this.parentMethod = parentMethod;
     }
 
@@ -206,7 +196,7 @@ public class CrossClassApiParser {
                             shrunkClasses.remove(currentClassDoc);
                             // recursively parse the sub-resource class
                             CrossClassApiParser subResourceParser = new CrossClassApiParser(this.swagger, this.options, subResourceClassDoc, shrunkClasses,
-                                    this.subResourceClasses, this.typeClasses, this.tags, this.apiVersion, this.basePath, parsedMethod, resourcePath);
+                                    this.subResourceClasses, this.typeClasses, this.tags, parsedMethod, resourcePath);
                             subResourceParser.parse(declarations);
                         }
                         continue;
