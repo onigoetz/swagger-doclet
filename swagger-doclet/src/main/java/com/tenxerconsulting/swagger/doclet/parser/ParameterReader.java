@@ -773,7 +773,22 @@ public class ParameterReader {
 
         if (param instanceof AbstractSerializableParameter) {
             AbstractSerializableParameter abstractSerializableParameter = (AbstractSerializableParameter) param;
-            abstractSerializableParameter.setType(type);
+            if (allowMultiple != null && allowMultiple) {
+                abstractSerializableParameter.setType("array");
+
+                if (param instanceof FormParameter) {
+                    abstractSerializableParameter.setCollectionFormat("multi");
+                } else {
+                    abstractSerializableParameter.setCollectionFormat("csv");
+                }
+
+                Property multiParam = ParserHelper.buildItems(null, type, format, null, null);
+                abstractSerializableParameter.setItems(multiParam);
+            } else {
+                abstractSerializableParameter.setItems(items);
+                abstractSerializableParameter.setType(type);
+            }
+
             if (minimum != null) {
                 abstractSerializableParameter.setMinimum(new BigDecimal(minimum));
             }
@@ -784,15 +799,6 @@ public class ParameterReader {
             abstractSerializableParameter.setDefault(defaultValue);
             abstractSerializableParameter.setFormat(format);
 
-            if (allowMultiple != null && allowMultiple) {
-                if (param instanceof FormParameter) {
-                    abstractSerializableParameter.setCollectionFormat("multi");
-                } else {
-                    abstractSerializableParameter.setCollectionFormat("csv");
-                }
-            }
-
-            abstractSerializableParameter.setItems(items);
         } else {
             Model model;
 
