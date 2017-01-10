@@ -304,6 +304,7 @@ public class ApiModelParser {
 
 			ModelImpl model = new ModelImpl();
 			model.setReference(modelId);
+			model.setType(ModelImpl.OBJECT);
 			model.setRequired(requiredFields);
 			model.setDiscriminator(discriminator);
 			// TODO support subTypes

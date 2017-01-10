@@ -13,6 +13,10 @@ import com.tenxerconsulting.swagger.doclet.model.PropertyWrapper;
 import com.tenxerconsulting.swagger.doclet.parser.ParserHelper.NumericTypeFilter;
 import com.tenxerconsulting.swagger.doclet.translator.Translator;
 import com.tenxerconsulting.swagger.doclet.translator.Translator.OptionalName;
+import io.swagger.models.ArrayModel;
+import io.swagger.models.Model;
+import io.swagger.models.ModelImpl;
+import io.swagger.models.RefModel;
 import io.swagger.models.parameters.*;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.properties.*;
@@ -765,6 +769,8 @@ public class ParameterReader {
                 break;
         }
 
+        Property items = ParserHelper.buildItems(itemsRef, itemsType, itemsFormat, itemsAllowableValues, uniqueItems);
+
         if (param instanceof AbstractSerializableParameter) {
             AbstractSerializableParameter abstractSerializableParameter = (AbstractSerializableParameter) param;
             abstractSerializableParameter.setType(type);
@@ -786,9 +792,34 @@ public class ParameterReader {
                 }
             }
 
-            abstractSerializableParameter.setItems(
-                    ParserHelper.buildItems(itemsRef, itemsType, itemsFormat, itemsAllowableValues, uniqueItems)
-            );
+            abstractSerializableParameter.setItems(items);
+        } else {
+            Model model;
+
+            if (ParserHelper.isPrimitive(type, this.options)) {
+                ModelImpl modelImpl = new ModelImpl()
+                        .format(format)
+                        .type(type)
+                        ._enum(allowableValues);
+                if (minimum != null) {
+                    modelImpl.minimum(new BigDecimal(minimum));
+                }
+                if (maximum != null) {
+                    modelImpl.maximum(new BigDecimal(maximum));
+                }
+                modelImpl.setDefaultValue(defaultValue);
+
+                model = modelImpl;
+            } else if (ParserHelper.isArray(type) || ParserHelper.isCollection(type)) {
+                ArrayModel arrayModel = new ArrayModel();
+                arrayModel.setType(type);
+                arrayModel.setItems(items);
+                model = arrayModel;
+            } else {
+                model = new RefModel(type);
+            }
+
+            ((BodyParameter) param).schema(model);
         }
 
         if (required != null) {

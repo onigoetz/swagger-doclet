@@ -289,6 +289,7 @@ public class ApiMethodParser {
 		Response defaultResponse = new Response();
 
 		defaultResponse.setSchema(property);
+		defaultResponse.setDescription("");
 		responseMap.put("default", defaultResponse);
 
 		// ************************************
@@ -425,6 +426,9 @@ public class ApiMethodParser {
 						int statusCode = Integer.parseInt(matcher.group(1).trim());
 						// trim special chars the desc may start with
 						String desc = ParserHelper.trimLeadingChars(matcher.group(2), '|', '-');
+						if (desc == null) {
+							desc = "";
+						}
 
 						// see if it has a custom response model
 						String responseModelClass = null;
