@@ -662,7 +662,9 @@ public class ApiMethodParser {
 			// lookup the type from the doclet classes
 			customType = ParserHelper.findModel(this.classes, customTypeName);
 			if (customType == null) {
-				raiseCustomTypeNotFoundError(customTypeName);
+			    if (this.options.isLogDebug()) {
+			    	System.out.println("Warning: couldn't find model for customType {" + customTypeName + "}");
+				}
 			} else {
 				customType = firstNonNull(ApiModelParser.getReturnType(this.options, customType), customType);
 
