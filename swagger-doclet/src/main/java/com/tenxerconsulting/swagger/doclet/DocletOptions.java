@@ -15,7 +15,6 @@ import java.util.Properties;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tenxerconsulting.swagger.doclet.model.ApiAuthorizations;
-import com.tenxerconsulting.swagger.doclet.model.PathWrapper;
 import com.tenxerconsulting.swagger.doclet.parser.NamingConvention;
 import com.tenxerconsulting.swagger.doclet.parser.ParserHelper;
 import com.tenxerconsulting.swagger.doclet.parser.ResponseMessageSortMode;
@@ -85,13 +84,12 @@ public class DocletOptions {
 				parsedOptions.apiInfo = loadModelFromJson("-apiInfoFile", option[1], Info.class);
 
 			} else if (option[0].equals("-extraApiDeclarations")) {
-				List<PathWrapper> extraApiDeclarations = new ArrayList<>();
+				List<Path> extraApiDeclarations = new ArrayList<>();
 				String[] filePaths = option[1].split(",");
 				for (String filePath : filePaths) {
 					filePath = filePath.trim();
 					Path path = loadModelFromJson("-extraApiDeclarations", filePath, Path.class);
-					PathWrapper pathWrapper = new PathWrapper(path, 0, null);
-					extraApiDeclarations.add(pathWrapper);
+					extraApiDeclarations.add(path);
 				}
 				if (!extraApiDeclarations.isEmpty()) {
 					parsedOptions.extraApiDeclarations = extraApiDeclarations;
@@ -504,7 +502,7 @@ public class DocletOptions {
 
 	private Info apiInfo;
 
-	private List<PathWrapper> extraApiDeclarations;
+	private List<Path> extraApiDeclarations;
 
 	private Recorder recorder;
 	private Translator translator;
@@ -1763,7 +1761,7 @@ public class DocletOptions {
 	 * This gets the extraApiDeclarations
 	 * @return the extraApiDeclarations
 	 */
-	public List<PathWrapper> getExtraApiDeclarations() {
+	public List<Path> getExtraApiDeclarations() {
 		return this.extraApiDeclarations;
 	}
 
@@ -1771,7 +1769,7 @@ public class DocletOptions {
 	 * This sets the extraApiDeclarations
 	 * @param extraApiDeclarations the extraApiDeclarations to set
 	 */
-	public DocletOptions setExtraApiDeclarations(List<PathWrapper> extraApiDeclarations) {
+	public DocletOptions setExtraApiDeclarations(List<Path> extraApiDeclarations) {
 		this.extraApiDeclarations = extraApiDeclarations;
 		return this;
 	}

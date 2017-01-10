@@ -21,6 +21,7 @@ import com.tenxerconsulting.swagger.doclet.model.HttpMethod;
 import com.tenxerconsulting.swagger.doclet.DocletOptions;
 import com.tenxerconsulting.swagger.doclet.Recorder;
 import com.tenxerconsulting.swagger.doclet.ServiceDoclet;
+import io.swagger.models.Operation;
 import io.swagger.models.Path;
 import io.swagger.models.Scheme;
 import io.swagger.models.Swagger;
@@ -142,6 +143,7 @@ public class JaxRsAnnotationParser {
             io.swagger.models.Swagger swagger = new Swagger();
             swagger.setSwagger(SWAGGER_VERSION);
 
+            List<TagWrapper> tags = new ArrayList<>();
             LinkedHashMap<String, Path> declarations = null;
 
             // build up set of subresources
@@ -186,18 +188,18 @@ public class JaxRsAnnotationParser {
             }
 
             // parse with the v2 parser that supports endpoints of the same resource being spread across resource files
-            Map<String, PathWrapper> resourceToDeclaration = new HashMap<>();
+            Map<String, Path> resourceToDeclaration = new HashMap<>();
             for (ClassDoc classDoc : docletClasses) {
-                CrossClassApiParser classParser = new CrossClassApiParser(this.options, classDoc, docletClasses, subResourceClasses, typeClasses,
-                        SWAGGER_VERSION, this.options.getApiVersion(), this.options.getApiBasePath());
-                classParser.parse(resourceToDeclaration, swagger);
+                CrossClassApiParser classParser = new CrossClassApiParser(swagger, this.options, classDoc, docletClasses, subResourceClasses, typeClasses,
+                        tags, this.options.getApiVersion(), this.options.getApiBasePath());
+                classParser.parse(resourceToDeclaration);
             }
 
             if (this.options.isLogDebug()) {
                 System.out.println("After parse phase api declarations are: ");
-                for (Map.Entry<String, PathWrapper> entry : resourceToDeclaration.entrySet()) {
+                for (Map.Entry<String, Path> entry : resourceToDeclaration.entrySet()) {
                     System.out.println("Api Dec: path " + entry.getKey());
-                    for (Map.Entry<io.swagger.models.HttpMethod, io.swagger.models.Operation> opEntry : entry.getValue().getPath().getOperationMap().entrySet()) {
+                    for (Map.Entry<io.swagger.models.HttpMethod, io.swagger.models.Operation> opEntry : entry.getValue().getOperationMap().entrySet()) {
                         System.out.println("Api nick name:" + opEntry.getValue().getOperationId() + " method " + opEntry.getKey().toString());
                     }
                 }
@@ -209,33 +211,73 @@ public class JaxRsAnnotationParser {
 //				declarationColl.addAll(this.options.getExtraApiDeclarations());
 //			}
 
+            // set root path on any empty resources
+            for (Path path: resourceToDeclaration.values()) {
+                for (Operation op: path.getOperations()) {
+                    if (op.getTags().size() == 0) {
+                        op.addTag(this.options.getResourceRootPath());
+                    }
+                    if (op.getTags().contains("/")) {
+                        op.getTags().remove("/");
+                        op.addTag(this.options.getResourceRootPath());
+                    }
+                }
+            }
+            List<TagWrapper> tagsToRemove = new ArrayList<>();
+            for (TagWrapper tagWrapper: tags) {
+                if (tagWrapper.getTag().getName().equals("/")) {
+                    tagsToRemove.add(tagWrapper);
+                }
+            }
+
+            tags.removeAll(tagsToRemove);
+
             // merge the api declarations
 //			declarationColl = new ApiDeclarationMerger(SWAGGER_VERSION, this.options.getApiVersion(), this.options.getApiBasePath()).merge(declarationColl);
 
             declarations = new LinkedHashMap<>();
 
-            List<Map.Entry<String, PathWrapper>> sortedDeclarations = new LinkedList<>(resourceToDeclaration.entrySet());
+            List<TagWrapper> sortedTags = new LinkedList<>(tags);
+            List<Map.Entry<String, Path>> sortedDeclarations = new LinkedList<>(resourceToDeclaration.entrySet());
             // sort the api declarations if needed
             if (this.options.isSortResourcesByPriority()) {
 
-                Collections.sort(sortedDeclarations, new Comparator<Map.Entry<String, PathWrapper>>() {
+                Collections.sort(sortedTags, new Comparator<TagWrapper>() {
                     @Override
-                    public int compare(Map.Entry<String, PathWrapper> e1, Map.Entry<String, PathWrapper> e2) {
-                        return Integer.compare(e1.getValue().getPriority(), e2.getValue().getPriority());
+                    public int compare(TagWrapper t1, TagWrapper t2) {
+                        return Integer.compare(t1.getPriority(), t2.getPriority());
                     }
                 });
 
-            } else {
-                Collections.sort(sortedDeclarations, new Comparator<Map.Entry<String, PathWrapper>>() {
+            } else if (this.options.isSortResourcesByPath()){
+                Collections.sort(sortedTags, new Comparator<TagWrapper>() {
 
-                    public int compare(Map.Entry<String, PathWrapper> e1, Map.Entry<String, PathWrapper> e2) {
+                    @Override
+                    public int compare(TagWrapper t1, TagWrapper t2) {
+                        if (t1 == null || t1.getTag().getName() == null) {
+                            return -1;
+                        }
+                        return t1.getTag().getName().compareTo(t2.getTag().getName());
+                    }
+                });
+            }
+
+            // sort apis of each declaration
+            if (this.options.isSortApisByPath()) {
+                Collections.sort(sortedDeclarations, new Comparator<Map.Entry<String, Path>>() {
+                    @Override
+                    public int compare(Map.Entry<String, Path> e1, Map.Entry<String, Path> e2) {
                         return e1.getKey().compareTo(e2.getKey());
                     }
                 });
             }
 
-            for (Map.Entry<String, PathWrapper> entry : sortedDeclarations) {
-                declarations.put(entry.getKey(), entry.getValue().getPath());
+            for (Map.Entry<String, Path> entry : sortedDeclarations) {
+                declarations.put(entry.getKey(), entry.getValue());
+            }
+
+            for (TagWrapper tag: sortedTags) {
+                swagger.addTag(tag.getTag());
             }
 
             List<Scheme> schemes = new ArrayList<>();

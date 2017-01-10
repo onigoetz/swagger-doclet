@@ -1,6 +1,5 @@
 package com.tenxerconsulting.swagger.doclet.parser;
 
-import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.collect.Maps.uniqueIndex;
 
@@ -13,7 +12,6 @@ import com.sun.javadoc.Tag;
 import com.sun.javadoc.Type;
 import com.tenxerconsulting.swagger.doclet.DocletOptions;
 import com.tenxerconsulting.swagger.doclet.model.*;
-import com.tenxerconsulting.swagger.doclet.model.Operation;
 import io.swagger.models.*;
 import io.swagger.models.Swagger;
 
@@ -26,40 +24,43 @@ import io.swagger.models.Swagger;
  */
 public class CrossClassApiParser {
 
+    private final Swagger swagger;
     private final DocletOptions options;
     private final ClassDoc classDoc;
     private final Collection<ClassDoc> classes;
     private final String rootPath;
-    private final String swaggerVersion;
     private final String apiVersion;
     private final String basePath;
 
     private final Method parentMethod;
     private final List<ClassDoc> subResourceClasses;
     private final Collection<ClassDoc> typeClasses;
+    private final List<TagWrapper> tags;
 
     /**
      * This creates a CrossClassApiParser for top level parsing
      *
+     * @param swagger            Swagger object
      * @param options            The options for parsing
      * @param classDoc           The class doc
      * @param classes            The doclet classes to document
      * @param typeClasses        Extra type classes that can be used as generic parameters
      * @param subResourceClasses Sub resource doclet classes
-     * @param swaggerVersion     Swagger version
+     * @param tags               List of TagWrappers
      * @param apiVersion         Overall API version
      * @param basePath           Overall base path
      */
-    public CrossClassApiParser(DocletOptions options, ClassDoc classDoc, Collection<ClassDoc> classes, List<ClassDoc> subResourceClasses,
-                               Collection<ClassDoc> typeClasses, String swaggerVersion, String apiVersion, String basePath) {
+    public CrossClassApiParser(Swagger swagger, DocletOptions options, ClassDoc classDoc, Collection<ClassDoc> classes, List<ClassDoc> subResourceClasses,
+                               Collection<ClassDoc> typeClasses, List<TagWrapper> tags, String apiVersion, String basePath) {
         super();
+        this.swagger = swagger;
         this.options = options;
         this.classDoc = classDoc;
         this.classes = classes;
         this.typeClasses = typeClasses;
         this.subResourceClasses = subResourceClasses;
+        this.tags = tags;
         this.rootPath = ParserHelper.resolveClassPath(classDoc, options);
-        this.swaggerVersion = swaggerVersion;
         this.apiVersion = apiVersion;
         this.basePath = basePath;
         this.parentMethod = null;
@@ -68,27 +69,29 @@ public class CrossClassApiParser {
     /**
      * This creates a CrossClassApiParser for parsing a subresource
      *
+     * @param swagger            Swagger object
      * @param options            The options for parsing
      * @param classDoc           The class doc
      * @param classes            The doclet classes to document
      * @param typeClasses        Extra type classes that can be used as generic parameters
      * @param subResourceClasses Sub resource doclet classes
-     * @param swaggerVersion     Swagger version
+     * @param tags               List of tagWrappers
      * @param apiVersion         Overall API version
      * @param basePath           Overall base path
      * @param parentMethod       The parent method that "owns" this sub resource
      * @param parentResourcePath The parent resource path
      */
-    public CrossClassApiParser(DocletOptions options, ClassDoc classDoc, Collection<ClassDoc> classes, List<ClassDoc> subResourceClasses,
-                               Collection<ClassDoc> typeClasses, String swaggerVersion, String apiVersion, String basePath, Method parentMethod, String parentResourcePath) {
+    public CrossClassApiParser(Swagger swagger, DocletOptions options, ClassDoc classDoc, Collection<ClassDoc> classes, List<ClassDoc> subResourceClasses,
+                               Collection<ClassDoc> typeClasses, List<TagWrapper> tags, String apiVersion, String basePath, Method parentMethod, String parentResourcePath) {
         super();
+        this.swagger = swagger;
         this.options = options;
         this.classDoc = classDoc;
         this.classes = classes;
         this.typeClasses = typeClasses;
         this.subResourceClasses = subResourceClasses;
+        this.tags = tags;
         this.rootPath = parentResourcePath + ParserHelper.resolveClassPath(classDoc, options);
-        this.swaggerVersion = swaggerVersion;
         this.apiVersion = apiVersion;
         this.basePath = basePath;
         this.parentMethod = parentMethod;
@@ -108,7 +111,7 @@ public class CrossClassApiParser {
      *
      * @param declarations The map of resource name to declaration which will be added to
      */
-    public void parse(Map<String, PathWrapper> declarations, Swagger swagger) {
+    public void parse(Map<String, Path> declarations) {
 
         Collection<ClassDoc> allClasses = new ArrayList<ClassDoc>();
         allClasses.addAll(this.classes);
@@ -202,17 +205,17 @@ public class CrossClassApiParser {
                             Collection<ClassDoc> shrunkClasses = new ArrayList<ClassDoc>(this.classes);
                             shrunkClasses.remove(currentClassDoc);
                             // recursively parse the sub-resource class
-                            CrossClassApiParser subResourceParser = new CrossClassApiParser(this.options, subResourceClassDoc, shrunkClasses,
-                                    this.subResourceClasses, this.typeClasses, this.swaggerVersion, this.apiVersion, this.basePath, parsedMethod, resourcePath);
-                            subResourceParser.parse(declarations, swagger);
+                            CrossClassApiParser subResourceParser = new CrossClassApiParser(this.swagger, this.options, subResourceClassDoc, shrunkClasses,
+                                    this.subResourceClasses, this.typeClasses, this.tags, this.apiVersion, this.basePath, parsedMethod, resourcePath);
+                            subResourceParser.parse(declarations);
                         }
                         continue;
                     }
 
-                    PathWrapper pathWrapper = declarations.get(parsedMethod.getPath());
-                    if (pathWrapper == null) {
-                        pathWrapper = new PathWrapper(new Path(), Integer.MAX_VALUE, null);
-                        declarations.put(parsedMethod.getPath(), pathWrapper);
+                    Path path = declarations.get(parsedMethod.getPath());
+                    if (path == null) {
+                        path = new Path();
+                        declarations.put(parsedMethod.getPath(), path);
                         if (this.options.isLogDebug()) {
                             System.out.println("creating new api path for method: " + method.name());
                         }
@@ -223,18 +226,23 @@ public class CrossClassApiParser {
                     }
 
                     // look for a priority tag for the resource listing and set on the resource if the resource hasn't had one set
-                    setApiPriority(classResourcePriority, method, currentClassDoc, pathWrapper);
+                    int tagPriority = getTagPriority(classResourcePriority, method);
 
                     // look for a method level description tag for the resource listing and set on the resource if the resource hasn't had one set
-                    setApiDeclarationDescription(classResourceDescription, method, pathWrapper);
+                    String tagDescription = getTagDescription(classResourceDescription, method);
 
                     // find api this method should be added to
-                    addOperation(parsedMethod, pathWrapper, resourcePath);
+                    addOperation(parsedMethod, path, resourcePath);
 
                     // add Tag to Swagger object. This is referenced in the Operation Object and is used to layout the apis
                     io.swagger.models.Tag tag = new io.swagger.models.Tag();
                     tag.name(resourcePath);
-                    swagger.addTag(tag);
+                    tag.description(tagDescription);
+                    TagWrapper tagWrapper = new TagWrapper(tag, tagPriority);
+
+                    if (!tags.contains(tagWrapper)) {
+                        this.tags.add(new TagWrapper(tag, tagPriority));
+                    }
 
                     // add models
                     Set<ModelWrapper> methodModels = methodParser.models();
@@ -330,8 +338,8 @@ public class CrossClassApiParser {
         return idToModels;
     }
 
-    private void setApiPriority(String classResourcePriority, MethodDoc method, ClassDoc currentClassDoc, PathWrapper path) {
-        int priorityVal = Integer.MAX_VALUE;
+    private int getTagPriority(String classResourcePriority, MethodDoc method) {
+        int priorityVal = 0;
         String priority = ParserHelper.getInheritableTagValue(method, this.options.getResourcePriorityTags(), this.options);
         if (priority != null) {
             priorityVal = Integer.parseInt(priority);
@@ -340,22 +348,18 @@ public class CrossClassApiParser {
             priorityVal = Integer.parseInt(classResourcePriority);
         }
 
-        if (priorityVal != Integer.MAX_VALUE && path.getPriority() == Integer.MAX_VALUE) {
-            path.setPriority(priorityVal);
-        }
+        return priorityVal;
     }
 
-    private void setApiDeclarationDescription(String classResourceDescription, MethodDoc method, PathWrapper path) {
+    private String getTagDescription(String classResourceDescription, MethodDoc method) {
         String description = ParserHelper.getInheritableTagValue(method, this.options.getResourceDescriptionTags(), this.options);
         if (description == null) {
             description = classResourceDescription;
         }
-        if (description != null && path.getDescription() == null) {
-            path.setDescription(this.options.replaceVars(description));
-        }
+        return description;
     }
 
-    private void addOperation(Method method, PathWrapper pathWrapper, String tag) {
+    private void addOperation(Method method, Path path, String tag) {
         // read api level description
 //		String apiDescription = ParserHelper.getInheritableTagValue(cmethod, this.options.getApiDescriptionTags(), this.options);
 //
@@ -377,9 +381,9 @@ public class CrossClassApiParser {
         operation.deprecated(method.isDeprecated());
 
         if (parentMethod != null && parentMethod.getMethod() != null) {
-            pathWrapper.getPath().set(parentMethod.getMethod().name().toLowerCase(), operation);
+            path.set(parentMethod.getMethod().name().toLowerCase(), operation);
         } else {
-            pathWrapper.getPath().set(method.getMethod().name().toLowerCase(), operation);
+            path.set(method.getMethod().name().toLowerCase(), operation);
         }
 
     }
