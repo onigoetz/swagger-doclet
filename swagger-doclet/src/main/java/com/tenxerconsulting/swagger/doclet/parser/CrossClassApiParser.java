@@ -194,6 +194,12 @@ public class CrossClassApiParser {
                     // otherwise use the classResourceTag, falling back to the root path
                     String resourceTag = getResourceTag(this.classResourceTag, method);
 
+                    // look for a priority tag for the resource listing and set on the resource if the resource hasn't had one set
+                    int tagPriority = getTagPriority(this.classResourcePriority, method);
+
+                    // look for a method level description tag for the resource listing and set on the resource if the resource hasn't had one set
+                    String tagDescription = getTagDescription(this.classResourceDescription, method);
+
                     if (parsedMethod.isSubResource()) {
                         if (this.options.isLogDebug()) {
                             System.out.println("parsing method: " + method.name() + " as a subresource");
@@ -211,8 +217,8 @@ public class CrossClassApiParser {
                             shrunkClasses.remove(currentClassDoc);
                             // recursively parse the sub-resource class
                             CrossClassApiParser subResourceParser = new CrossClassApiParser(this.swagger, this.options, subResourceClassDoc, shrunkClasses,
-                                    this.subResourceClasses, this.typeClasses, this.tags, parsedMethod, parsedMethod.getPath(), this.classResourceTag,
-                                    this.classResourcePriority, this.classResourceDescription);
+                                    this.subResourceClasses, this.typeClasses, this.tags, parsedMethod, parsedMethod.getPath(), resourceTag,
+                                    String.valueOf(tagPriority), tagDescription);
                             subResourceParser.parse(declarations);
                         }
                         continue;
@@ -231,11 +237,7 @@ public class CrossClassApiParser {
                         }
                     }
 
-                    // look for a priority tag for the resource listing and set on the resource if the resource hasn't had one set
-                    int tagPriority = getTagPriority(this.classResourcePriority, method);
 
-                    // look for a method level description tag for the resource listing and set on the resource if the resource hasn't had one set
-                    String tagDescription = getTagDescription(this.classResourceDescription, method);
 
                     // find api this method should be added to
                     addOperation(parsedMethod, path, resourceTag);
@@ -297,29 +299,28 @@ public class CrossClassApiParser {
     }
 
     private String getResourceTag(String classResourceTag, MethodDoc method) {
-        String resourcePath = getRootPath();
+        String resourceTag = getRootPath();
         if (classResourceTag != null) {
-            resourcePath = classResourceTag;
+            resourceTag = classResourceTag;
         }
 
         if (this.options.getResourceTags() != null) {
-            for (String resourceTag : this.options.getResourceTags()) {
-                Tag[] tags = method.tags(resourceTag);
+            for (String javadocResourceTag : this.options.getResourceTags()) {
+                Tag[] tags = method.tags(javadocResourceTag);
                 if (tags != null && tags.length > 0) {
-                    resourcePath = tags[0].text();
-                    resourcePath = resourcePath.toLowerCase();
-                    resourcePath = resourcePath.trim().replace(" ", "_");
+                    resourceTag = tags[0].text();
+                    resourceTag = resourceTag.trim().replace(" ", "_");
                     break;
                 }
             }
         }
 
         // sanitize the path and ensure it starts with /
-        if (resourcePath != null) {
-            resourcePath = ParserHelper.sanitizePath(resourcePath);
+        if (resourceTag != null) {
+            resourceTag = ParserHelper.sanitizePath(resourceTag);
         }
 
-        return resourcePath;
+        return resourceTag;
     }
 
     private Map<String, ModelWrapper> addApiModels(Set<ModelWrapper> classModels, Set<ModelWrapper> methodModels, MethodDoc method) {
