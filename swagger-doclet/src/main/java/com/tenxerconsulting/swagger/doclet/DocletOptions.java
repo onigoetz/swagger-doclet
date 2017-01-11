@@ -661,6 +661,7 @@ public class DocletOptions {
 		this.paramsAllowableValuesTags.add("allowableValues");
 
 		this.resourceTags = new ArrayList<String>();
+		this.resourceTags.add("resourceTag");
 		this.resourceTags.add("parentEndpointName");
 		this.resourceTags.add("resourcePath");
 		this.resourceTags.add("resource");

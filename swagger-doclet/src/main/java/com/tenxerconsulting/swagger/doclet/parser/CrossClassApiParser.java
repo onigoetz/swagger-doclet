@@ -35,6 +35,10 @@ public class CrossClassApiParser {
     private final Collection<ClassDoc> typeClasses;
     private final List<TagWrapper> tags;
 
+    private String classResourceTag = null;
+    private String classResourcePriority = null;
+    private String classResourceDescription = null;
+
     /**
      * This creates a CrossClassApiParser for top level parsing
      *
@@ -71,10 +75,11 @@ public class CrossClassApiParser {
      * @param subResourceClasses Sub resource doclet classes
      * @param tags               List of tagWrappers
      * @param parentMethod       The parent method that "owns" this sub resource
-     * @param parentResourcePath The parent resource path
+     * @param parentPath         The parent path
      */
     public CrossClassApiParser(Swagger swagger, DocletOptions options, ClassDoc classDoc, Collection<ClassDoc> classes, List<ClassDoc> subResourceClasses,
-                               Collection<ClassDoc> typeClasses, List<TagWrapper> tags, Method parentMethod, String parentResourcePath) {
+                               Collection<ClassDoc> typeClasses, List<TagWrapper> tags, Method parentMethod, String parentPath, String classResourceTag,
+                               String classResourcePriority, String classResourceDescription) {
         super();
         this.swagger = swagger;
         this.options = options;
@@ -83,7 +88,10 @@ public class CrossClassApiParser {
         this.typeClasses = typeClasses;
         this.subResourceClasses = subResourceClasses;
         this.tags = tags;
-        this.rootPath = parentResourcePath + ParserHelper.resolveClassPath(classDoc, options);
+        this.classResourceTag = classResourceTag;
+        this.classResourcePriority = classResourcePriority;
+        this.classResourceDescription = classResourceDescription;
+        this.rootPath = parentPath + ParserHelper.resolveClassPath(classDoc, options);
         this.parentMethod = parentMethod;
     }
 
@@ -143,10 +151,17 @@ public class CrossClassApiParser {
                 classModels.addAll(new ApiModelParser(this.options, this.options.getTranslator(), defaultErrorType, null, this.classes).parse());
             }
 
-            // read class level resource path, priority and description
-            String classResourcePath = ParserHelper.getInheritableTagValue(currentClassDoc, this.options.getResourceTags(), this.options);
-            String classResourcePriority = ParserHelper.getInheritableTagValue(currentClassDoc, this.options.getResourcePriorityTags(), this.options);
-            String classResourceDescription = ParserHelper.getInheritableTagValue(currentClassDoc, this.options.getResourceDescriptionTags(), this.options);
+            // read class level resource tag, priority and description
+            // if classResourceTag isn't null, then a subclass has already set the classResourceTag.
+            if (this.classResourceTag == null) {
+                this.classResourceTag = ParserHelper.getInheritableTagValue(currentClassDoc, this.options.getResourceTags(), this.options);
+            }
+            if (this.classResourcePriority == null) {
+                this.classResourcePriority = ParserHelper.getInheritableTagValue(currentClassDoc, this.options.getResourcePriorityTags(), this.options);
+            }
+            if (this.classResourceDescription == null) {
+                this.classResourceDescription = ParserHelper.getInheritableTagValue(currentClassDoc, this.options.getResourceDescriptionTags(), this.options);
+            }
 
             // check if its a sub resource
             boolean isSubResourceClass = this.subResourceClasses != null && this.subResourceClasses.contains(currentClassDoc);
@@ -175,9 +190,9 @@ public class CrossClassApiParser {
                         continue;
                     }
 
-                    // see which resource path to use for the method, if its got a resourceTag then use that
-                    // otherwise use the root path
-                    String resourcePath = buildResourcePath(classResourcePath, method);
+                    // see which resource tag to use for the method, if its got a resourceTag then use that
+                    // otherwise use the classResourceTag, falling back to the root path
+                    String resourceTag = getResourceTag(this.classResourceTag, method);
 
                     if (parsedMethod.isSubResource()) {
                         if (this.options.isLogDebug()) {
@@ -196,7 +211,8 @@ public class CrossClassApiParser {
                             shrunkClasses.remove(currentClassDoc);
                             // recursively parse the sub-resource class
                             CrossClassApiParser subResourceParser = new CrossClassApiParser(this.swagger, this.options, subResourceClassDoc, shrunkClasses,
-                                    this.subResourceClasses, this.typeClasses, this.tags, parsedMethod, resourcePath);
+                                    this.subResourceClasses, this.typeClasses, this.tags, parsedMethod, parsedMethod.getPath(), this.classResourceTag,
+                                    this.classResourcePriority, this.classResourceDescription);
                             subResourceParser.parse(declarations);
                         }
                         continue;
@@ -216,17 +232,17 @@ public class CrossClassApiParser {
                     }
 
                     // look for a priority tag for the resource listing and set on the resource if the resource hasn't had one set
-                    int tagPriority = getTagPriority(classResourcePriority, method);
+                    int tagPriority = getTagPriority(this.classResourcePriority, method);
 
                     // look for a method level description tag for the resource listing and set on the resource if the resource hasn't had one set
-                    String tagDescription = getTagDescription(classResourceDescription, method);
+                    String tagDescription = getTagDescription(this.classResourceDescription, method);
 
                     // find api this method should be added to
-                    addOperation(parsedMethod, path, resourcePath);
+                    addOperation(parsedMethod, path, resourceTag);
 
                     // add Tag to Swagger object. This is referenced in the Operation Object and is used to layout the apis
                     io.swagger.models.Tag tag = new io.swagger.models.Tag();
-                    tag.name(resourcePath);
+                    tag.name(resourceTag);
                     tag.description(tagDescription);
                     TagWrapper tagWrapper = new TagWrapper(tag, tagPriority);
 
@@ -280,10 +296,10 @@ public class CrossClassApiParser {
 
     }
 
-    private String buildResourcePath(String classResourcePath, MethodDoc method) {
+    private String getResourceTag(String classResourceTag, MethodDoc method) {
         String resourcePath = getRootPath();
-        if (classResourcePath != null) {
-            resourcePath = classResourcePath;
+        if (classResourceTag != null) {
+            resourcePath = classResourceTag;
         }
 
         if (this.options.getResourceTags() != null) {
@@ -301,10 +317,6 @@ public class CrossClassApiParser {
         // sanitize the path and ensure it starts with /
         if (resourcePath != null) {
             resourcePath = ParserHelper.sanitizePath(resourcePath);
-
-            if (!resourcePath.startsWith("/")) {
-                resourcePath = "/" + resourcePath;
-            }
         }
 
         return resourcePath;
