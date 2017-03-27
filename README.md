@@ -526,7 +526,7 @@ These are the options that you may want to use to add additional functionality o
 {
     "title": "Carma APIs",
     "description": "<p>This is an interactive API reference for the Carma APIs.</p><p>Below you will see the main sections of the API. Click each section in order to see the endpoints that are available in that category and use the 'Try it out' button to make API calls.</p><p>For endpoints that require authentication you can click the on/off toggle in the top right of the endpoint description, which will take you to a login form.</p><p>If you have not set up a Carma user account already you can do so <a href='https://rtr-dev.car.ma/login' target='_blank'>here</a>.",
-    "termsOfServiceUrl": "https://api-dev.car.ma/apidoc/terms.action",
+    "termsOfService": "https://api-dev.car.ma/apidoc/terms.action",
     "contact": "carma-apis@car.ma"
 }
 	</pre></code>
@@ -548,7 +548,7 @@ These are the options that you may want to use to add additional functionality o
                     "nickname": "getTokenPasswordFlow",
                     "type": "Token",
                     "summary": "Password Authentication",
-                    "notes": "This is the Oauth 2.0 Password flow which allows you to provide your client application credentials and the user's login credentials and receive back an Oauth token for the user. This is only available to certain trusted clients.",
+                    "description": "This is the Oauth 2.0 Password flow which allows you to provide your client application credentials and the user's login credentials and receive back an Oauth token for the user. This is only available to certain trusted clients.",
                     "parameters": [
                         {
                             "paramType": "query",
@@ -768,7 +768,7 @@ You can also inspect the generated json:
 ```
 $ curl localhost:7070/apidocs/service.json
 {
-  "swaggerVersion" : "1.2",
+  "swagger" : "1.2",
   "apiVersion" : "1",
   "basePath" : "http://127.0.0.1:7070/apidocs",
   "apis" : [ {
