@@ -285,7 +285,10 @@ public class JaxRsAnnotationParser {
                 schemes.add(Scheme.forValue(s));
             }
 
-            this.options.getApiInfo().setVersion(this.options.getApiVersion());
+            if (null != this.options.getApiInfo() && null != this.options.getApiVersion()) {
+                this.options.getApiInfo().setVersion(this.options.getApiVersion());
+            }
+
 
             swagger.paths(declarations);
             swagger.setSchemes(schemes);
