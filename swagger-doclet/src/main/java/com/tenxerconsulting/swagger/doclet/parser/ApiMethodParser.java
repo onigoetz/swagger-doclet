@@ -153,8 +153,10 @@ public class ApiMethodParser {
 
 			response.setDescription(responseMessage.getMessage());
 
-			io.swagger.models.properties.Property property = new RefProperty(RefType.DEFINITION.getInternalPrefix() + responseMessage.getResponseModel());
-			response.setSchema(property);
+			if (null != responseMessage.getResponseModel()) {
+				io.swagger.models.properties.Property property = new RefProperty(RefType.DEFINITION.getInternalPrefix() + responseMessage.getResponseModel());
+				response.setSchema(property);
+			}
 
 			responseMap.put(String.valueOf(responseMessage.getCode()), response);
 		}
@@ -435,12 +437,12 @@ public class ApiMethodParser {
 						if (matcher.groupCount() > 2) {
 							responseModelClass = ParserHelper.trimLeadingChars(matcher.group(3), '`');
 						}
-						// for errors, if no custom one use the method level one if there is one
-						if (statusCode >= 400) {
+						// If no custom one use the method level one if there is one
+						if (statusCode >= 200) {
 							if (responseModelClass == null) {
 								responseModelClass = this.methodDefaultErrorType;
 							}
-							// for errors, if no custom one use the class level one if there is one
+							// If no custom one use the class level one if there is one
 							if (responseModelClass == null) {
 								responseModelClass = this.classDefaultErrorType;
 							}
