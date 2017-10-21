@@ -694,7 +694,7 @@ public class ParserHelper {
      * @return True if this is an array
      */
     public static boolean isArray(String javaType) {
-        return javaType.endsWith("[]");
+        return (javaType.equals("array") || javaType.endsWith("[]"));
     }
 
     private static Map<String, Boolean> COLLECTION_TYPES = new HashMap<String, Boolean>();
