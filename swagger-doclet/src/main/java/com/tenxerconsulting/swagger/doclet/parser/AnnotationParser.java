@@ -128,30 +128,32 @@ public class AnnotationParser {
 	/**
 	 * This gets the values of an annotation as strings
 	 * @param qualifiedAnnotationType The FQN of the annotation
-	 * @param key The field name of the annotation to get
+     * @param keys The name of the attribute(s) of the annotation to get the value of
 	 * @return The values or null if none were found
 	 */
-	public String[] getAnnotationValues(String qualifiedAnnotationType, String key) {
+	public String[] getAnnotationValues(String qualifiedAnnotationType, String... keys) {
 		AnnotationDesc annotation = getAnnotation(qualifiedAnnotationType, false);
 		if (annotation == null) {
 			return null;
 		}
 		for (AnnotationDesc.ElementValuePair evp : annotation.elementValues()) {
-			if (evp.element().name().equals(key)) {
-				Object val = evp.value().value();
-				AnnotationValue[] vals = (AnnotationValue[]) val;
-				if (vals != null && vals.length > 0) {
-					String[] res = new String[vals.length];
-					int i = 0;
-					for (AnnotationValue annotationVal : vals) {
-						String str = annotationVal.value().toString().trim();
-						str = this.options.replaceVars(str);
-						res[i] = str;
-						i++;
-					}
-					return res;
-				}
-			}
+            for (String key : keys) {
+    			if (evp.element().name().equals(key)) {
+    				Object val = evp.value().value();
+    				AnnotationValue[] vals = (AnnotationValue[]) val;
+    				if (vals != null && vals.length > 0) {
+    					String[] res = new String[vals.length];
+    					int i = 0;
+    					for (AnnotationValue annotationVal : vals) {
+    						String str = annotationVal.value().toString().trim();
+    						str = this.options.replaceVars(str);
+    						res[i] = str;
+    						i++;
+    					}
+    					return res;
+    				}
+    			}
+            }
 		}
 		return null;
 	}
