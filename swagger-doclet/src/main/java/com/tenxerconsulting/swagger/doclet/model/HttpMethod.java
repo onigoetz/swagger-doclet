@@ -2,7 +2,6 @@ package com.tenxerconsulting.swagger.doclet.model;
 
 import java.util.List;
 
-import com.fasterxml.jackson.dataformat.yaml.snakeyaml.parser.Parser;
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.ExecutableMemberDoc;
 import com.tenxerconsulting.swagger.doclet.DocletOptions;

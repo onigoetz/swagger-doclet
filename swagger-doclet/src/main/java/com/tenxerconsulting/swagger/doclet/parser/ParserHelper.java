@@ -760,7 +760,7 @@ public class ParserHelper {
         return (javaType.equals("array") || javaType.endsWith("[]"));
     }
 
-    private static Map<String, Boolean> COLLECTION_TYPES = new HashMap<String, Boolean>();
+    private static final Map<String, Boolean> COLLECTION_TYPES = new HashMap<String, Boolean>();
 
     /**
      * This gets whether the given type is a Collection
@@ -775,16 +775,16 @@ public class ParserHelper {
         try {
             Class<?> clazz = lookupClass(javaType);
             boolean res = java.util.Collection.class.isAssignableFrom(clazz);
-            if (res) {
+//            if (res) {
                 COLLECTION_TYPES.put(javaType, res);
-            }
+//            }
             return res;
         } catch (ClassNotFoundException ex) {
             return false;
         }
     }
 
-    private static Map<String, Boolean> MAP_TYPES = new HashMap<String, Boolean>();
+    private static final Map<String, Boolean> MAP_TYPES = new HashMap<String, Boolean>();
 
     /**
      * This gets whether the given type is a Map
@@ -799,9 +799,9 @@ public class ParserHelper {
         try {
             Class<?> clazz = lookupClass(javaType);
             boolean res = java.util.Map.class.isAssignableFrom(clazz);
-            if (res) {
+//            if (res) {
                 MAP_TYPES.put(javaType, res);
-            }
+//            }
             return res;
         } catch (ClassNotFoundException ex) {
             return false;

@@ -749,7 +749,7 @@ public class ApiMethodParser {
             return true;
         }
 
-        // include if it has a jaxrs annotation
+        // include if it has a Spring MVC annotation
         if (ParserHelper.hasSpringMvcAnnotation(parameter, this.options)) {
             return true;
         }
