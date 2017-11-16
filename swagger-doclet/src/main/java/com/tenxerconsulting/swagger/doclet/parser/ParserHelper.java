@@ -775,9 +775,7 @@ public class ParserHelper {
         try {
             Class<?> clazz = lookupClass(javaType);
             boolean res = java.util.Collection.class.isAssignableFrom(clazz);
-//            if (res) {
-                COLLECTION_TYPES.put(javaType, res);
-//            }
+            COLLECTION_TYPES.put(javaType, res);
             return res;
         } catch (ClassNotFoundException ex) {
             return false;
@@ -799,9 +797,7 @@ public class ParserHelper {
         try {
             Class<?> clazz = lookupClass(javaType);
             boolean res = java.util.Map.class.isAssignableFrom(clazz);
-//            if (res) {
-                MAP_TYPES.put(javaType, res);
-//            }
+            MAP_TYPES.put(javaType, res);
             return res;
         } catch (ClassNotFoundException ex) {
             return false;
@@ -861,15 +857,11 @@ public class ParserHelper {
      */
     public static String paramTypeOf(boolean returnDefault, boolean multipart, ProgramElementDoc paramMember, Type type, DocletOptions options) {
         AnnotationParser p = new AnnotationParser(paramMember, options);
-        if (p.isAnnotatedBy(JAX_RS_PATH_PARAM)) {
-            return "path";
-        } else if (p.isAnnotatedBy(SPRING_MVC_PATH_VARIABLE)) {
+        if (p.isAnnotatedBy(JAX_RS_PATH_PARAM) || p.isAnnotatedBy(SPRING_MVC_PATH_VARIABLE)) {
             return "path";
         } else if (p.isAnnotatedBy(JAX_RS_HEADER_PARAM)) {
             return "header";
-        } else if (p.isAnnotatedBy(JAX_RS_QUERY_PARAM)) {
-            return "query";
-        } else if (p.isAnnotatedBy(SPRING_MVC_REQUEST_PARAM)) {
+        } else if (p.isAnnotatedBy(JAX_RS_QUERY_PARAM) || p.isAnnotatedBy(SPRING_MVC_REQUEST_PARAM)) {
             return "query";
         } else if (p.isAnnotatedBy(JAX_RS_FORM_PARAM)) {
             return "form";
@@ -925,15 +917,11 @@ public class ParserHelper {
      */
     public static String paramTypeOf(boolean multipart, Parameter parameter, DocletOptions options) {
         AnnotationParser p = new AnnotationParser(parameter, options);
-        if (p.isAnnotatedBy(JAX_RS_PATH_PARAM)) {
-            return "path";
-        } else if (p.isAnnotatedBy(SPRING_MVC_PATH_VARIABLE)) { 
+        if (p.isAnnotatedBy(JAX_RS_PATH_PARAM) || p.isAnnotatedBy(SPRING_MVC_PATH_VARIABLE)) {
             return "path";
         } else if (p.isAnnotatedBy(JAX_RS_HEADER_PARAM)) {
             return "header";
-        } else if (p.isAnnotatedBy(JAX_RS_QUERY_PARAM)) {
-            return "query";
-        } else if (p.isAnnotatedBy(SPRING_MVC_REQUEST_PARAM)) {
+        } else if (p.isAnnotatedBy(JAX_RS_QUERY_PARAM) || p.isAnnotatedBy(SPRING_MVC_REQUEST_PARAM)) {
             return "query";
         } else if (p.isAnnotatedBy(JAX_RS_FORM_PARAM)) {
             return "form";
