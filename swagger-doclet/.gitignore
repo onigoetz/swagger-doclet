@@ -1,0 +1,4 @@
+.classpath
+.project
+.settings/
+src/test/java/com/tenxerconsulting/swagger/doclet/DocletRunner.java

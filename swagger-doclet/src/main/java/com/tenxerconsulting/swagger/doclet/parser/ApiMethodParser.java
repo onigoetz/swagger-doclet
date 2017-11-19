@@ -71,7 +71,7 @@ public class ApiMethodParser {
 		this.parentPath = parentPath;
 		this.methodDoc = methodDoc;
 		this.models = new LinkedHashSet<>();
-		this.httpMethod = ParserHelper.resolveMethodHttpMethod(methodDoc);
+		this.httpMethod = ParserHelper.resolveMethodHttpMethod(methodDoc, options);
 		this.parentMethod = null;
 		this.classDefaultErrorType = classDefaultErrorType;
 		this.methodDefaultErrorType = ParserHelper.getInheritableTagValue(methodDoc, options.getDefaultErrorTypeTags(), options);
@@ -744,10 +744,15 @@ public class ApiMethodParser {
 			return false;
 		}
 
-		// include if it has a jaxrs annotation
-		if (ParserHelper.hasJaxRsAnnotation(parameter, this.options)) {
-			return true;
-		}
+        // include if it has a jaxrs annotation
+        if (ParserHelper.hasJaxRsAnnotation(parameter, this.options)) {
+            return true;
+        }
+
+        // include if it has a Spring MVC annotation
+        if (ParserHelper.hasSpringMvcAnnotation(parameter, this.options)) {
+            return true;
+        }
 
 		// include if there are either no annotations or its a put/post/patch
 		// this means for GET/HEAD/OPTIONS we don't include if it has some non jaxrs annotation on it

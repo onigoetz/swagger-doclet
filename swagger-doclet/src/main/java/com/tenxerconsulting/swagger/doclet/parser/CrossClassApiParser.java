@@ -122,7 +122,7 @@ public class CrossClassApiParser {
         if (this.rootPath.isEmpty()) {
             boolean methodFound = false;
             for (MethodDoc method : this.classDoc.methods()) {
-                if (ParserHelper.resolveMethodHttpMethod(method) != null) {
+                if (ParserHelper.resolveMethodHttpMethod(method, options) != null) {
                     methodFound = true;
                     break;
                 }
