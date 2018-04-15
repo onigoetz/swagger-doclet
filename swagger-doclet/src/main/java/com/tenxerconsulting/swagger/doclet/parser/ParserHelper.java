@@ -4,7 +4,6 @@ import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.collect.Lists.transform;
 import static java.util.Arrays.asList;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,7 +28,6 @@ import com.sun.javadoc.Type;
 import com.sun.javadoc.TypeVariable;
 import com.tenxerconsulting.swagger.doclet.DocletOptions;
 import com.tenxerconsulting.swagger.doclet.model.HttpMethod;
-import io.swagger.models.parameters.*;
 import io.swagger.models.properties.Property;
 import io.swagger.models.properties.PropertyBuilder;
 import io.swagger.models.properties.RefProperty;
@@ -46,6 +44,9 @@ public class ParserHelper {
     private static final String JAX_RS_QUERY_PARAM = "javax.ws.rs.QueryParam";
     private static final String JAX_RS_HEADER_PARAM = "javax.ws.rs.HeaderParam";
     private static final String JAX_RS_FORM_PARAM = "javax.ws.rs.FormParam";
+    
+    private static final String SPRING_MVC_PATH_VARIABLE = "org.springframework.web.bind.annotation.PathVariable";
+    private static final String SPRING_MVC_REQUEST_PARAM = "org.springframework.web.bind.annotation.RequestParam";
 
     private static final Set<String> _JAXRS_PARAM_ANNOTATIONS = new HashSet<String>();
 
@@ -55,6 +56,9 @@ public class ParserHelper {
         _JAXRS_PARAM_ANNOTATIONS.add(JAX_RS_QUERY_PARAM);
         _JAXRS_PARAM_ANNOTATIONS.add(JAX_RS_HEADER_PARAM);
         _JAXRS_PARAM_ANNOTATIONS.add(JAX_RS_FORM_PARAM);
+        
+        _JAXRS_PARAM_ANNOTATIONS.add(SPRING_MVC_PATH_VARIABLE);
+        _JAXRS_PARAM_ANNOTATIONS.add(SPRING_MVC_REQUEST_PARAM);
     }
 
     /**
@@ -63,13 +67,19 @@ public class ParserHelper {
     public static final Set<String> JAXRS_PARAM_ANNOTATIONS = Collections.unmodifiableSet(_JAXRS_PARAM_ANNOTATIONS);
 
     private static final String JAX_RS_ANNOTATION_PACKAGE = "javax.ws.rs";
+    private static final String SPRING_MVC_ANNOTATION_PACKAGE = "org.springframework.web.bind.annotation";
+
     private static final Set<String> JAX_RS_PREFIXES = new HashSet<String>();
+    private static final Set<String> SPRING_MVC_PREFIXES = new HashSet<String>();
 
     static {
         JAX_RS_PREFIXES.add(JAX_RS_ANNOTATION_PACKAGE);
+        SPRING_MVC_PREFIXES.add(SPRING_MVC_ANNOTATION_PACKAGE);
     }
 
     private static final String JAX_RS_PATH = "javax.ws.rs.Path";
+    
+    public static final String SPRING_MVC_REQUEST_MAPPING = "org.springframework.web.bind.annotation.RequestMapping";
 
     private static final String JAX_RS_CONSUMES = "javax.ws.rs.Consumes";
     private static final String JAX_RS_PRODUCES = "javax.ws.rs.Produces";
@@ -163,6 +173,35 @@ public class ParserHelper {
         }
         return null;
     }
+    
+    /**
+     * This gets an annotation value array from the given class, it supports looking at super classes
+     * @param classDoc The class to look for the annotation
+     * @param options The doclet options
+     * @param qualifiedAnnotationType The FQN of the annotation to look for
+     * @param keys The keys for the annotation values
+     * @return The value of the annotation or null if none was found
+     */
+    public static String[] getInheritableClassLevelAnnotationValues(ClassDoc classDoc, DocletOptions options, String qualifiedAnnotationType, String... keys) {
+        ClassDoc currentClassDoc = classDoc;
+        while (currentClassDoc != null) {
+
+            AnnotationParser p = new AnnotationParser(currentClassDoc, options);
+            String[] values = p.getAnnotationValues(qualifiedAnnotationType, keys);
+
+            if (values != null) {
+                return values;
+            }
+
+            currentClassDoc = currentClassDoc.superclass();
+            // ignore parent object class
+            if (!ParserHelper.hasAncestor(currentClassDoc)) {
+                break;
+            }
+        }
+        return null;
+    }
+   
 
     /**
      * This gets the default value of the given parameter
@@ -174,11 +213,16 @@ public class ParserHelper {
     public static String getDefaultValue(Parameter param, DocletOptions options) {
         AnnotationParser p = new AnnotationParser(param, options);
         String value = p.getAnnotationValue(JAX_RS_DEFAULT_VALUE, "value");
+        
+        if (value == null) {
+            value = p.getAnnotationValue(SPRING_MVC_REQUEST_PARAM, "defaultValue");
+        }
+        
         return value;
     }
 
     /**
-     * Resolves the @Path for the ClassDoc supporting inheritance
+     * Resolves the @Path or @ResourceMapping for the ClassDoc supporting inheritance
      *
      * @param classDoc The class to be processed
      * @param options  Doclet options
@@ -186,6 +230,16 @@ public class ParserHelper {
      */
     public static String resolveClassPath(ClassDoc classDoc, DocletOptions options) {
         String path = ParserHelper.getInheritableClassLevelAnnotationValue(classDoc, options, JAX_RS_PATH, "value");
+        
+        if (path == null) {
+            String[] paths = ParserHelper.getInheritableClassLevelAnnotationValues(classDoc, options, SPRING_MVC_REQUEST_MAPPING, "path", "value");
+            
+            if (paths != null && paths.length > 0) {
+                // FIXME Spring MVC supports multiple paths for one resource
+                path = paths[0];
+            }
+        }
+        
         return normalisePath(path);
     }
 
@@ -202,6 +256,15 @@ public class ParserHelper {
         while (path == null && methodDoc != null) {
             AnnotationParser p = new AnnotationParser(methodDoc, options);
             path = p.getAnnotationValue(JAX_RS_PATH, "value");
+            
+            if (path == null) {
+                String[] paths = p.getAnnotationValues(SPRING_MVC_REQUEST_MAPPING, "path", "value");
+                
+                if (paths != null && paths.length > 0) {
+                    // FIXME Spring MVC supports multiple paths for one resource
+                    path = paths[0];
+                }
+            }
             methodDoc = getAncestorMethod(methodDoc);
         }
         return normalisePath(path);
@@ -694,10 +757,10 @@ public class ParserHelper {
      * @return True if this is an array
      */
     public static boolean isArray(String javaType) {
-        return javaType.endsWith("[]");
+        return (javaType.equals("array") || javaType.endsWith("[]"));
     }
 
-    private static Map<String, Boolean> COLLECTION_TYPES = new HashMap<String, Boolean>();
+    private static final Map<String, Boolean> COLLECTION_TYPES = new HashMap<String, Boolean>();
 
     /**
      * This gets whether the given type is a Collection
@@ -712,16 +775,14 @@ public class ParserHelper {
         try {
             Class<?> clazz = lookupClass(javaType);
             boolean res = java.util.Collection.class.isAssignableFrom(clazz);
-            if (res) {
-                COLLECTION_TYPES.put(javaType, res);
-            }
+            COLLECTION_TYPES.put(javaType, res);
             return res;
         } catch (ClassNotFoundException ex) {
             return false;
         }
     }
 
-    private static Map<String, Boolean> MAP_TYPES = new HashMap<String, Boolean>();
+    private static final Map<String, Boolean> MAP_TYPES = new HashMap<String, Boolean>();
 
     /**
      * This gets whether the given type is a Map
@@ -736,9 +797,7 @@ public class ParserHelper {
         try {
             Class<?> clazz = lookupClass(javaType);
             boolean res = java.util.Map.class.isAssignableFrom(clazz);
-            if (res) {
-                MAP_TYPES.put(javaType, res);
-            }
+            MAP_TYPES.put(javaType, res);
             return res;
         } catch (ClassNotFoundException ex) {
             return false;
@@ -798,11 +857,11 @@ public class ParserHelper {
      */
     public static String paramTypeOf(boolean returnDefault, boolean multipart, ProgramElementDoc paramMember, Type type, DocletOptions options) {
         AnnotationParser p = new AnnotationParser(paramMember, options);
-        if (p.isAnnotatedBy(JAX_RS_PATH_PARAM)) {
+        if (p.isAnnotatedBy(JAX_RS_PATH_PARAM) || p.isAnnotatedBy(SPRING_MVC_PATH_VARIABLE)) {
             return "path";
         } else if (p.isAnnotatedBy(JAX_RS_HEADER_PARAM)) {
             return "header";
-        } else if (p.isAnnotatedBy(JAX_RS_QUERY_PARAM)) {
+        } else if (p.isAnnotatedBy(JAX_RS_QUERY_PARAM) || p.isAnnotatedBy(SPRING_MVC_REQUEST_PARAM)) {
             return "query";
         } else if (p.isAnnotatedBy(JAX_RS_FORM_PARAM)) {
             return "form";
@@ -858,11 +917,11 @@ public class ParserHelper {
      */
     public static String paramTypeOf(boolean multipart, Parameter parameter, DocletOptions options) {
         AnnotationParser p = new AnnotationParser(parameter, options);
-        if (p.isAnnotatedBy(JAX_RS_PATH_PARAM)) {
+        if (p.isAnnotatedBy(JAX_RS_PATH_PARAM) || p.isAnnotatedBy(SPRING_MVC_PATH_VARIABLE)) {
             return "path";
         } else if (p.isAnnotatedBy(JAX_RS_HEADER_PARAM)) {
             return "header";
-        } else if (p.isAnnotatedBy(JAX_RS_QUERY_PARAM)) {
+        } else if (p.isAnnotatedBy(JAX_RS_QUERY_PARAM) || p.isAnnotatedBy(SPRING_MVC_REQUEST_PARAM)) {
             return "query";
         } else if (p.isAnnotatedBy(JAX_RS_FORM_PARAM)) {
             return "form";
@@ -1105,10 +1164,21 @@ public class ParserHelper {
      */
     public static List<String> getConsumes(MethodDoc methodDoc, DocletOptions options) {
         List<String> methodLevel = listInheritableValues(methodDoc, JAX_RS_CONSUMES, "value", options);
+        
+        if (methodLevel == null) {
+            methodLevel = listInheritableValues(methodDoc, SPRING_MVC_REQUEST_MAPPING, "consumes", options);
+        }
+        
         if (methodLevel == null) {
             // look for class level
-            return listValues(methodDoc.containingClass(), JAX_RS_CONSUMES, "value", options);
+            methodLevel = listValues(methodDoc.containingClass(), JAX_RS_CONSUMES, "value", options);
         }
+        
+        if (methodLevel == null) {
+            // look for class level
+            methodLevel = listValues(methodDoc.containingClass(), SPRING_MVC_REQUEST_MAPPING, "consumes", options);
+        }
+        
         return methodLevel;
     }
 
@@ -1121,10 +1191,21 @@ public class ParserHelper {
      */
     public static List<String> getProduces(MethodDoc methodDoc, DocletOptions options) {
         List<String> methodLevel = listInheritableValues(methodDoc, JAX_RS_PRODUCES, "value", options);
+        
+        if (methodLevel == null) {
+            methodLevel = listInheritableValues(methodDoc, SPRING_MVC_REQUEST_MAPPING, "produces", options);
+        }
+        
         if (methodLevel == null) {
             // look for class level
-            return listValues(methodDoc.containingClass(), JAX_RS_PRODUCES, "value", options);
+            methodLevel = listValues(methodDoc.containingClass(), JAX_RS_PRODUCES, "value", options);
         }
+
+        if (methodLevel == null) {
+            // look for class level
+            methodLevel = listValues(methodDoc.containingClass(), SPRING_MVC_REQUEST_MAPPING, "produces", options);
+        }
+
         return methodLevel;
     }
 
@@ -1613,12 +1694,13 @@ public class ParserHelper {
      * Resolves HttpMethod for the MethodDoc respecting the overriden methods
      *
      * @param methodDoc The method to be processed
+     * @param options The options
      * @return The resolved HttpMethod
      */
-    public static HttpMethod resolveMethodHttpMethod(ExecutableMemberDoc methodDoc) {
+    public static HttpMethod resolveMethodHttpMethod(ExecutableMemberDoc methodDoc, DocletOptions options) {
         HttpMethod result = null;
         while (result == null && methodDoc != null) {
-            result = HttpMethod.fromMethod(methodDoc);
+            result = HttpMethod.fromMethod(methodDoc, options);
             methodDoc = getAncestorMethod(methodDoc);
         }
         return result;
@@ -1950,6 +2032,17 @@ public class ParserHelper {
      */
     public static boolean hasJaxRsAnnotation(Parameter item, DocletOptions options) {
         return hasAnnotationWithPrefix(item, JAX_RS_PREFIXES, options);
+    }
+
+    /**
+     * This gets whether the given parameter has a Sping MVC annotation
+     *
+     * @param item    The parameter
+     * @param options The doclet options
+     * @return True if the parameter has the given annotation
+     */
+    public static boolean hasSpringMvcAnnotation(Parameter item, DocletOptions options) {
+        return hasAnnotationWithPrefix(item, SPRING_MVC_PREFIXES, options);
     }
 
     /**
