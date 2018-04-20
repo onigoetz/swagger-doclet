@@ -63,6 +63,8 @@ public class DocletOptions {
 
 		DocletOptions parsedOptions = new DocletOptions();
 
+		boolean clearedDefaultSchemes = false;
+
 		// Object mapper settings
 		String serializationFeaturesCsv = null;
 		String deserializationFeaturesCsv = null;
@@ -122,6 +124,10 @@ public class DocletOptions {
 			} else if (option[0].equals("-host")) {
 				parsedOptions.host = option[1];
 			} else if (option[0].equals("-schemes")) {
+			    if (!clearedDefaultSchemes) {
+			    	parsedOptions.schemes.clear();
+			    	clearedDefaultSchemes = true;
+				}
 				parsedOptions.schemes.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-docBasePath")) {
 				parsedOptions.docBasePath = option[1];
