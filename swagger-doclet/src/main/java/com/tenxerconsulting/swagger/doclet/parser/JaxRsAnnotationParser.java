@@ -158,7 +158,8 @@ public class JaxRsAnnotationParser {
                     for (MethodDoc method : currentClassDoc.methods()) {
                         // if the method has @Path but no Http method then its an entry point to a sub resource
                         if (!ParserHelper.resolveMethodPath(method, this.options).isEmpty() && HttpMethod.fromMethod(method, options) == null) {
-                            ClassDoc subResourceClassDoc = classCache.findByType(method.returnType());
+                            String responseTypeTag = ParserHelper.responseTypeTagOf(method, this.options);
+                            ClassDoc subResourceClassDoc = responseTypeTag == null ? classCache.findByType(method.returnType()) : classCache.findByName(responseTypeTag);
                             // look for a custom return type, this is useful where we return a jaxrs Resource in the method signature
                             // which typically returns a different subResource object
                             if (subResourceClassDoc == null) {

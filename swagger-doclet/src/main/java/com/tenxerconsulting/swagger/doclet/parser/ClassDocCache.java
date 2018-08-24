@@ -59,4 +59,13 @@ public class ClassDocCache {
 		return null;
 	}
 
+	/**
+	 * This finds a class doc matching the given type name
+	 * @param type The type to find a matching class doc for
+	 * @return The class doc or null if none matched
+	 */
+	public ClassDoc findByName(String typeName) {
+		return this.typeNameToClass.get(typeName);
+	}
+
 }
