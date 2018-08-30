@@ -150,8 +150,26 @@ public class JaxRsAnnotationParser {
             // do simple parsing to find sub resource classes
             // these are ones referenced in the return types of methods
             // which have a path but no http method
+            // or classes w/o a class level @Path
             List<ClassDoc> subResourceClasses = new ArrayList<>();
             for (ClassDoc classDoc : docletClasses) {
+                if (ParserHelper.resolveClassPath(classDoc, this.options).isEmpty()) {
+                    for (MethodDoc method : classDoc.methods()) {
+                        if (ParserHelper.resolveMethodHttpMethod(method, options) != null) {
+                            if (!subResourceClasses.contains(classDoc)) {
+                                if (this.options.isLogDebug()) {
+                                    System.out.println("Adding return type as sub resource class : " + classDoc.name() + ". This resource class is missing a class level @Path");
+                                }
+
+                                subResourceClasses.add(classDoc);
+                            }
+                            break;
+                        }
+                    }
+
+                    continue;
+                }
+
                 ClassDoc currentClassDoc = classDoc;
                 while (currentClassDoc != null) {
 
@@ -167,12 +185,12 @@ public class JaxRsAnnotationParser {
                                 subResourceClassDoc = classCache.findByType(customType);
                             }
                             if (subResourceClassDoc != null) {
-                                if (this.options.isLogDebug()) {
-                                    System.out.println("Adding return type as sub resource class : " + subResourceClassDoc.name() + " for method "
-                                            + method.name() + " of referencing class " + currentClassDoc.name());
-                                }
-
                                 if (!subResourceClasses.contains(subResourceClassDoc)) {
+                                    if (this.options.isLogDebug()) {
+                                        System.out.println("Adding return type as sub resource class : " + subResourceClassDoc.name() + " for method "
+                                                + method.name() + " of referencing class " + currentClassDoc.name());
+                                    }
+
                                     subResourceClasses.add(subResourceClassDoc);
                                 }
                             }
@@ -213,8 +231,8 @@ public class JaxRsAnnotationParser {
 //			}
 
             // set root path on any empty resources
-            for (Path path: resourceToDeclaration.values()) {
-                for (Operation op: path.getOperations()) {
+            for (Path path : resourceToDeclaration.values()) {
+                for (Operation op : path.getOperations()) {
                     if (op.getTags().size() == 0) {
                         op.addTag(this.options.getResourceRootPath());
                     }
@@ -225,7 +243,7 @@ public class JaxRsAnnotationParser {
                 }
             }
             List<TagWrapper> tagsToRemove = new ArrayList<>();
-            for (TagWrapper tagWrapper: tags) {
+            for (TagWrapper tagWrapper : tags) {
                 if (tagWrapper.getTag().getName().equals("/")) {
                     tagsToRemove.add(tagWrapper);
                 }
@@ -250,7 +268,7 @@ public class JaxRsAnnotationParser {
                     }
                 });
 
-            } else if (this.options.isSortResourcesByPath()){
+            } else if (this.options.isSortResourcesByPath()) {
                 Collections.sort(sortedTags, new Comparator<TagWrapper>() {
 
                     @Override
@@ -277,7 +295,7 @@ public class JaxRsAnnotationParser {
                 declarations.put(entry.getKey(), entry.getValue());
             }
 
-            for (TagWrapper tag: sortedTags) {
+            for (TagWrapper tag : sortedTags) {
                 swagger.addTag(tag.getTag());
             }
 

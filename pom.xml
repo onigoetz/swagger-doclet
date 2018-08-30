@@ -5,7 +5,7 @@
 	<groupId>com.tenxerconsulting</groupId>
 	<artifactId>swagger-doclet-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>2.0.0-beta.1</version>
+	<version>2.0.0-beta.3</version>
 	<name>Swagger Doclet</name>
 	<url>https://github.com/conorroche/swagger-doclet</url>
 	<description>
@@ -26,8 +26,8 @@
 
 	<modules>
 		<module>swagger-doclet</module>
-		<module>swagger-doclet-sample-dropwizard</module>
-		<module>swagger-doclet-sample-jersey2</module>
+		<!--<module>swagger-doclet-sample-dropwizard</module>-->
+		<!--<module>swagger-doclet-sample-jersey2</module>-->
 	</modules>
 
 	<developers>
