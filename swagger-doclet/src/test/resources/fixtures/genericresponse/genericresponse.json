@@ -1,132 +1,241 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/genericresponse",
-    "apis": [
-        {
-            "path": "/genericresponse",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getParameterized",
-                    "type": "Parameterized"
-                },
-                {
-                    "method": "GET",
-                    "nickname": "getJResponse",
-                    "type": "string"
-                },
-                {
-                    "method": "GET",
-                    "nickname": "getOptional",
-                    "type": "Response",
-                    "parameters": [
-                        {
-                            "paramType": "query",
-                            "name": "name",
-                            "type": "string"
-                        }
-                    ]
-                },
-                {
-                    "method": "GET",
-                    "nickname": "getOptional2",
-                    "type": "Response",
-                    "parameters": [
-                        {
-                            "paramType": "query",
-                            "name": "name",
-                            "type": "integer",
-                            "format" : "int32"
-                        }
-                    ]
-                },
-                {
-                    "method": "GET",
-                    "nickname": "getIntMap",
-                    "type": "Map"
-                },
-                {
-                    "method": "GET",
-                    "nickname": "getParameterized2",
-                    "type": "Parameterized2"
-                },
-                {
-                    "method": "GET",
-                    "nickname": "getBatch",
-                    "type": "Batch"
-                },
-                {
-                    "method": "GET",
-                    "nickname": "getBatch2",
-                    "type": "Batch"
-                }
-            ]
-        }
-    ]
-    ,
-    "models": {
-        "Batch": {
-            "id": "Batch",
-            "properties": {
-                "items": {
-                    "type": "array",
-                    "uniqueItems": true,
-                    "items": {
-                        "$ref": "Item"
-                    }
-                },
-                "nextToken" : {
-                    "type": "string"
-                }
-            }
-        },
-        "Item": {
-            "id": "Item",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "desc": {
-                    "type": "string"
-                }
-            }
-        },
-        "Parameterized": {
-            "id": "Parameterized",
-            "properties": {
-            	"object": {
-                    "type": "Object"
-                },
-                "typed": {
-                    "type": "string"
-                },
-                "parameterizedChild": {
-                    "type": "Parameterized2"
-                },
-                "typedCol": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer",
-                        "format" : "int32"
-                    }
-                },
-                "rtype": {
-                    "type": "integer",
-                    "format" : "int32"
-                }
-            }
-        },
-        "Parameterized2": {
-            "id": "Parameterized2",
-            "properties": {
-                "typed": {
-                    "type": "integer",
-                    "format" : "int32"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
-    
+  ],
+  "tags": [
+    {
+      "name": "/genericresponse"
+    }
+  ],
+  "paths": {
+    "/genericresponse/getParameterized": {
+      "get": {
+        "tags": ["/genericresponse"],
+        "operationId": "getParameterized",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Parameterized"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/genericresponse/getJResponse": {
+      "get": {
+        "tags": ["/genericresponse"],
+        "operationId": "getJResponse",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/genericresponse/getOptional": {
+      "get": {
+        "tags": ["/genericresponse"],
+        "operationId": "getOptional",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/genericresponse/getOptional2": {
+      "get": {
+        "tags": ["/genericresponse"],
+        "operationId": "getOptional2",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/genericresponse/getIntMap": {
+      "get": {
+        "tags": ["/genericresponse"],
+        "operationId": "getIntMap",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Map"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/genericresponse/getParameterized2": {
+      "get": {
+        "tags": ["/genericresponse"],
+        "operationId": "getParameterized2",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Parameterized2"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/genericresponse/getBatch": {
+      "get": {
+        "tags": ["/genericresponse"],
+        "operationId": "getBatch",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Batch"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/genericresponse/getBatch2": {
+      "get": {
+        "tags": ["/genericresponse"],
+        "operationId": "getBatch2",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Batch"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Item": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "desc": {
+            "type": "string"
+          }
+        }
+      },
+      "Parameterized": {
+        "type": "object",
+        "properties": {
+          "object": {
+            "$ref": "#/components/schemas/Object"
+          },
+          "typed": {
+            "type": "string"
+          },
+          "parameterizedChild": {
+            "$ref": "#/components/schemas/Parameterized2"
+          },
+          "typedCol": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "rtype": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "Batch": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/components/schemas/Item"
+            }
+          },
+          "nextToken": {
+            "type": "string"
+          }
+        }
+      },
+      "Parameterized2": {
+        "type": "object",
+        "properties": {
+          "typed": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      }
+    }
+  }
 }

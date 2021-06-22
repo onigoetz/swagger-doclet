@@ -1,62 +1,90 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/submodel",
-    "apis": [
-        {
-            "path": "/submodel/bar",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getBar",
-                    "type": "Bar"
-                }
-            ]
-        },
-        {
-            "path": "/submodel/foo",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getFoo",
-                    "type": "Foo"
-                }
-            ]
-        }
-    ],
-    "models": {
-        "Foo": {
-            "id": "Foo",
-            "properties": {
-                "baz": {
-                    "type": "Foo-Baz"
-                }
-            }
-        },
-        "Bar": {
-            "id": "Bar",
-            "properties": {
-                "baz": {
-                    "type": "Bar-Baz"
-                }
-            }
-        },
-        "Foo-Baz": {
-            "id": "Foo-Baz",
-            "properties": {
-                "b": {
-                    "type": "string"
-                }
-            }
-        },
-        "Bar-Baz": {
-            "id": "Bar-Baz",
-            "properties": {
-                "a": {
-                    "type": "string"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/submodel"
+    }
+  ],
+  "paths": {
+    "/submodel/bar": {
+      "get": {
+        "tags": ["/submodel"],
+        "operationId": "getBar",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Bar"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/submodel/foo": {
+      "get": {
+        "tags": ["/submodel"],
+        "operationId": "getFoo",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Foo"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Bar": {
+        "type": "object",
+        "properties": {
+          "baz": {
+            "$ref": "#/components/schemas/Bar-Baz"
+          }
+        }
+      },
+      "Foo": {
+        "type": "object",
+        "properties": {
+          "baz": {
+            "$ref": "#/components/schemas/Foo-Baz"
+          }
+        }
+      },
+      "Foo-Baz": {
+        "type": "object",
+        "properties": {
+          "b": {
+            "type": "string"
+          }
+        }
+      },
+      "Bar-Baz": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
 }

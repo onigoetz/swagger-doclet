@@ -43,12 +43,7 @@ public class FirstNotNullTranslator implements Translator {
 	 * @see com.tenxerconsulting.swagger.doclet.translator.Translator#typeName(com.sun.javadoc.Type, boolean, com.sun.javadoc.ClassDoc[])
 	 */
 	public OptionalName typeName(Type type, boolean useFqn, ClassDoc[] views) {
-		return firstNotNullOf(new Function<Translator, OptionalName>() {
-
-			public OptionalName apply(Translator translator) {
-				return translator.typeName(type, useFqn, views);
-			}
-		});
+		return firstNotNullOf(translator -> translator.typeName(type, useFqn, views));
 	}
 
 	/**
@@ -57,12 +52,7 @@ public class FirstNotNullTranslator implements Translator {
 	 *      com.sun.javadoc.ClassDoc[])
 	 */
 	public OptionalName parameterTypeName(boolean multipart, Parameter parameter, Type paramType, boolean useFqn, ClassDoc[] views) {
-		return firstNotNullOf(new Function<Translator, OptionalName>() {
-
-			public OptionalName apply(Translator translator) {
-				return translator.parameterTypeName(multipart, parameter, paramType, useFqn, views);
-			}
-		});
+		return firstNotNullOf(translator -> translator.parameterTypeName(multipart, parameter, paramType, useFqn, views));
 	}
 
 	/**
@@ -70,12 +60,7 @@ public class FirstNotNullTranslator implements Translator {
 	 * @see com.tenxerconsulting.swagger.doclet.translator.Translator#typeName(com.sun.javadoc.Type, boolean)
 	 */
 	public OptionalName typeName(Type type, boolean useFqn) {
-		return firstNotNullOf(new Function<Translator, OptionalName>() {
-
-			public OptionalName apply(Translator translator) {
-				return translator.typeName(type, useFqn);
-			}
-		});
+		return firstNotNullOf(translator -> translator.typeName(type, useFqn));
 	}
 
 	/**
@@ -83,12 +68,7 @@ public class FirstNotNullTranslator implements Translator {
 	 * @see com.tenxerconsulting.swagger.doclet.translator.Translator#fieldName(com.sun.javadoc.FieldDoc)
 	 */
 	public OptionalName fieldName(final FieldDoc field) {
-		return firstNotNullOf(new Function<Translator, OptionalName>() {
-
-			public OptionalName apply(Translator translator) {
-				return translator.fieldName(field);
-			}
-		});
+		return firstNotNullOf(translator -> translator.fieldName(field));
 	}
 
 	/**
@@ -96,12 +76,7 @@ public class FirstNotNullTranslator implements Translator {
 	 * @see com.tenxerconsulting.swagger.doclet.translator.Translator#methodName(com.sun.javadoc.MethodDoc)
 	 */
 	public OptionalName methodName(final MethodDoc method) {
-		return firstNotNullOf(new Function<Translator, OptionalName>() {
-
-			public OptionalName apply(Translator translator) {
-				return translator.methodName(method);
-			}
-		});
+		return firstNotNullOf(translator -> translator.methodName(method));
 	}
 
 	private OptionalName firstNotNullOf(Function<Translator, OptionalName> function) {

@@ -1,28 +1,48 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/idwrapper",
-    "apis": [
-        {
-            "path": "/idwrapper",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "get",
-                    "type": "MyObject"
-                }
-            ]
-        }
-    ],
-    "models": {
-        "MyObject": {
-            "id": "MyObject",
-            "properties": {
-                "id": {
-                    "type": "string"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/idwrapper"
+    }
+  ],
+  "paths": {
+    "/idwrapper": {
+      "get": {
+        "tags": ["/idwrapper"],
+        "operationId": "get",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MyObject": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
 }

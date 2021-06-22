@@ -1,48 +1,62 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/measurements",
-    "apis": [
-        {
-            "path": "/measurements/query",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "fetchMeasurements",
-                    "type": "MeasurementsResult",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "query",
-                            "required": true,
-                            "type": "MeasurementsQuery"
-                        }
-                     ],
-                     "produces": [
-                    	"application/json"
-                     ],
-                     "consumes": [
-                    	"application/json"
-                     ]
-                }
-            ]
-        }
-    ]
-    ,
-    "models": {
-    	"MeasurementsQuery": {
-            "id": "MeasurementsQuery",
-            "properties": {
-                "extractor": {
-                    "type": "AggregationGroupExtractor"
-                }
-            }
-        },
-        "MeasurementsResult": {
-            "id": "MeasurementsResult",
-            "properties": {
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/measurements"
+    }
+  ],
+  "paths": {
+    "/measurements/query": {
+      "post": {
+        "tags": ["/measurements"],
+        "operationId": "fetchMeasurements",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MeasurementsQuery"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeasurementsResult"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "query"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MeasurementsQuery": {
+        "type": "object",
+        "properties": {
+          "extractor": {
+            "$ref": "#/components/schemas/AggregationGroupExtractor"
+          }
+        }
+      },
+      "MeasurementsResult": {
+        "type": "object"
+      }
+    }
+  }
 }

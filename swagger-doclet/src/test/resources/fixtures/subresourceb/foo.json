@@ -1,18 +1,29 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/foo",
-    "apis": [
-        {
-            "path": "/foo/bar/post",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "bar",
-                    "type": "void"
-                }
-            ]
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "/foo"
+    }
+  ],
+  "paths": {
+    "/foo/bar/post": {
+      "post": {
+        "tags": ["/foo"],
+        "operationId": "bar",
+        "responses": {
+          "default": {
+            "description": ""
+          }
         }
-    ]
+      }
+    }
+  }
 }

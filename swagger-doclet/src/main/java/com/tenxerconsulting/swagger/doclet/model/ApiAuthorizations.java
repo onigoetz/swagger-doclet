@@ -1,10 +1,15 @@
 package com.tenxerconsulting.swagger.doclet.model;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
 /**
  * The ApiAuthorizations represents the authorizations element for the API
  * @version $Id$
  * @author conor.roche
  */
+@EqualsAndHashCode
+@ToString
 public class ApiAuthorizations {
 
 	private ApiOauth2Authorization oauth2;
@@ -67,68 +72,4 @@ public class ApiAuthorizations {
 	public ApiKeyAuthorization getApiKey() {
 		return this.apiKey;
 	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((this.apiKey == null) ? 0 : this.apiKey.hashCode());
-		result = prime * result + ((this.basicAuth == null) ? 0 : this.basicAuth.hashCode());
-		result = prime * result + ((this.oauth2 == null) ? 0 : this.oauth2.hashCode());
-		return result;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		ApiAuthorizations other = (ApiAuthorizations) obj;
-		if (this.apiKey == null) {
-			if (other.apiKey != null) {
-				return false;
-			}
-		} else if (!this.apiKey.equals(other.apiKey)) {
-			return false;
-		}
-		if (this.basicAuth == null) {
-			if (other.basicAuth != null) {
-				return false;
-			}
-		} else if (!this.basicAuth.equals(other.basicAuth)) {
-			return false;
-		}
-		if (this.oauth2 == null) {
-			if (other.oauth2 != null) {
-				return false;
-			}
-		} else if (!this.oauth2.equals(other.oauth2)) {
-			return false;
-		}
-		return true;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return "ApiAuthorizations [oauth2=" + this.oauth2 + ", basicAuth=" + this.basicAuth + ", apiKey=" + this.apiKey + "]";
-	}
-
 }

@@ -1,140 +1,201 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/arrays",
-    "apis": [
-        {
-            "path": "/arrays/arrayofints",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "setArrayOfInts",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "type": "array",
-                            "items": {
-                                "type": "integer",
-                                "format": "int32"
-                            },
-                            "paramType": "body",
-                            "name": "items",
-                            "required": true
-                        }
-                    ]
-                },
-                {
-                    "method": "GET",
-                    "nickname": "getArrayOfInts",
-                    "type": "array",
-                    "items": {
-                        "type": "integer",
-                        "format": "int32"
-                    }
-                }
-            ]
-        },
-        {
-            "path": "/arrays/arrayofitems",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "setArrayOfItems",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "type": "array",
-                            "items": {
-                                "$ref": "arrayItem"
-                            },
-                            "paramType": "body",
-                            "name": "items",
-                            "required": true
-                        }
-                    ]
-                },
-                {
-                    "method": "GET",
-                    "nickname": "getArrayOfItems",
-                    "type": "array",
-                    "items": {
-                        "$ref": "arrayItem"
-                    }
-                }
-            ]
-        },
-        {
-            "path": "/arrays/arrayofstrings",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "setArrayOfStrings",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            },
-                            "paramType": "body",
-                            "name": "items",
-                            "required": true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/arrays/itemwitharrays",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "setItemWithArrays",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "type": "ItemWithArrays",
-                            "paramType": "body",
-                            "name": "item",
-                            "required": true
-                        }
-                    ]
-                },
-                {
-                    "method": "GET",
-                    "nickname": "getItemWithArrays",
-                    "type": "ItemWithArrays"
-                }
-            ]
-        }
-    ],
-    "models": {
-        "arrayItem": {
-            "id": "arrayItem",
-            "properties": {
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "ItemWithArrays": {
-            "id": "ItemWithArrays",
-            "properties": {
-                "intArray": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer",
-                        "format": "int32"
-                    }
-                },
-                "stringArray": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/arrays"
+    }
+  ],
+  "paths": {
+    "/arrays/arrayofstrings": {
+      "post": {
+        "tags": ["/arrays"],
+        "operationId": "setArrayOfStrings",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "items"
+      }
+    },
+    "/arrays/arrayofitems": {
+      "get": {
+        "tags": ["/arrays"],
+        "operationId": "getArrayOfItems",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/arrayItem"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/arrays"],
+        "operationId": "setArrayOfItems",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/arrayItem"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "items"
+      }
+    },
+    "/arrays/arrayofints": {
+      "get": {
+        "tags": ["/arrays"],
+        "operationId": "getArrayOfInts",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "format": "int32"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/arrays"],
+        "operationId": "setArrayOfInts",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "items"
+      }
+    },
+    "/arrays/itemwitharrays": {
+      "get": {
+        "tags": ["/arrays"],
+        "operationId": "getItemWithArrays",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemWithArrays"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/arrays"],
+        "operationId": "setItemWithArrays",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/ItemWithArrays"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "item"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "arrayItem": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "ItemWithArrays": {
+        "type": "object",
+        "properties": {
+          "intArray": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "stringArray": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
 }

@@ -1,0 +1,1484 @@
+{
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "/primitives/uuids"
+    },
+    {
+      "name": "/primitives/chars"
+    },
+    {
+      "name": "/primitives/booleans"
+    },
+    {
+      "name": "/primitives/bytes"
+    },
+    {
+      "name": "/primitives/shorts"
+    },
+    {
+      "name": "/primitives/ints"
+    },
+    {
+      "name": "/primitives/longs"
+    },
+    {
+      "name": "/primitives/floats"
+    },
+    {
+      "name": "/primitives/doubles"
+    },
+    {
+      "name": "/primitives/strings"
+    },
+    {
+      "name": "/primitives/dates"
+    },
+    {
+      "name": "/primitives/bigintegers"
+    },
+    {
+      "name": "/primitives/bigdecimals"
+    }
+  ],
+  "paths": {
+    "/primitives/bigdecimals": {
+      "get": {
+        "tags": ["/primitives/bigdecimals"],
+        "operationId": "get",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/bigdecimals"],
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "number",
+                "format": "double"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/bigintegers": {
+      "get": {
+        "tags": ["/primitives/bigintegers"],
+        "operationId": "get",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/bigintegers"],
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/booleans": {
+      "get": {
+        "tags": ["/primitives/booleans"],
+        "operationId": "get",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/booleans"],
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "boolean"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/bytes": {
+      "get": {
+        "tags": ["/primitives/bytes"],
+        "operationId": "get",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "byte"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/bytes"],
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string",
+                "format": "byte"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/chars": {
+      "get": {
+        "tags": ["/primitives/chars"],
+        "operationId": "get",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/chars"],
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/dates/yearmonth": {
+      "get": {
+        "tags": ["/primitives/dates"],
+        "operationId": "getYearMonth",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/dates"],
+        "operationId": "createYearMonth",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/dates/offsettime": {
+      "get": {
+        "tags": ["/primitives/dates"],
+        "operationId": "getOffsetTime",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/dates"],
+        "operationId": "createOffsetTime",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/dates/instant": {
+      "get": {
+        "tags": ["/primitives/dates"],
+        "operationId": "getInstant",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/dates"],
+        "operationId": "createInstant",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/dates/localdatetime": {
+      "get": {
+        "tags": ["/primitives/dates"],
+        "operationId": "getLocalDateTime",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/dates"],
+        "operationId": "createLocalDateTime",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/dates/sqldate": {
+      "get": {
+        "tags": ["/primitives/dates"],
+        "operationId": "getSqlDate",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/dates"],
+        "operationId": "createSqlDate",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/dates/duration": {
+      "get": {
+        "tags": ["/primitives/dates"],
+        "operationId": "getDuration",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/dates"],
+        "operationId": "createDuration",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/dates/period": {
+      "get": {
+        "tags": ["/primitives/dates"],
+        "operationId": "getPeriod",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/dates"],
+        "operationId": "createPeriod",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/dates/calendar": {
+      "get": {
+        "tags": ["/primitives/dates"],
+        "operationId": "getCalendar",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/dates"],
+        "operationId": "createCalendar",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/dates/monthday": {
+      "get": {
+        "tags": ["/primitives/dates"],
+        "operationId": "getMonthDay",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/dates"],
+        "operationId": "createMonthDay",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/dates/year": {
+      "get": {
+        "tags": ["/primitives/dates"],
+        "operationId": "getYear",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/dates"],
+        "operationId": "createYear",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/dates/localdate": {
+      "get": {
+        "tags": ["/primitives/dates"],
+        "operationId": "getLocalDate",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "date"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/dates"],
+        "operationId": "createLocalDate",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string",
+                "format": "date"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/dates/dayofweek": {
+      "get": {
+        "tags": ["/primitives/dates"],
+        "operationId": "getDayOfWeek",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "MONDAY",
+                    "TUESDAY",
+                    "WEDNESDAY",
+                    "THURSDAY",
+                    "FRIDAY",
+                    "SATURDAY",
+                    "SUNDAY"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/dates"],
+        "operationId": "createDayOfWeek",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "MONDAY",
+                  "TUESDAY",
+                  "WEDNESDAY",
+                  "THURSDAY",
+                  "FRIDAY",
+                  "SATURDAY",
+                  "SUNDAY"
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/dates": {
+      "get": {
+        "tags": ["/primitives/dates"],
+        "operationId": "get",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/dates"],
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/dates/zoneid": {
+      "get": {
+        "tags": ["/primitives/dates"],
+        "operationId": "getZoneId",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/dates"],
+        "operationId": "createZoneId",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/dates/offsetdatetime": {
+      "get": {
+        "tags": ["/primitives/dates"],
+        "operationId": "getOffsetDateTime",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/dates"],
+        "operationId": "createOffsetDateTime",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/dates/zoneddatetime": {
+      "get": {
+        "tags": ["/primitives/dates"],
+        "operationId": "getZonedDateTime",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/dates"],
+        "operationId": "createZonedDateTime",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/dates/zoneoffset": {
+      "get": {
+        "tags": ["/primitives/dates"],
+        "operationId": "getZoneOffset",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/dates"],
+        "operationId": "createZoneOffset",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/dates/month": {
+      "get": {
+        "tags": ["/primitives/dates"],
+        "operationId": "getMonth",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "JANUARY",
+                    "FEBRUARY",
+                    "MARCH",
+                    "APRIL",
+                    "MAY",
+                    "JUNE",
+                    "JULY",
+                    "AUGUST",
+                    "SEPTEMBER",
+                    "OCTOBER",
+                    "NOVEMBER",
+                    "DECEMBER"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/dates"],
+        "operationId": "createMonth",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "JANUARY",
+                  "FEBRUARY",
+                  "MARCH",
+                  "APRIL",
+                  "MAY",
+                  "JUNE",
+                  "JULY",
+                  "AUGUST",
+                  "SEPTEMBER",
+                  "OCTOBER",
+                  "NOVEMBER",
+                  "DECEMBER"
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/doubles": {
+      "get": {
+        "tags": ["/primitives/doubles"],
+        "operationId": "get",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/doubles"],
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "number",
+                "format": "double"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/floats": {
+      "get": {
+        "tags": ["/primitives/floats"],
+        "operationId": "get",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "number",
+                  "format": "float"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/floats"],
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "number",
+                "format": "float"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/ints": {
+      "get": {
+        "tags": ["/primitives/ints"],
+        "operationId": "get",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/ints"],
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/longs": {
+      "get": {
+        "tags": ["/primitives/longs"],
+        "operationId": "get",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/longs"],
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/shorts": {
+      "get": {
+        "tags": ["/primitives/shorts"],
+        "operationId": "get",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/shorts"],
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/strings": {
+      "get": {
+        "tags": ["/primitives/strings"],
+        "operationId": "get",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/strings"],
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    },
+    "/primitives/uuids": {
+      "get": {
+        "tags": ["/primitives/uuids"],
+        "operationId": "get",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/primitives/uuids"],
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "value"
+      }
+    }
+  }
+}

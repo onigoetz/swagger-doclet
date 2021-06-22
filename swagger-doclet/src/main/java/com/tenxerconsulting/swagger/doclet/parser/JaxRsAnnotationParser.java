@@ -21,18 +21,19 @@ import com.tenxerconsulting.swagger.doclet.model.HttpMethod;
 import com.tenxerconsulting.swagger.doclet.DocletOptions;
 import com.tenxerconsulting.swagger.doclet.Recorder;
 import com.tenxerconsulting.swagger.doclet.ServiceDoclet;
-import io.swagger.models.Operation;
-import io.swagger.models.Path;
-import io.swagger.models.Scheme;
-import io.swagger.models.Swagger;
+import io.swagger.oas.models.*;
+import io.swagger.oas.models.info.Info;
+import io.swagger.oas.models.servers.Server;
+import lombok.extern.slf4j.Slf4j;
 
 @SuppressWarnings("javadoc")
+@Slf4j
 public class JaxRsAnnotationParser {
 
-    // swagger 1.1 spec see https://groups.google.com/forum/#!topic/swagger-swaggersocket/mHdR9u0utH4
-    // diffs between 1.1 and 1.2 see https://github.com/wordnik/swagger-spec/wiki/1.2-transition
-    private static final String SWAGGER_VERSION = "2.0";
+    // https://spec.openapis.org/oas/v3.0.0
+    private static final String SWAGGER_VERSION = "3.0";
 
+    // TODO :: update to 3.50 or more recent
     private static final String SWAGGER_UI_VERSION = "2.2.10";
 
     private final DocletOptions options;
@@ -98,6 +99,7 @@ public class JaxRsAnnotationParser {
                 boolean excludeResource = false;
                 if (this.options.getExcludeResourcePrefixes() != null && !this.options.getExcludeResourcePrefixes().isEmpty()) {
                     for (String prefix : this.options.getExcludeResourcePrefixes()) {
+
                         String className = classDoc.qualifiedName();
                         if (className.startsWith(prefix)) {
                             excludeResource = true;
@@ -140,11 +142,11 @@ public class JaxRsAnnotationParser {
             }
 
             ClassDocCache classCache = new ClassDocCache(docletClasses);
-            io.swagger.models.Swagger swagger = new Swagger();
-            swagger.setSwagger(SWAGGER_VERSION);
+            io.swagger.oas.models.OpenAPI swagger = new OpenAPI();
+            swagger.setOpenapi(SWAGGER_VERSION);
 
             List<TagWrapper> tags = new ArrayList<>();
-            LinkedHashMap<String, Path> declarations = null;
+            Paths declarations = null;
 
             // build up set of subresources
             // do simple parsing to find sub resource classes
@@ -158,7 +160,7 @@ public class JaxRsAnnotationParser {
                         if (ParserHelper.resolveMethodHttpMethod(method, options) != null) {
                             if (!subResourceClasses.contains(classDoc)) {
                                 if (this.options.isLogDebug()) {
-                                    System.out.println("Adding return type as sub resource class : " + classDoc.name() + ". This resource class is missing a class level @Path");
+                                    log.debug("Adding return type as sub resource class : {}. This resource class is missing a class level @Path", classDoc.name());
                                 }
 
                                 subResourceClasses.add(classDoc);
@@ -187,8 +189,7 @@ public class JaxRsAnnotationParser {
                             if (subResourceClassDoc != null) {
                                 if (!subResourceClasses.contains(subResourceClassDoc)) {
                                     if (this.options.isLogDebug()) {
-                                        System.out.println("Adding return type as sub resource class : " + subResourceClassDoc.name() + " for method "
-                                                + method.name() + " of referencing class " + currentClassDoc.name());
+                                        log.debug("Adding return type as sub resource class : {} for method {} of referencing class {}", subResourceClassDoc.name(), method.name(), currentClassDoc.name());
                                     }
 
                                     subResourceClasses.add(subResourceClassDoc);
@@ -207,7 +208,7 @@ public class JaxRsAnnotationParser {
             }
 
             // parse with the v2 parser that supports endpoints of the same resource being spread across resource files
-            Map<String, Path> resourceToDeclaration = new HashMap<>();
+            Paths resourceToDeclaration = new Paths();
             for (ClassDoc classDoc : docletClasses) {
                 CrossClassApiParser classParser = new CrossClassApiParser(swagger, this.options, classDoc, docletClasses, subResourceClasses, typeClasses,
                         tags);
@@ -215,33 +216,16 @@ public class JaxRsAnnotationParser {
             }
 
             if (this.options.isLogDebug()) {
-                System.out.println("After parse phase api declarations are: ");
-                for (Map.Entry<String, Path> entry : resourceToDeclaration.entrySet()) {
-                    System.out.println("Api Dec: path " + entry.getKey());
-                    for (Map.Entry<io.swagger.models.HttpMethod, io.swagger.models.Operation> opEntry : entry.getValue().getOperationMap().entrySet()) {
-                        System.out.println("Api nick name:" + opEntry.getValue().getOperationId() + " method " + opEntry.getKey().toString());
+                log.debug("After parse phase api declarations are: ");
+                for (Map.Entry<String, PathItem> entry : resourceToDeclaration.entrySet()) {
+                    log.debug("Api Dec: path {}", entry.getKey());
+                    for (Map.Entry<PathItem.HttpMethod, Operation> opEntry : entry.getValue().readOperationsMap().entrySet()) {
+                        log.debug("Api nick name: {} method  {}", opEntry.getValue().getOperationId(), opEntry.getKey().toString());
                     }
                 }
             }
-
-            // add any extra declarations
-//			if (this.options.getExtraApiDeclarations() != null && !this.options.getExtraApiDeclarations().isEmpty()) {
-//				declarationColl = new ArrayList<>(declarationColl);
-//				declarationColl.addAll(this.options.getExtraApiDeclarations());
-//			}
 
             // set root path on any empty resources
-            for (Path path : resourceToDeclaration.values()) {
-                for (Operation op : path.getOperations()) {
-                    if (op.getTags().size() == 0) {
-                        op.addTag(this.options.getResourceRootPath());
-                    }
-                    if (op.getTags().contains("/")) {
-                        op.getTags().remove("/");
-                        op.addTag(this.options.getResourceRootPath());
-                    }
-                }
-            }
             List<TagWrapper> tagsToRemove = new ArrayList<>();
             for (TagWrapper tagWrapper : tags) {
                 if (tagWrapper.getTag().getName().equals("/")) {
@@ -254,67 +238,59 @@ public class JaxRsAnnotationParser {
             // merge the api declarations
 //			declarationColl = new ApiDeclarationMerger(SWAGGER_VERSION, this.options.getApiVersion(), this.options.getApiBasePath()).merge(declarationColl);
 
-            declarations = new LinkedHashMap<>();
+            declarations = new Paths();
 
             List<TagWrapper> sortedTags = new LinkedList<>(tags);
-            List<Map.Entry<String, Path>> sortedDeclarations = new LinkedList<>(resourceToDeclaration.entrySet());
+            List<Map.Entry<String, PathItem>> sortedDeclarations = new LinkedList<>(resourceToDeclaration.entrySet());
             // sort the api declarations if needed
             if (this.options.isSortResourcesByPriority()) {
 
-                Collections.sort(sortedTags, new Comparator<TagWrapper>() {
-                    @Override
-                    public int compare(TagWrapper t1, TagWrapper t2) {
-                        return Integer.compare(t1.getPriority(), t2.getPriority());
-                    }
-                });
+                sortedTags.sort(Comparator.comparingInt(TagWrapper::getPriority));
 
             } else if (this.options.isSortResourcesByPath()) {
-                Collections.sort(sortedTags, new Comparator<TagWrapper>() {
-
-                    @Override
-                    public int compare(TagWrapper t1, TagWrapper t2) {
-                        if (t1 == null || t1.getTag().getName() == null) {
-                            return -1;
-                        }
-                        return t1.getTag().getName().compareTo(t2.getTag().getName());
+                sortedTags.sort((t1, t2) -> {
+                    if (t1 == null || t1.getTag().getName() == null) {
+                        return -1;
                     }
+                    return t1.getTag().getName().compareTo(t2.getTag().getName());
                 });
             }
 
             // sort apis of each declaration
             if (this.options.isSortApisByPath()) {
-                Collections.sort(sortedDeclarations, new Comparator<Map.Entry<String, Path>>() {
-                    @Override
-                    public int compare(Map.Entry<String, Path> e1, Map.Entry<String, Path> e2) {
-                        return e1.getKey().compareTo(e2.getKey());
-                    }
-                });
+                sortedDeclarations.sort(Map.Entry.comparingByKey());
             }
 
-            for (Map.Entry<String, Path> entry : sortedDeclarations) {
+            for (Map.Entry<String, PathItem> entry : sortedDeclarations) {
                 declarations.put(entry.getKey(), entry.getValue());
             }
 
             for (TagWrapper tag : sortedTags) {
-                swagger.addTag(tag.getTag());
+                swagger.addTagsItem(tag.getTag());
             }
 
-            List<Scheme> schemes = new ArrayList<>();
-            for (String s : this.options.getSchemes()) {
-                schemes.add(Scheme.forValue(s));
-            }
-
-            if (null != this.options.getApiInfo() && null != this.options.getApiVersion()) {
+            if (null == this.options.getApiInfo() && null != this.options.getApiVersion()) {
+                this.options.setApiInfo(new Info());
                 this.options.getApiInfo().setVersion(this.options.getApiVersion());
             }
 
-
             swagger.paths(declarations);
-            swagger.setSchemes(schemes);
-            swagger.setHost(this.options.getHost());
-            swagger.setBasePath(this.options.getApiBasePath());
+
+            for (String s : this.options.getServers()) {
+                Server server = new Server();
+                server.url(s);
+                swagger.addServersItem(server);
+            }
+
             swagger.setInfo(this.options.getApiInfo());
 
+            if (options.getSecuritySchemes() != null) {
+                if (swagger.getComponents() == null) {
+                    swagger.setComponents(new Components());
+                }
+
+                swagger.getComponents().setSecuritySchemes(options.getSecuritySchemes());
+            }
 
             writeApis(swagger);
             // Copy swagger-ui into the output directory.
@@ -329,13 +305,13 @@ public class JaxRsAnnotationParser {
         }
     }
 
-    private void writeApis(Swagger swagger) throws IOException {
+    private void writeApis(OpenAPI openapi) throws IOException {
 
         File outputDirectory = this.options.getOutputDirectory();
         Recorder recorder = this.options.getRecorder();
 
         File docFile = new File(outputDirectory, "service.json");
-        recorder.record(docFile, swagger);
+        recorder.record(docFile, openapi);
 
     }
 
@@ -354,12 +330,12 @@ public class JaxRsAnnotationParser {
             // zip or dir
             File uiPathFile = new File(uiPath);
             if (uiPathFile.isDirectory()) {
-                System.out.println("Using swagger dir from: " + uiPathFile.getAbsolutePath());
+                log.info("Using swagger dir from: {}", uiPathFile.getAbsolutePath());
                 copyDirectory(recorder, uiPathFile, uiPathFile, outputDirectory);
             } else if (!uiPathFile.exists()) {
                 File f = new File(".");
-                System.out.println("SwaggerDoclet working directory: " + f.getAbsolutePath());
-                System.out.println("-swaggerUiPath not set correctly as it did not exist: " + uiPathFile.getAbsolutePath());
+                log.info("SwaggerDoclet working directory: {}", f.getAbsolutePath());
+                log.info("-swaggerUiPath not set correctly as it did not exist: {}", uiPathFile.getAbsolutePath());
                 throw new RuntimeException("-swaggerUiPath not set correctly as it did not exist: " + uiPathFile.getAbsolutePath());
             } else {
                 copyZip(recorder, uiPathFile, outputDirectory);
@@ -372,10 +348,10 @@ public class JaxRsAnnotationParser {
         try {
             if (uiPathFile == null) {
                 swaggerZip = new ZipInputStream(ServiceDoclet.class.getResourceAsStream("/swagger-ui-" + SWAGGER_UI_VERSION + ".zip"));
-                System.out.println("Using default swagger-ui.zip file from SwaggerDoclet jar file");
+                log.info("Using default swagger-ui.zip file from SwaggerDoclet jar file");
             } else {
                 swaggerZip = new ZipInputStream(new FileInputStream(uiPathFile));
-                System.out.println("Using swagger-ui.zip file from: " + uiPathFile.getAbsolutePath());
+                log.info("Using swagger-ui.zip file from: {}", uiPathFile.getAbsolutePath());
             }
 
             ZipEntry entry = swaggerZip.getNextEntry();

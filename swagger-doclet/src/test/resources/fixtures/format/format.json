@@ -1,53 +1,82 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/format",
-    "apis": [
-        {
-            "path": "/format",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "postData",
-                    "type": "Data",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "Data",
-                            "required" : true
-                        },
-                        {
-                            "paramType": "query",
-                            "name": "p1",
-                            "type": "string",
-                			"format" : "date"
-                        },
-                        {
-                            "paramType": "query",
-                            "name": "p2",
-                            "type": "string",
-                			"format" : "date-time"
-                        }
-                    ]
-                }
-            ]
-        }
-    ],
-    "models": {
-        "Data": {
-            "id": "Data",
-            "properties": {
-            	"formatFieldTag": {
-                	"type": "string",
-                	"format" : "date"
-                },
-                "formatGetterTag": {
-                	"type": "string",
-                	"format" : "date-time"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/format"
+    }
+  ],
+  "paths": {
+    "/format": {
+      "post": {
+        "tags": ["/format"],
+        "operationId": "postData",
+        "parameters": [
+          {
+            "name": "p1",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "p2",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/Data"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Data": {
+        "type": "object",
+        "properties": {
+          "formatFieldTag": {
+            "type": "string",
+            "format": "date"
+          },
+          "formatGetterTag": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
 }

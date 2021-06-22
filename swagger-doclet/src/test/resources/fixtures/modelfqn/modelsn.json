@@ -1,65 +1,101 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/modelfqn",
-    "apis": [
-        {
-        	"path": "/modelfqn/data",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getData",
-                    "type": "Data"
-                }
-            ]
-        },
-        {
-        	"path": "/modelfqn/id1col",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getId1Col",
-                    "type": "array",
-                    "items": {
-                    	"$ref": "Id"
-                    }
-                }
-            ]
-        },
-        {
-        	"path": "/modelfqn/id2col",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getId2Col",
-                    "type": "array",
-                    "items": {
-                    	"$ref": "Id"
-                    }
-                }
-            ]
-        }
-    ], 
-    "models": {
-    	"Data": {
-            "id": "Data",
-            "properties": {
-            	"id1" : {
-            		"type": "Id"
-            	},
-            	"id2" : {
-            		"type": "Id"
-            	}
-            }
-        },
-    	"Id": {
-            "id": "Id",
-            "properties": {
-                "val": {
-                    "type": "string"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/modelfqn"
+    }
+  ],
+  "paths": {
+    "/modelfqn/id1col": {
+      "get": {
+        "tags": ["/modelfqn"],
+        "operationId": "getId1Col",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Id"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modelfqn/data": {
+      "get": {
+        "tags": ["/modelfqn"],
+        "operationId": "getData",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modelfqn/id2col": {
+      "get": {
+        "tags": ["/modelfqn"],
+        "operationId": "getId2Col",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Id"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Data": {
+        "type": "object",
+        "properties": {
+          "id1": {
+            "$ref": "#/components/schemas/Id"
+          },
+          "id2": {
+            "$ref": "#/components/schemas/Id"
+          }
+        }
+      },
+      "Id": {
+        "type": "object",
+        "properties": {
+          "val": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
 }

@@ -1,155 +1,367 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/responsemodel",
-    "apis": [
-        {
-            "path": "/responsemodel",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "unspecifiedResponse",
-                    "type": "Response"
-                },
-                {
-                    "method": "GET",
-                    "nickname": "responseDefinedViaReturn",
-                    "type": "Response1"
-                },
-                {
-                    "method": "GET",
-                    "nickname": "responseDefinedViaTag",
-                    "type": "Response2"
-                },
-                {
-                    "method": "GET",
-                    "nickname": "responseDefinedViaTagForList",
-                    "type": "array",
-                    "items": {
-                    	"$ref": "Response2"
-                    }
-                },
-                {
-                    "method": "GET",
-                    "nickname": "responseDefinedViaTagForPrimitiveList",
-                    "type": "array",
-                    "items": {
-                    	"type": "string"
-                    }
-                },
-                {
-                    "method": "GET",
-                    "nickname": "responseString",
-                    "type": "string"
-                },
-                {
-                    "method": "GET",
-                    "nickname": "responseStringObject",
-                    "type": "string"
-                },
-                {
-                    "method": "GET",
-                    "nickname": "responseInt",
-                    "type": "integer",
-                    "format" : "int32"
-                },
-                {
-                    "method": "GET",
-                    "nickname": "responseIntObject",
-                    "type": "integer",
-                    "format" : "int32"
-                },
-                {
-                    "method": "GET",
-                    "nickname": "responseBigIntObject",
-                    "type": "integer",
-                    "format" : "int64"
-                },
-                {
-                    "method": "GET",
-                    "nickname": "responseBigDecObject",
-                    "type": "number",
-                    "format" : "double"
-                },
-                {
-                    "method": "GET",
-                    "nickname": "responseDefinedViaResponseCode",
-                    "type": "Response",
-                    "responseMessages": [
-                        {
-                            "code": 200,
-                            "message": "if ok",
-                            "responseModel" : "Response1"
-                        },
-                        {
-                            "code": 404,
-                            "message": "if no result found",
-                            "responseModel" : "Response2"
-                        },
-                        {
-                            "code": 500,
-                            "message": "if an internal error occurred"
-                        }
-                    ]
-                },
-                {
-                    "method": "GET",
-                    "nickname": "responseMix",
-                    "type": "Response2",
-                    "responseMessages": [
-                        {
-                            "code": 404,
-                            "message": "if no result found",
-                            "responseModel" : "Response3"
-                        }
-                    ]
-                },
-                {
-                    "method": "GET",
-                    "nickname": "interfaceResponse",
-                    "type": "Response4"
-                },
-                {
-                    "method": "GET",
-                    "nickname": "interfaceResponseViaTag",
-                    "type": "Response4"
-                }
-            ]
-        }
-    ],
-    "models": {
-        "Response1": {
-            "id": "Response1",
-            "properties": {
-                "value": {
-                    "type": "string"
-                }
-            }
-        },
-        "Response2": {
-            "id": "Response2",
-            "properties": {
-                "value": {
-                    "type": "string"
-                }
-            }
-        },
-        "Response3": {
-            "id": "Response3",
-            "properties": {
-                "value": {
-                    "type": "string"
-                }
-            }
-        },
-        "Response4": {
-            "id": "Response4",
-            "properties": {
-                "value": {
-                    "type": "string"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/responsemodel"
+    }
+  ],
+  "paths": {
+    "/responsemodel/interfaceResponse": {
+      "get": {
+        "tags": ["/responsemodel"],
+        "operationId": "interfaceResponse",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response4"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/responsemodel/interfaceResponseViaTag": {
+      "get": {
+        "tags": ["/responsemodel"],
+        "operationId": "interfaceResponseViaTag",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response4"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/responsemodel/responseBigDecObject": {
+      "get": {
+        "tags": ["/responsemodel"],
+        "operationId": "responseBigDecObject",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/responsemodel/responseBigIntObject": {
+      "get": {
+        "tags": ["/responsemodel"],
+        "operationId": "responseBigIntObject",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/responsemodel/responseDefinedViaResponseCode": {
+      "get": {
+        "tags": ["/responsemodel"],
+        "operationId": "responseDefinedViaResponseCode",
+        "responses": {
+          "200": {
+            "description": "if ok",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response1"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "if no result found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response2"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "if an internal error occurred"
+          },
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/responsemodel/responseDefinedViaReturn": {
+      "get": {
+        "tags": ["/responsemodel"],
+        "operationId": "responseDefinedViaReturn",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response1"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/responsemodel/responseDefinedViaTag": {
+      "get": {
+        "tags": ["/responsemodel"],
+        "operationId": "responseDefinedViaTag",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response2"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/responsemodel/responseDefinedViaTagForList": {
+      "get": {
+        "tags": ["/responsemodel"],
+        "operationId": "responseDefinedViaTagForList",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Response2"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/responsemodel/responseDefinedViaTagForPrimitiveList": {
+      "get": {
+        "tags": ["/responsemodel"],
+        "operationId": "responseDefinedViaTagForPrimitiveList",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/responsemodel/responseInt": {
+      "get": {
+        "tags": ["/responsemodel"],
+        "operationId": "responseInt",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/responsemodel/responseIntObject": {
+      "get": {
+        "tags": ["/responsemodel"],
+        "operationId": "responseIntObject",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/responsemodel/responseMix": {
+      "get": {
+        "tags": ["/responsemodel"],
+        "operationId": "responseMix",
+        "responses": {
+          "404": {
+            "description": "if no result found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response3"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response2"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/responsemodel/responseString": {
+      "get": {
+        "tags": ["/responsemodel"],
+        "operationId": "responseString",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/responsemodel/responseStringObject": {
+      "get": {
+        "tags": ["/responsemodel"],
+        "operationId": "responseStringObject",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/responsemodel/unspecifiedResponse": {
+      "get": {
+        "tags": ["/responsemodel"],
+        "operationId": "unspecifiedResponse",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Response2": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "Response1": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "Response4": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "Response3": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
 }

@@ -1,55 +1,89 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/issue17",
-    "apis": [
-        {
-            "path": "/issue17",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getUser",
-                    "type": "User"
-                },
-                {
-                    "method": "POST",
-                    "nickname": "createUser",
-                    "type": "Response",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "user",
-                            "type": "User2",
-                            "required": true
-                        }
-                    ]
-                }
-            ]
-        }
-    ],
-    "models": {
-        "User": {
-            "id": "User",
-            "properties": {
-                "first_name": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "User2": {
-            "id": "User2",
-            "properties": {
-                "first_name": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/issue17"
+    }
+  ],
+  "paths": {
+    "/issue17": {
+      "get": {
+        "tags": ["/issue17"],
+        "operationId": "getUser",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/issue17"],
+        "operationId": "createUser",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/User2"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "user"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "first_name": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          }
+        }
+      },
+      "User2": {
+        "type": "object",
+        "properties": {
+          "first_name": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
 }

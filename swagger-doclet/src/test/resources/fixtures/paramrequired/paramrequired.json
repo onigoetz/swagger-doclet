@@ -1,134 +1,185 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/paramrequired",
-    "apis": [
-        {
-            "path": "/paramrequired",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getParams1",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "query",
-                            "name": "p1",
-                            "type": "integer",
-                            "format" : "int32",
-                            "required" : true
-                        },
-                        {
-                            "paramType": "query",
-                            "name": "p2",
-                            "type": "integer",
-                            "format" : "int32"
-                        }
-                    ]
-                },
-                {
-                    "method": "PUT",
-                    "nickname": "putParams2",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "query",
-                            "name": "p1",
-                            "type": "integer",
-                            "format" : "int32",
-                            "required" : true
-                        },
-                        {
-                            "paramType": "query",
-                            "name": "p2",
-                            "type": "integer",
-                            "format" : "int32",
-                            "required" : true
-                        },
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "Data",
-                            "required" : true
-                        }
-                        
-                    ]
-                },
-                {
-                    "method": "POST",
-                    "nickname": "postParams3",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "query",
-                            "name": "p1",
-                            "type": "integer",
-                            "format" : "int32"
-                        },
-                        {
-                            "paramType": "query",
-                            "name": "p2",
-                            "type": "integer",
-                            "format" : "int32"
-                        },
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "Data"
-                        }
-                        
-                    ]
-                }
-                
-            ]
-        },
-        {
-            "path": "/paramrequired/{id}",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "postParams4",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "path",
-                            "name": "id",
-                            "type": "string",
-                            "required": true
-                        },
-                        {
-                            "paramType": "query",
-                            "name": "p1",
-                            "type": "integer",
-                            "format" : "int32"
-                        },
-                        {
-                            "paramType": "query",
-                            "name": "p2",
-                            "type": "integer",
-                            "format" : "int32"
-                        },
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "Data"
-                        }
-                        
-                    ]
-                }
-            ]
-        }
-    ],
-    "models": {
-        "Data": {
-            "id": "Data",
-            "properties": {
-                "value": {
-                    "type": "string",
-                    "description": "the value"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/paramrequired"
+    }
+  ],
+  "paths": {
+    "/paramrequired": {
+      "get": {
+        "tags": ["/paramrequired"],
+        "operationId": "getParams1",
+        "parameters": [
+          {
+            "name": "p1",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "p2",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "tags": ["/paramrequired"],
+        "operationId": "putParams2",
+        "parameters": [
+          {
+            "name": "p1",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "p2",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/Data"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      },
+      "post": {
+        "tags": ["/paramrequired"],
+        "operationId": "postParams3",
+        "parameters": [
+          {
+            "name": "p1",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "p2",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/Data"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    },
+    "/paramrequired/{id}": {
+      "post": {
+        "tags": ["/paramrequired"],
+        "operationId": "postParams4",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "p1",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "p2",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/Data"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Data": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "description": "the value"
+          }
+        }
+      }
+    }
+  }
 }

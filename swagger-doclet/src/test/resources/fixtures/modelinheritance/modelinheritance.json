@@ -1,146 +1,169 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/modelinheritance",
-    "apis": [
-        {
-            "path": "/modelinheritance",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "modelInheritance",
-                    "type": "ChildResponse",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "payload",
-                            "type": "ChildPayload",
-                            "required": true
-                        }
-                    ]
-                }
-            ]
-        }
-    ],
-    "models": {
-        "ChildPayload": {
-            "id": "ChildPayload",
-            "properties": {
-                "field2b": {
-                    "type": "string"
-                },
-                "grandParentMethod3c": {
-                    "type": "string"
-                },
-                "parentField1": {
-                    "type": "string"
-                },
-                "grandParentField2b": {
-                    "type": "string"
-                },
-                "grandParentMethod2b": {
-                    "type": "string"
-                },
-                "grandParentField3c": {
-                    "type": "string"
-                },
-                "parentField2b": {
-                    "type": "string"
-                },
-                "parentMethod2b": {
-                    "type": "string"
-                },
-                "parentMethod3c": {
-                    "type": "string"
-                },
-                "method1": {
-                    "type": "string"
-                },
-                "method3c": {
-                    "type": "string"
-                },
-                "method2b": {
-                    "type": "string"
-                },
-                "grandParentField1": {
-                    "type": "string"
-                },
-                "parentField3c": {
-                    "type": "string"
-                },
-                "parentMethod1": {
-                    "type": "string"
-                },
-                "field1": {
-                    "type": "string"
-                },
-                "field3c": {
-                    "type": "string"
-                },
-                "grandParentMethod1": {
-                    "type": "string"
-                }
-            }
-        },
-        "ChildResponse": {
-            "id": "ChildResponse",
-            "properties": {
-                "field2b": {
-                    "type": "string"
-                },
-                "grandParentMethod3c": {
-                    "type": "string"
-                },
-                "parentField1": {
-                    "type": "string"
-                },
-                "grandParentField2b": {
-                    "type": "string"
-                },
-                "grandParentMethod2b": {
-                    "type": "string"
-                },
-                "grandParentField3c": {
-                    "type": "string"
-                },
-                "parentField2b": {
-                    "type": "string"
-                },
-                "parentMethod2b": {
-                    "type": "string"
-                },
-                "parentMethod3c": {
-                    "type": "string"
-                },
-                "method1": {
-                    "type": "string"
-                },
-                "method3c": {
-                    "type": "string"
-                },
-                "method2b": {
-                    "type": "string"
-                },
-                "grandParentField1": {
-                    "type": "string"
-                },
-                "parentField3c": {
-                    "type": "string"
-                },
-                "parentMethod1": {
-                    "type": "string"
-                },
-                "field1": {
-                    "type": "string"
-                },
-                "field3c": {
-                    "type": "string"
-                },
-                "grandParentMethod1": {
-                    "type": "string"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/modelinheritance"
+    }
+  ],
+  "paths": {
+    "/modelinheritance": {
+      "post": {
+        "tags": ["/modelinheritance"],
+        "operationId": "modelInheritance",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/ChildPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChildResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "payload"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ChildResponse": {
+        "type": "object",
+        "properties": {
+          "field2b": {
+            "type": "string"
+          },
+          "grandParentMethod3c": {
+            "type": "string"
+          },
+          "parentField1": {
+            "type": "string"
+          },
+          "grandParentField2b": {
+            "type": "string"
+          },
+          "grandParentMethod2b": {
+            "type": "string"
+          },
+          "grandParentField3c": {
+            "type": "string"
+          },
+          "parentField2b": {
+            "type": "string"
+          },
+          "parentMethod2b": {
+            "type": "string"
+          },
+          "parentMethod3c": {
+            "type": "string"
+          },
+          "method1": {
+            "type": "string"
+          },
+          "method3c": {
+            "type": "string"
+          },
+          "method2b": {
+            "type": "string"
+          },
+          "grandParentField1": {
+            "type": "string"
+          },
+          "parentField3c": {
+            "type": "string"
+          },
+          "parentMethod1": {
+            "type": "string"
+          },
+          "field1": {
+            "type": "string"
+          },
+          "field3c": {
+            "type": "string"
+          },
+          "grandParentMethod1": {
+            "type": "string"
+          }
+        }
+      },
+      "ChildPayload": {
+        "type": "object",
+        "properties": {
+          "field2b": {
+            "type": "string"
+          },
+          "grandParentMethod3c": {
+            "type": "string"
+          },
+          "parentField1": {
+            "type": "string"
+          },
+          "grandParentField2b": {
+            "type": "string"
+          },
+          "grandParentMethod2b": {
+            "type": "string"
+          },
+          "grandParentField3c": {
+            "type": "string"
+          },
+          "parentField2b": {
+            "type": "string"
+          },
+          "parentMethod2b": {
+            "type": "string"
+          },
+          "parentMethod3c": {
+            "type": "string"
+          },
+          "method1": {
+            "type": "string"
+          },
+          "method3c": {
+            "type": "string"
+          },
+          "method2b": {
+            "type": "string"
+          },
+          "grandParentField1": {
+            "type": "string"
+          },
+          "parentField3c": {
+            "type": "string"
+          },
+          "parentMethod1": {
+            "type": "string"
+          },
+          "field1": {
+            "type": "string"
+          },
+          "field3c": {
+            "type": "string"
+          },
+          "grandParentMethod1": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
 }

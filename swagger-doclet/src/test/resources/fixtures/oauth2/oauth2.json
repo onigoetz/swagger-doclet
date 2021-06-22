@@ -1,73 +1,113 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/oauth2",
-    "apis": [
-        {
-            "path": "/oauth2",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "customScope",
-                    "type": "void",
-                    "authorizations": {
-					    "oauth2": [
-					        {
-					            "scope": "write:pets",
-					            "description": "modify pets in your account"
-					        }
-					    ]
-					}
-                },
-                {
-                    "method": "GET",
-                    "nickname": "customScopes",
-                    "type": "void",
-                    "authorizations": {
-					    "oauth2": [
-					        {
-					            "scope": "write:pets",
-					            "description": "modify pets in your account"
-					        },
-					        {
-					            "scope": "read:pets",
-					            "description": "read pets in your account"
-					        }
-					    ]
-					}
-                },
-                {
-                    "method": "GET",
-                    "nickname": "defaultNoAuth",
-                    "type": "void"
-                },
-                {
-                    "method": "GET",
-                    "nickname": "defaultAuth",
-                    "type": "void",
-                    "authorizations": {
-					    "oauth2": [
-					        {
-					            "scope": "read:pets",
-					            "description": "read pets in your account"
-					        }
-					    ]
-					}
-                },
-                {
-                    "method": "GET",
-                    "nickname": "noAuth1",
-                    "type": "void",
-                    "authorizations": {}
-                },
-                {
-                    "method": "GET",
-                    "nickname": "noAuth2",
-                    "type": "void",
-                    "authorizations": {}
-                }
-            ]
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "/oauth2"
+    }
+  ],
+  "paths": {
+    "/oauth2/customScope": {
+      "get": {
+        "tags": ["/oauth2"],
+        "operationId": "customScope",
+        "security": [{ "oauth2": ["write:pets"] }],
+        "responses": {
+          "default": {
+            "description": ""
+          }
         }
-    ]
+      }
+    },
+    "/oauth2/customScopes": {
+      "get": {
+        "tags": ["/oauth2"],
+        "operationId": "customScopes",
+        "security": [{ "oauth2": ["write:pets", "read:pets"] }],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/oauth2/defaultAuth": {
+      "get": {
+        "tags": ["/oauth2"],
+        "operationId": "defaultAuth",
+        "security": [{ "oauth2": ["read:pets"] }],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/oauth2/defaultNoAuth": {
+      "get": {
+        "tags": ["/oauth2"],
+        "operationId": "defaultNoAuth",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/oauth2/noAuth1": {
+      "get": {
+        "tags": ["/oauth2"],
+        "operationId": "noAuth1",
+        "security": [{}],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/oauth2/noAuth2": {
+      "get": {
+        "tags": ["/oauth2"],
+        "operationId": "noAuth2",
+        "security": [{}],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "oauth2": {
+        "type": "oauth2",
+        "flows": {
+          "implicit": {
+            "authorizationUrl": "https://example.com/api/oauth/dialog",
+            "scopes": {
+              "write:pets": "modify pets in your account",
+              "read:pets": "read your pets"
+            }
+          },
+          "authorizationCode": {
+            "authorizationUrl": "https://example.com/api/oauth/dialog",
+            "tokenUrl": "https://example.com/api/oauth/token",
+            "scopes": {
+              "write:pets": "modify pets in your account",
+              "read:pets": "read your pets"
+            }
+          }
+        }
+      }
+    }
+  }
 }

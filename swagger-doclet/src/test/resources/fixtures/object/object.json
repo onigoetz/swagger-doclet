@@ -1,18 +1,36 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/objects",
-    "apis": [
-        {
-            "path": "/objects",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "get",
-                    "type": "Object"
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "/objects"
+    }
+  ],
+  "paths": {
+    "/objects": {
+      "get": {
+        "tags": ["/objects"],
+        "operationId": "get",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Object"
                 }
-            ]
+              }
+            }
+          }
         }
-    ]
+      }
+    }
+  }
 }

@@ -1,121 +1,189 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/inputtype",
-    "apis": [
-    	{
-            "path": "/inputtype/postData2b",
-            "operations": [
-            	{
-                    "method": "POST",
-                    "nickname": "postData2b",
-                    "type": "Response",
-                    "parameters": [
-                    	{
-                            "paramType": "header",
-                            "name": "X-forwarded-for",
-                            "type": "string"
-                        },
-                    	{
-                            "paramType": "query",
-                            "name": "p1",
-                            "type": "integer",
-                            "format": "int32"
-                        },
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "Data2",
-                            "required": true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/inputtype/postData2c/{p2}",
-            "operations": [
-            	{
-                    "method": "POST",
-                    "nickname": "postData2c",
-                    "type": "Response",
-                    "parameters": [
-                        {
-                            "paramType": "query",
-                            "name": "p1",
-                            "type": "integer",
-                            "format": "int32"
-                        },
-                        {
-                            "paramType": "path",
-                            "name": "p2",
-                            "type": "string",
-                            "required": true
-                        },
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "Data2",
-                            "required": true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/inputtype/putData1",
-            "operations": [
-            	{
-                    "method": "PUT",
-                    "nickname": "putData1",
-                    "type": "Response",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "Data1",
-                            "required": true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/inputtype/putData2",
-            "operations": [
-            	{
-                    "method": "PUT",
-                    "nickname": "putData2",
-                    "type": "Response",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "Data2",
-                            "required": true
-                        }
-                    ]
-                }
-            ]
-        }
-    ],
-    "models": {
-        "Data1": {
-            "id": "Data1",
-            "properties": {
-                "field1": {
-                    "type": "string"
-                }
-            }
-        },
-        "Data2": {
-            "id": "Data2",
-            "properties": {
-                "field2": {
-                    "type": "string"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/inputtype"
+    }
+  ],
+  "paths": {
+    "/inputtype/postData2b": {
+      "post": {
+        "tags": ["/inputtype"],
+        "operationId": "postData2b",
+        "parameters": [
+          {
+            "name": "X-forwarded-for",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "p1",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/Data2"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    },
+    "/inputtype/postData2c/{p2}": {
+      "post": {
+        "tags": ["/inputtype"],
+        "operationId": "postData2c",
+        "parameters": [
+          {
+            "name": "p1",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "p2",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/Data2"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    },
+    "/inputtype/putData1": {
+      "put": {
+        "tags": ["/inputtype"],
+        "operationId": "putData1",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/Data1"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    },
+    "/inputtype/putData2": {
+      "put": {
+        "tags": ["/inputtype"],
+        "operationId": "putData2",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/Data2"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Data2": {
+        "type": "object",
+        "properties": {
+          "field2": {
+            "type": "string"
+          }
+        }
+      },
+      "Data1": {
+        "type": "object",
+        "properties": {
+          "field1": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
 }

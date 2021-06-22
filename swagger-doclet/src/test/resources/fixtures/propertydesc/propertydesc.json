@@ -1,45 +1,65 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/propertydesc",
-    "apis": [
-        {
-            "path": "/propertydesc",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getData",
-                    "type": "Data"
-                }
-            ]
-        }
-    ],
-    "models": {
-        "Data": {
-            "id": "Data",
-            "properties": {
-                "fieldComment": {
-                    "type": "string",
-                    "description": "desc_fieldComment"
-                },
-                "getterComment": {
-                    "type": "string",
-                    "description": "desc_getterComment"
-                },
-                "getterReturn": {
-                    "type": "string",
-                    "description": "desc_getterReturn"
-                },
-                "fieldTag": {
-                    "type": "string",
-                    "description": "desc_fieldTag"
-                },
-                "getterTag": {
-                    "type": "string",
-                    "description": "desc_getterTag"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "tags": [
+    {
+      "name": "/propertydesc"
     }
+  ],
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
+    }
+  ],
+  "paths": {
+    "/propertydesc": {
+      "get": {
+        "tags": ["/propertydesc"],
+        "operationId": "getData",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Data": {
+        "type": "object",
+        "properties": {
+          "fieldComment": {
+            "type": "string",
+            "description": "desc_fieldComment"
+          },
+          "getterComment": {
+            "type": "string",
+            "description": "desc_getterComment"
+          },
+          "getterReturn": {
+            "type": "string",
+            "description": "desc_getterReturn"
+          },
+          "fieldTag": {
+            "type": "string",
+            "description": "desc_fieldTag"
+          },
+          "getterTag": {
+            "type": "string",
+            "description": "desc_getterTag"
+          }
+        }
+      }
+    }
+  }
 }

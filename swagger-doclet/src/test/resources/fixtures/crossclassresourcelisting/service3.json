@@ -1,18 +1,32 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "apis": [
-     	{
-            "path": "/a.{format}",
-            "description": "A"
-        },
-        {
-            "path": "/b.{format}",
-            "description": "B"
-        },
-        {
-            "path": "/c.{format}",
-            "description": "C"
-        }
-    ]
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "a",
+      "description": "A"
+    },
+    {
+      "name": "b",
+      "description": "B"
+    },
+    {
+      "name": "c",
+      "description": "C"
+    }
+  ],
+  "paths": {
+    "/v1/b": {},
+    "/v1/c": {},
+    "/v1/x": {},
+    "/v1/x/sub/w": {},
+    "/v1/y": {}
+  }
 }

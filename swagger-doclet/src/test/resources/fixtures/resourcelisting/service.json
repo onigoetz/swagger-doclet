@@ -1,15 +1,13 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "apis": [
-     	{
-            "path": "/c.{format}"
-        },
-        {
-            "path": "/b.{format}"
-        },
-        {
-            "path": "/a1.{format}"
-        }
-    ]
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "paths": {},
+  "components": {}
 }

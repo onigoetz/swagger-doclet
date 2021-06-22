@@ -1,60 +1,54 @@
 package com.tenxerconsulting.swagger.doclet.apidocs;
 
-import static com.tenxerconsulting.swagger.doclet.apidocs.FixtureLoader.loadFixture;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
-import java.io.File;
 import java.io.IOException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.sun.javadoc.RootDoc;
 import com.tenxerconsulting.swagger.doclet.DocletOptions;
+import com.tenxerconsulting.swagger.doclet.JSONCompare;
 import com.tenxerconsulting.swagger.doclet.Recorder;
-import com.tenxerconsulting.swagger.doclet.model.ApiDeclaration;
 import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
 
 /**
  * The ModelFieldRequiredTest represents a test for required vs optional model fields
- * @version $Id$
+ *
  * @author conor.roche
+ * @version $Id$
  */
 @SuppressWarnings("javadoc")
 public class ModelFieldRequiredTest {
 
-	private Recorder recorderMock;
-	private DocletOptions options;
+    private Recorder recorderMock;
+    private DocletOptions options;
 
-	@Before
-	public void setup() {
-		this.recorderMock = mock(Recorder.class);
-		this.options = new DocletOptions().setRecorder(this.recorderMock).setIncludeSwaggerUi(false);
-	}
+    @BeforeEach
+    public void setup() {
+        this.recorderMock = mock(Recorder.class);
+        this.options = new DocletOptions().setRecorder(this.recorderMock).setIncludeSwaggerUi(false);
+    }
 
-	@Test
-	public void testModelFieldNotRequiredByDefault() throws IOException {
-		this.options.setModelFieldsRequiredByDefault(false);
+    @Test
+    public void testModelFieldNotRequiredByDefault() throws IOException {
+        this.options.setModelFieldsRequiredByDefault(false);
 
-		final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.modelfieldrequired");
-		new JaxRsAnnotationParser(this.options, rootDoc).run();
+        final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.modelfieldrequired");
+        new JaxRsAnnotationParser(this.options, rootDoc).run();
 
-		final ApiDeclaration api = loadFixture("/fixtures/modelfieldrequired/modelfieldrequired.json", ApiDeclaration.class);
-		verify(this.recorderMock).record(any(File.class), eq(api));
-	}
+        JSONCompare.compare("/fixtures/modelfieldrequired/modelfieldrequired.json", recorderMock);
+    }
 
-	@Test
-	public void testModelFieldRequiredByDefault() throws IOException {
-		this.options.setModelFieldsRequiredByDefault(true);
+    @Test
+    public void testModelFieldRequiredByDefault() throws IOException {
+        this.options.setModelFieldsRequiredByDefault(true);
 
-		final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.modelfieldrequired");
-		new JaxRsAnnotationParser(this.options, rootDoc).run();
+        final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.modelfieldrequired");
+        new JaxRsAnnotationParser(this.options, rootDoc).run();
 
-		final ApiDeclaration api = loadFixture("/fixtures/modelfieldrequired/modelfieldrequired2.json", ApiDeclaration.class);
-		verify(this.recorderMock).record(any(File.class), eq(api));
-	}
+        JSONCompare.compare("/fixtures/modelfieldrequired/modelfieldrequired2.json", recorderMock);
+    }
 
 }

@@ -1,9 +1,19 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "apis": [
-        {
-            "path": "/foo.{format}"
-        }
-    ]
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "/foo"
+    }
+  ],
+  "paths": {
+    "/foo/bar/post": {}
+  }
 }

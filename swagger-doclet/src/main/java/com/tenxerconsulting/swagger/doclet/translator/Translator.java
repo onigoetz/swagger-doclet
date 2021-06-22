@@ -1,5 +1,6 @@
 package com.tenxerconsulting.swagger.doclet.translator;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.sun.javadoc.ClassDoc;
@@ -97,7 +98,7 @@ public interface Translator {
 
 		@Override
 		public String toString() {
-			return Objects.toStringHelper(this).add("status", this.status).add("name", this.name).toString();
+			return MoreObjects.toStringHelper(this).add("status", this.status).add("name", this.name).toString();
 		}
 	}
 

@@ -1,60 +1,133 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/modelinheritanceusingsubtypes",
-    "apis": [
-        {
-            "path": "/modelinheritanceusingsubtypes",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getSmallestVehicle",
-                    "type": "Vehicle"
-                },
-                {
-                    "method": "GET",
-                    "nickname": "getMotorcycle",
-                    "type": "Motorcycle"
-                }
-            ]
-        }
-    ],
-    "models": {
-        "Vehicle": {
-            "id": "Vehicle",
-            "properties": {
-                "make": {
-                    "type": "string"
-                },
-                "model": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            },
-            "required" : [ "type" ],
-            "subTypes" : [ "Car", "Truck", "Motorcycle" ],
-            "discriminator" : "type"
-        },
-        "Car": {
-            "id": "Car",
-            "properties": {
-            }
-        },
-        "Truck": {
-            "id": "Truck",
-            "properties": {
-                "maxLoad": {
-                    "type": "string"
-                }
-            }
-        },
-        "Motorcycle": {
-            "id": "Motorcycle",
-            "properties": {
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/modelinheritanceusingsubtypes"
+    }
+  ],
+  "paths": {
+    "/modelinheritanceusingsubtypes/getSmallestVehicle": {
+      "get": {
+        "tags": ["/modelinheritanceusingsubtypes"],
+        "operationId": "getSmallestVehicle",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Vehicle___discriminatorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modelinheritanceusingsubtypes/getMotorcycle": {
+      "get": {
+        "tags": ["/modelinheritanceusingsubtypes"],
+        "operationId": "getMotorcycle",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Motorcycle"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Vehicle___discriminatorResponse": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Car"
+          },
+          {
+            "$ref": "#/components/schemas/Truck"
+          },
+          {
+            "$ref": "#/components/schemas/Motorcycle"
+          }
+        ],
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "type": "string"
+          }
+        },
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "Vehicle": {
+        "required": ["type"],
+        "type": "object",
+        "properties": {
+          "make": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "Motorcycle": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Vehicle"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "Car": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Vehicle"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "Truck": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Vehicle"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "maxLoad": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
 }

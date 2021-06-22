@@ -1,19 +1,20 @@
 package com.tenxerconsulting.swagger.doclet.parser;
 
-import com.tenxerconsulting.swagger.doclet.parser.ParserHelper;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * The PathSanitizingTest represents a test case of api and resource path sanitizing
  * @version $Id$
  * @author conor.roche
  */
-public class PathSanitizingTest extends TestCase {
+public class PathSanitizingTest {
 
 	/**
 	 * This tests the api path sanitization
 	 */
+	@Test
 	public void testSanitizePath() {
 
 		assertEquals("/api/test/{id}", ParserHelper.sanitizePath("/api/test/{id }"));
@@ -34,6 +35,7 @@ public class PathSanitizingTest extends TestCase {
 	/**
 	 * This tests the file name for the resource listing is generated correctly from a resource path
 	 */
+	@Test
 	public void testGenerateResourceFilename() {
 
 		assertEquals("api", ParserHelper.generateResourceFilename("/api"));

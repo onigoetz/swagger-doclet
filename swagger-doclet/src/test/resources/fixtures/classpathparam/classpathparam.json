@@ -1,111 +1,156 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/api/{p1}/{p2}/{p3}",
-    "apis": [
-        {
-            "path": "/api/{p1}/{p2}/{p3}",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "get",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "query",
-                            "name": "taskId",
-                            "type": "integer",
-                            "format" : "int64"
-                        },
-                        {
-                            "paramType": "path",
-                            "name": "p2",
-                            "type": "integer",
-                            "format" : "int64",
-                            "required": true
-                        },
-                        {
-                            "paramType": "path",
-                            "name": "p1",
-                            "type": "integer",
-                            "format" : "int32",
-                            "required": true
-                        },
-                        {
-                            "paramType": "path",
-                            "name": "p3",
-                            "type": "string",
-                            "required": true
-                        }
-                    ]
-                },
-                {
-                    "method": "DELETE",
-                    "nickname": "delete",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "path",
-                            "name": "p2",
-                            "type": "integer",
-                            "format" : "int64",
-                            "required": true
-                        },
-                        {
-                            "paramType": "path",
-                            "name": "p1",
-                            "type": "integer",
-                            "format" : "int32",
-                            "required": true
-                        },
-                        {
-                            "paramType": "path",
-                            "name": "p3",
-                            "type": "string",
-                            "required": true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/api/{p1}/{p2}/{p3}/{item}",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getItem",
-                    "type": "string",
-                    "parameters": [
-                        {
-                            "paramType": "path",
-                            "name": "item",
-                            "type": "string",
-                            "required": true
-                        },
-                        {
-                            "paramType": "path",
-                            "name": "p2",
-                            "type": "integer",
-                            "format" : "int64",
-                            "required": true
-                        },
-                        {
-                            "paramType": "path",
-                            "name": "p1",
-                            "type": "integer",
-                            "format" : "int32",
-                            "required": true
-                        },
-                        {
-                            "paramType": "path",
-                            "name": "p3",
-                            "type": "string",
-                            "required": true
-                        }
-                    ]
-                }
-              ]
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "/api/{p1}/{p2}/{p3}"
+    }
+  ],
+  "paths": {
+    "/api/{p1}/{p2}/{p3}": {
+      "get": {
+        "tags": ["/api/{p1}/{p2}/{p3}"],
+        "operationId": "get",
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "p2",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "p1",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "p3",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
-    ]
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "tags": ["/api/{p1}/{p2}/{p3}"],
+        "operationId": "delete",
+        "parameters": [
+          {
+            "name": "p2",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "p1",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "p3",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/{p1}/{p2}/{p3}/{item}": {
+      "get": {
+        "tags": ["/api/{p1}/{p2}/{p3}"],
+        "operationId": "getItem",
+        "parameters": [
+          {
+            "name": "item",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "p2",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "p1",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "p3",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }

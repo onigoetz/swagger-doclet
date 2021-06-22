@@ -1,185 +1,252 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/xmlaccesstype",
-    "apis": [
-    	{
-            "path": "/xmlaccesstype/defaultaccess",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "postDefaultAccess",
-                    "type": "DefaultAccessPojo",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "DefaultAccessPojo",
-                            "required" : true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/xmlaccesstype/fieldaccess",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "postFieldAccess",
-                    "type": "FieldAccessPojo",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "FieldAccessPojo",
-                            "required" : true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/xmlaccesstype/noneaccess",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "postNoneAccess",
-                    "type": "NoneAccessPojo",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "NoneAccessPojo",
-                            "required" : true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/xmlaccesstype/propertyaccess",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "postPropertyAccess",
-                    "type": "PropertyAccessPojo",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "PropertyAccessPojo",
-                            "required" : true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/xmlaccesstype/publicaccess",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "postPublicAccess",
-                    "type": "PublicAccessPojo",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "PublicAccessPojo",
-                            "required" : true
-                        }
-                    ]
-                }
-            ]
-        }
-    ],
-    "models": {
-    	"DefaultAccessPojo": {
-            "id": "DefaultAccessPojo",
-            "properties": {
-                "foo": {
-                    "type": "string"
-                }
-            }
-        },
-    	"PublicAccessPojo": {
-            "id": "PublicAccessPojo",
-            "properties": {
-            	"value7": {
-                    "type": "string"
-                },
-                "value8": {
-                    "type": "string"
-                },
-                "value9": {
-                    "type": "string"
-                },
-                "value10": {
-                    "type": "string"
-                },
-                "value11": {
-                    "type": "string"
-                }
-            }
-        },
-    	"NoneAccessPojo": {
-            "id": "NoneAccessPojo",
-            "properties": {
-            	"value10": {
-                    "type": "array",
-                    "items": {
-                    	"type": "string"
-                    }
-                },
-                "value11": {
-                    "type": "string"
-                },
-                "value9a": {
-                    "type": "string"
-                },
-                "value8": {
-                    "type": "string"
-                },
-                "value6": {
-                    "type": "string"
-                },
-                "value7a": {
-                    "type": "string"
-                }
-            }
-        },
-        "FieldAccessPojo": {
-            "id": "FieldAccessPojo",
-            "properties": {
-                "value1": {
-                    "type": "string"
-                },
-                "value2": {
-                    "type": "string"
-                },
-                "value3": {
-                    "type": "string"
-                },
-                "value4": {
-                    "type": "string"
-                },
-                "value9": {
-                    "type": "string"
-                }
-            }
-        },
-        "PropertyAccessPojo": {
-            "id": "PropertyAccessPojo",
-            "properties": {
-                "value8": {
-                    "type": "string"
-                },
-                "value9": {
-                    "type": "string"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/xmlaccesstype"
+    }
+  ],
+  "paths": {
+    "/xmlaccesstype/noneaccess": {
+      "post": {
+        "tags": ["/xmlaccesstype"],
+        "operationId": "postNoneAccess",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/NoneAccessPojo"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/NoneAccessPojo"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    },
+    "/xmlaccesstype/propertyaccess": {
+      "post": {
+        "tags": ["/xmlaccesstype"],
+        "operationId": "postPropertyAccess",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/PropertyAccessPojo"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PropertyAccessPojo"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    },
+    "/xmlaccesstype/fieldaccess": {
+      "post": {
+        "tags": ["/xmlaccesstype"],
+        "operationId": "postFieldAccess",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/FieldAccessPojo"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/FieldAccessPojo"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    },
+    "/xmlaccesstype/publicaccess": {
+      "post": {
+        "tags": ["/xmlaccesstype"],
+        "operationId": "postPublicAccess",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicAccessPojo"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicAccessPojo"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    },
+    "/xmlaccesstype/defaultaccess": {
+      "post": {
+        "tags": ["/xmlaccesstype"],
+        "operationId": "postDefaultAccess",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultAccessPojo"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DefaultAccessPojo"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "NoneAccessPojo": {
+        "type": "object",
+        "properties": {
+          "value10": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "value11": {
+            "type": "string"
+          },
+          "value9a": {
+            "type": "string"
+          },
+          "value8": {
+            "type": "string"
+          },
+          "value6": {
+            "type": "string"
+          },
+          "value7a": {
+            "type": "string"
+          }
+        }
+      },
+      "PropertyAccessPojo": {
+        "type": "object",
+        "properties": {
+          "value8": {
+            "type": "string"
+          },
+          "value9": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicAccessPojo": {
+        "type": "object",
+        "properties": {
+          "value7": {
+            "type": "string"
+          },
+          "value8": {
+            "type": "string"
+          },
+          "value9": {
+            "type": "string"
+          },
+          "value10": {
+            "type": "string"
+          },
+          "value11": {
+            "type": "string"
+          }
+        }
+      },
+      "FieldAccessPojo": {
+        "type": "object",
+        "properties": {
+          "value1": {
+            "type": "string"
+          },
+          "value2": {
+            "type": "string"
+          },
+          "value3": {
+            "type": "string"
+          },
+          "value4": {
+            "type": "string"
+          },
+          "value9": {
+            "type": "string"
+          }
+        }
+      },
+      "DefaultAccessPojo": {
+        "type": "object",
+        "properties": {
+          "foo": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
 }

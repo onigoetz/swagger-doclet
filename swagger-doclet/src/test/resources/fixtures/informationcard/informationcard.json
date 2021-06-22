@@ -1,79 +1,106 @@
 {
-   "apiVersion":"0",
-   "swaggerVersion":"1.2",
-   "basePath":"http://localhost:8080",
-   "resourcePath":"/v1",
-   "apis":[
-      {
-         "path":"/v1/users/{userId}/informationCards",
-         "operations":[
-            {
-               "method":"GET",
-               "nickname":"getInformationCards",
-               "type":"informationCardCollection",
-               "parameters":[
-                  {
-                     "type":"string",
-                     "paramType":"path",
-                     "name":"userId",
-                     "required":true
-                  },
-                  {
-                     "type":"number",
-                     "format":"double",
-                     "paramType":"query",
-                     "name":"lon"
-                  },
-                  {
-                     "type":"number",
-                     "format":"double",
-                     "paramType":"query",
-                     "name":"lat"
-                  }
-               ],
-               "produces":[
-                  "application/json",
-                  "application/xml"
-               ]
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "/v1"
+    }
+  ],
+  "paths": {
+    "/v1/users/{userId}/informationCards": {
+      "get": {
+        "tags": ["/v1"],
+        "operationId": "getInformationCards",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
-         ]
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "lat",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/informationCardCollection"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/informationCardCollection"
+                }
+              }
+            }
+          }
+        }
       }
-   ],
-   "models":{
-      "informationCardCollection":{
-         "id":"informationCardCollection",
-         "properties":{
-            "cards":{
-               "type":"array",
-               "items":{
-                  "$ref":"informationCard"
-               }
-            }
-         }
+    }
+  },
+  "components": {
+    "schemas": {
+      "informationCard": {
+        "type": "object",
+        "properties": {
+          "confirmUrl": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "body": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "iconUrl": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
       },
-      "informationCard":{
-         "id":"informationCard",
-         "properties":{
-            "confirmUrl":{
-               "type":"string"
-            },
-            "id":{
-               "type":"integer",
-               "format":"int64"
-            },
-            "body":{
-               "type":"string"
-            },
-            "title":{
-               "type":"string"
-            },
-            "iconUrl":{
-               "type":"string"
-            },
-            "type":{
-               "type":"string"
+      "informationCardCollection": {
+        "type": "object",
+        "properties": {
+          "cards": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/informationCard"
             }
-         }
+          }
+        }
       }
-   }
+    }
+  }
 }

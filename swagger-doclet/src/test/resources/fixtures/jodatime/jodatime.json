@@ -1,101 +1,158 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/jodaTime",
-    "apis": [
-        {
-            "path": "/jodaTime",
-            "operations": [
-            	{
-                    "method": "GET",
-                    "nickname": "get",
-                    "type": "Data"
-                },
-                {
-                    "method": "POST",
-                    "nickname": "post",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "Data",
-                            "required": true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/jodaTime/localdate",
-            "operations": [
-            	{
-                    "method": "GET",
-                    "nickname": "getLocalDate",
-                    "type": "string",
-                    "format": "date"
-                },
-                {
-                    "method": "POST",
-                    "nickname": "setLocalDate",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "string",
-                            "format": "date",
-                            "required": true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/jodaTime/localtime",
-            "operations": [
-            	{
-                    "method": "GET",
-                    "nickname": "getLocalTime",
-                    "type": "string"
-                },
-                {
-                    "method": "POST",
-                    "nickname": "setLocalTime",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "string",
-                            "required": true
-                        }
-                    ]
-                }
-            ]
-        }
-    ],
-    "models": {
-    	"Data": {
-            "id": "Data",
-            "properties": {
-                "dateTimeField": {
-                    "type": "string",
-                    "format": "date-time"
-                },
-                "localDate": {
-                    "type": "string",
-                    "format": "date"
-                },
-                "localTime": {
-                    "type": "string"
-                },
-                "dateTimeField2": {
-                    "type": "string",
-                    "format": "date-time"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/jodaTime"
+    }
+  ],
+  "paths": {
+    "/jodaTime/localdate": {
+      "get": {
+        "tags": ["/jodaTime"],
+        "operationId": "getLocalDate",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "date"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/jodaTime"],
+        "operationId": "setLocalDate",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string",
+                "format": "date"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    },
+    "/jodaTime": {
+      "get": {
+        "tags": ["/jodaTime"],
+        "operationId": "get",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/jodaTime"],
+        "operationId": "post",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/Data"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    },
+    "/jodaTime/localtime": {
+      "get": {
+        "tags": ["/jodaTime"],
+        "operationId": "getLocalTime",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/jodaTime"],
+        "operationId": "setLocalTime",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Data": {
+        "type": "object",
+        "properties": {
+          "dateTimeField": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "localDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "localTime": {
+            "type": "string"
+          },
+          "dateTimeField2": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
 }

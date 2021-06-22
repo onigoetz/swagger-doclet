@@ -1,51 +1,62 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/responsemessagesorting",
-    "apis": [
-        {
-            "path": "/responsemessagesorting",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "tenxer",
-                    "type": "void",
-                    "responseMessages": [
-                    	{
-                            "code": 401,
-                            "message": "not authA<br>not authB<br>not_authC|If user not authenticated",
-                            "responseModel" : "Response3"
-                        },
-                        {
-                            "code": 302,
-                            "message": "redirect"
-                        },
-                        {
-                            "code": 200,
-                            "message": "ok"
-                        }
-                    ]
-                }
-            ]
-        }
-    ],
-    "models": {
-        "Response1": {
-            "id": "Response1",
-            "properties": {
-                "value": {
-                    "type": "string"
-                }
-            }
-        },
-        "Response3": {
-            "id": "Response3",
-            "properties": {
-                "value": {
-                    "type": "string"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/responsemessagesorting"
+    }
+  ],
+  "paths": {
+    "/responsemessagesorting": {
+      "get": {
+        "tags": ["/responsemessagesorting"],
+        "operationId": "tenxer",
+        "responses": {
+          "200": {
+            "description": "ok"
+          },
+          "302": {
+            "description": "redirect"
+          },
+          "401": {
+            "description": "not authA<br>not authB<br>not_authC|If user not authenticated",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response3"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Response1": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "Response3": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
 }

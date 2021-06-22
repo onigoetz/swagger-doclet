@@ -1,30 +1,31 @@
 package com.tenxerconsulting.swagger.doclet.parser;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.tenxerconsulting.swagger.doclet.parser.ParameterReader;
-
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * The ParameterReaderTest represents a test case for the parameter reader
  * @version $Id$
  * @author conor.roche
  */
-public class ParameterReaderTest extends TestCase {
+public class ParameterReaderTest {
 
 	/**
 	 * This tests the add path params method can successfull
 	 * extract parameters from an expression
 	 */
+	@Test
 	public void testAddPathParams() {
 		ParameterReader r = new ParameterReader(null, null);
 
-		List<String> items = new ArrayList<String>();
+		List<String> items = new ArrayList<>();
 
-		List<String> expected = Arrays.asList(new String[] { "a" });
+		List<String> expected = Arrays.asList("a");
 		r.addPathParams("/{a}/test", items);
 		assertEquals(expected, items);
 
@@ -33,7 +34,7 @@ public class ParameterReaderTest extends TestCase {
 		assertEquals(expected, items);
 
 		items.clear();
-		expected = Arrays.asList(new String[] { "a", "b" });
+		expected = Arrays.asList("a", "b");
 		r.addPathParams("/{a}/{b}", items);
 		assertEquals(expected, items);
 

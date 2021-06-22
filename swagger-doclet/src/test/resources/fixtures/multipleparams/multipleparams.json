@@ -1,133 +1,204 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/multipleparams",
-    "apis": [
-        {
-            "path": "/multipleparams",
-            "description" : "parms",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getParams1",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "query",
-                            "name": "p1",
-                            "type": "string",
-                            "allowMultiple" : true
-                        },
-                        {
-                            "paramType": "query",
-                            "name": "p2",
-                            "type": "string"
-                        }
-                    ]
-                },
-                {
-                    "method": "PUT",
-                    "nickname": "putParams2",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "query",
-                            "name": "p1",
-                            "type": "string",
-                            "allowMultiple" : true
-                        },
-                        {
-                            "paramType": "query",
-                            "name": "p2",
-                            "type": "string",
-                            "allowMultiple" : true
-                        },
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "Data",
-                            "required": true
-                        }
-                        
-                    ]
-                },
-                {
-                    "method": "POST",
-                    "nickname": "postParams3",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "query",
-                            "name": "p1",
-                            "type": "string"
-                        },
-                        {
-                            "paramType": "header",
-                            "name": "p2",
-                            "type": "string",
-                            "allowMultiple" : true
-                        },
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "Data",
-                            "required": true
-                        }
-                        
-                    ]
-                }
-                
-            ]
-        },
-        {
-            "path": "/multipleparams/{id}",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "postParams4",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "path",
-                            "name": "id",
-                            "type": "string",
-                            "required": true,
-                            "allowMultiple" : true
-                        },
-                        {
-                            "paramType": "query",
-                            "name": "p1",
-                            "type": "string",
-                            "allowMultiple" : true
-                        },
-                        {
-                            "paramType": "header",
-                            "name": "p2",
-                            "type": "string",
-                            "allowMultiple" : true
-                        },
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "Data",
-                            "required": true
-                        }
-                        
-                    ]
-                }
-            ]
-        }
-    ],
-    "models": {
-        "Data": {
-            "id": "Data",
-            "properties": {
-                "value": {
-                    "type": "string",
-                    "description": "the value"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/multipleparams"
+    }
+  ],
+  "paths": {
+    "/multipleparams/{id}": {
+      "post": {
+        "tags": ["/multipleparams"],
+        "operationId": "postParams4",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "explode": false,
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "p1",
+            "in": "query",
+            "explode": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "p2",
+            "in": "header",
+            "explode": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/Data"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    },
+    "/multipleparams": {
+      "get": {
+        "tags": ["/multipleparams"],
+        "operationId": "getParams1",
+        "parameters": [
+          {
+            "name": "p1",
+            "in": "query",
+            "explode": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "p2",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "tags": ["/multipleparams"],
+        "operationId": "putParams2",
+        "parameters": [
+          {
+            "name": "p1",
+            "in": "query",
+            "explode": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "p2",
+            "in": "query",
+            "explode": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/Data"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      },
+      "post": {
+        "tags": ["/multipleparams"],
+        "operationId": "postParams3",
+        "parameters": [
+          {
+            "name": "p1",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "p2",
+            "in": "header",
+            "explode": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/Data"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Data": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "description": "the value"
+          }
+        }
+      }
+    }
+  }
 }

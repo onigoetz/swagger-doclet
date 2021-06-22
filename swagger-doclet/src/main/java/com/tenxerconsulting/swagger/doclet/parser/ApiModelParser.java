@@ -1,19 +1,9 @@
 package com.tenxerconsulting.swagger.doclet.parser;
 
-import static com.google.common.collect.Collections2.filter;
+import static com.tenxerconsulting.swagger.doclet.parser.ParserHelper.createRef;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import com.google.common.base.Predicate;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
@@ -22,23 +12,19 @@ import com.sun.javadoc.Type;
 import com.sun.javadoc.TypeVariable;
 import com.tenxerconsulting.swagger.doclet.model.ModelWrapper;
 import com.tenxerconsulting.swagger.doclet.model.PropertyWrapper;
-import io.swagger.models.Model;
 import com.tenxerconsulting.swagger.doclet.DocletOptions;
 import com.tenxerconsulting.swagger.doclet.translator.NameBasedTranslator;
 import com.tenxerconsulting.swagger.doclet.translator.Translator;
 import com.tenxerconsulting.swagger.doclet.translator.Translator.OptionalName;
-import io.swagger.models.ModelImpl;
-import io.swagger.models.properties.ArrayProperty;
-import io.swagger.models.properties.PropertyBuilder;
-import io.swagger.models.properties.RefProperty;
-import io.swagger.models.properties.StringProperty;
-import io.swagger.models.refs.RefType;
+import io.swagger.oas.models.media.*;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The ApiModelParser represents a parser for api model classes which are used for parameters, resource method return types and
  * model fields.
  * @version $Id$
  */
+@Slf4j
 public class ApiModelParser {
 
 	private final DocletOptions options;
@@ -50,6 +36,7 @@ public class ApiModelParser {
 	private final Collection<ClassDoc> docletClasses;
 	private final boolean inheritFields;
 
+	private ModelWrapper parentModel;
 	private Map<String, Type> varsToTypes = new HashMap<String, Type>();
 
 	// composite param model processing specifics
@@ -93,9 +80,9 @@ public class ApiModelParser {
 	 * @param inheritFields whether to inherit fields from super types
 	 * @param parentModels parent type models
 	 */
-	ApiModelParser(DocletOptions options, Translator translator, Type rootType, ClassDoc[] viewClasses, boolean inheritFields, Set<ModelWrapper> parentModels) {
-
+	ApiModelParser(DocletOptions options, Translator translator, Type rootType, ClassDoc[] viewClasses, boolean inheritFields, ModelWrapper parentModel, Set<ModelWrapper> parentModels) {
 		this(options, translator, rootType, viewClasses, null, inheritFields);
+		this.parentModel = parentModel;
 		this.parentModels.clear();
 		this.parentModels.addAll(parentModels);
 	}
@@ -162,12 +149,11 @@ public class ApiModelParser {
 	 */
 	public Set<ModelWrapper> parse() {
 		this.subTypeClasses.clear();
-		parseModel(this.rootType, false);
+		ModelWrapper parentModel = parseModel(this.rootType, false);
 
 		// process sub types
 		for (ClassDoc subType : this.subTypeClasses) {
-
-			ApiModelParser subTypeParser = new ApiModelParser(this.options, this.translator, subType, this.viewClasses, false, this.models);
+			ApiModelParser subTypeParser = new ApiModelParser(this.options, this.translator, subType, this.viewClasses, false, parentModel, this.models);
 			Set<ModelWrapper> subTypeModesl = subTypeParser.parse();
 			this.models.addAll(subTypeModesl);
 		}
@@ -175,7 +161,7 @@ public class ApiModelParser {
 		return this.models;
 	}
 
-	private void parseModel(Type type, boolean nested) {
+	private ModelWrapper parseModel(Type type, boolean nested) {
 
 		String qName = type.qualifiedTypeName();
 		boolean isPrimitive = ParserHelper.isPrimitive(type, this.options);
@@ -191,21 +177,29 @@ public class ApiModelParser {
 
 		if (isPrimitive || isJavaxType || isClass || isWildcard || isBaseObject || isCollection || isMap || isArray || classDoc == null || classDoc.isEnum()
 				|| alreadyStoredType(type, this.models) || alreadyStoredType(type, this.parentModels)) {
-			return;
+			if (alreadyStoredType(type, this.models)) {
+				return getAlreadyStoredType(type, this.models);
+			}
+
+			if (alreadyStoredType(type, this.parentModels)) {
+				return getAlreadyStoredType(type, this.parentModels);
+			}
+
+			return null;
 		}
 
 		// check if its got an exclude tag
 		// see if deprecated
 		if (this.options.isExcludeDeprecatedModelClasses() && ParserHelper.isDeprecated(classDoc, this.options)) {
-			return;
+			return null;
 		}
 
 		// see if excluded explicitly
 		if (ParserHelper.hasTag(classDoc, this.options.getExcludeClassTags())) {
-			return;
+			return null;
 		}
 		if (ParserHelper.hasAnnotation(classDoc, this.options.getExcludeClassAnnotations(), this.options)) {
-			return;
+			return null;
 		}
 
 		// see if excluded via its FQN
@@ -213,7 +207,7 @@ public class ApiModelParser {
 			for (String prefix : this.options.getExcludeModelPrefixes()) {
 				String className = classDoc.qualifiedName();
 				if (className.startsWith(prefix)) {
-					return;
+					return null;
 				}
 			}
 		}
@@ -235,85 +229,125 @@ public class ApiModelParser {
 		Map<String, TypeRef> types = findReferencedTypes(classDoc, nested);
 		Map<String, PropertyWrapper> elements = findReferencedElements(classDoc, types, nested);
 
-		if (!elements.isEmpty() || classDoc.superclass() != null) {
+		if (elements.isEmpty() && classDoc.superclass() == null) {
+			return null;
+		}
 
-			String modelId = this.translator.typeName(type, this.options.isUseFullModelIds(), this.viewClasses).value();
+		String modelId = this.translator.typeName(type, this.options.isUseFullModelIds(), this.viewClasses).value();
 
-			List<String> requiredFields = null;
-			List<String> optionalFields = null;
-			// build list of required and optional fields
-			for (Map.Entry<String, TypeRef> fieldEntry : types.entrySet()) {
-				String fieldName = fieldEntry.getKey();
-				TypeRef fieldDesc = fieldEntry.getValue();
-				Boolean required = fieldDesc.required;
-				if ((required != null && required.booleanValue()) || (required == null && this.options.isModelFieldsRequiredByDefault())) {
-					if (requiredFields == null) {
-						requiredFields = new ArrayList<String>();
-					}
-					requiredFields.add(fieldName);
-				}
-				if (required != null && !required.booleanValue()) {
-					if (optionalFields == null) {
-						optionalFields = new ArrayList<String>();
-					}
-					optionalFields.add(fieldName);
-				}
+		List<String> requiredFields = new ArrayList<>();
+		// build list of required and optional fields
+		for (Map.Entry<String, TypeRef> fieldEntry : types.entrySet()) {
+			String fieldName = fieldEntry.getKey();
+			TypeRef fieldDesc = fieldEntry.getValue();
+			Boolean required = fieldDesc.required;
+			if ((required != null && required) || (required == null && this.options.isModelFieldsRequiredByDefault())) {
+				requiredFields.add(fieldName);
 			}
+		}
+
+		Schema model = new ObjectSchema();
+
+		// Look for Discriminators and subTypes
+		Discriminator discriminator = parseDiscriminator(modelId, classDoc, elements, requiredFields);
+		model.setDiscriminator(discriminator);
+
+		if (!requiredFields.isEmpty()) {
+			model.setRequired(requiredFields);
+		}
+
+		// add properties to model
+		for (Map.Entry<String, PropertyWrapper> propEntry : elements.entrySet()) {
+			model.addProperties(propEntry.getKey(), propEntry.getValue().getProperty());
+		}
+
+		// If this is the child of another model,
+		// we create a composed schema containing a $ref to the parent
+		// and the properties of the current model.
+		if (parentModel != null) {
+			ComposedSchema childModel = new ComposedSchema();
+
+			childModel.allOf(
+					Arrays.asList(
+							createRef(parentModel.getName()),
+							model
+					)
+			);
+
+			model = childModel;
+		}
+
+		ModelWrapper modelWrapper = new ModelWrapper(modelId, model, elements);
+		this.models.add(modelWrapper);
+
+		parseNestedModels(types.values());
+
+		return modelWrapper;
+	}
+
+	private Discriminator parseDiscriminator(String modelId, ClassDoc classDoc, Map<String, PropertyWrapper> parentElements, List<String> requiredFields) {
+
+		AnnotationParser p = new AnnotationParser(classDoc, this.options);
+
+		for (String discriminatorAnnotation : this.options.getDiscriminatorAnnotations()) {
+			String propertyName = p.getAnnotationValue(discriminatorAnnotation, "property");
+
+			if (propertyName == null) {
+				continue;
+			}
+
+			ComposedSchema model = new ComposedSchema();
+
+			Map<String, PropertyWrapper> elements = new HashMap<>();
+
+			// Add discriminator as field
+			StringSchema discriminatorProp = new StringSchema();
+			PropertyWrapper discriminatorPropWrapper = new PropertyWrapper(propertyName,  discriminatorProp, null, true, false);
+			elements.put(propertyName, discriminatorPropWrapper);
+			model.addProperties(propertyName, discriminatorProp);
+			if (!parentElements.containsKey(propertyName)) {
+				parentElements.put(propertyName, discriminatorPropWrapper);
+			}
+
+			// Add discriminator to required fields
+			model.setRequired(Arrays.asList(propertyName));
+			if (!requiredFields.contains(propertyName)) {
+				requiredFields.add(propertyName);
+			}
+
+			Discriminator discriminator = new Discriminator();
+			discriminator.propertyName(propertyName);
+			model.discriminator(discriminator);
 
 			// look for sub types
-			AnnotationParser p = new AnnotationParser(classDoc, this.options);
-			List<String> subTypes = new ArrayList<String>();
+			List<Schema> subTypes = new ArrayList<>();
 			for (String subTypeAnnotation : this.options.getSubTypesAnnotations()) {
 				List<ClassDoc> annSubTypes = p.getAnnotationArrayTypes(subTypeAnnotation, "value", "value");
-				if (annSubTypes != null) {
-					for (ClassDoc subType : annSubTypes) {
-						String subTypeName = this.translator.typeName(subType, this.options.isUseFullModelIds()).value();
-						if (subTypeName != null) {
-							subTypes.add(subTypeName);
-							// add model for subtype
-							this.subTypeClasses.add(subType);
-						}
+				if (annSubTypes == null) {
+					continue;
+				}
+
+				for (ClassDoc subType : annSubTypes) {
+					String subTypeName = this.translator.typeName(subType, this.options.isUseFullModelIds()).value();
+					if (subTypeName != null) {
+						subTypes.add(createRef(subTypeName));
+						// add model for subtype
+						this.subTypeClasses.add(subType);
 					}
 				}
 			}
-			if (subTypes.isEmpty()) {
-				subTypes = null;
+
+			if (!subTypes.isEmpty()) {
+				model.oneOf(subTypes);
 			}
 
-			String discriminator = null;
-			for (String discriminatorAnnotation : this.options.getDiscriminatorAnnotations()) {
-				String val = p.getAnnotationValue(discriminatorAnnotation, "property");
-				if (val != null) {
-					discriminator = val;
-					// auto add as model field if not already done
-					if (!elements.containsKey(discriminator)) {
-						StringProperty discriminatorProp = new StringProperty();
-						PropertyWrapper discriminatorPropWrapper = new PropertyWrapper(discriminator, null, discriminatorProp);
-						elements.put(discriminator, discriminatorPropWrapper);
-					}
-					// auto add discriminator to required fields
-					if (requiredFields == null || !requiredFields.contains(discriminator)) {
-						if (requiredFields == null) {
-							requiredFields = new ArrayList<String>(1);
-						}
-						requiredFields.add(discriminator);
-					}
-					break;
-				}
-			}
-
-			ModelImpl model = new ModelImpl();
-			model.setReference(modelId);
-			model.setType(ModelImpl.OBJECT);
-			model.setRequired(requiredFields);
-			model.setDiscriminator(discriminator);
-			// TODO support subTypes
-
-			ModelWrapper modelWrapper = new ModelWrapper(model, elements);
-
+			ModelWrapper modelWrapper = new ModelWrapper(modelId + "___discriminatorResponse", model, elements);
 			this.models.add(modelWrapper);
-			parseNestedModels(types.values());
+
+			return discriminator;
 		}
+
+		return null;
 	}
 
 	/**
@@ -338,9 +372,10 @@ public class ApiModelParser {
 		List<String> allowableValues;
 		Boolean required;
 		boolean hasView;
+		boolean isDeprecated;
 
 		TypeRef(String rawName, String paramCategory, String sourceDesc, Type type, String description, String format, String min, String max,
-				String defaultValue, List<String> allowableValues, Boolean required, boolean hasView) {
+				String defaultValue, List<String> allowableValues, Boolean required, boolean hasView, boolean isDeprecated) {
 			super();
 			this.rawName = rawName;
 			this.paramCategory = paramCategory;
@@ -354,7 +389,7 @@ public class ApiModelParser {
 			this.allowableValues = allowableValues;
 			this.required = required;
 			this.hasView = hasView;
-
+			this.isDeprecated = isDeprecated;
 		}
 	}
 
@@ -499,8 +534,11 @@ public class ApiModelParser {
 							String paramCategory = this.composite ? ParserHelper.paramTypeOf(false, this.consumesMultipart, field, fieldType, this.options)
 									: null;
 
+							boolean isDeprecated = ParserHelper.isDeprecated(field, this.options);
+
+
 							elements.put(field.name(), new TypeRef(field.name(), paramCategory, " field: " + field.name(), fieldType, description, format, min,
-									max, defaultValue, allowableValues, required, hasView));
+									max, defaultValue, allowableValues, required, hasView, isDeprecated));
 						}
 					}
 				}
@@ -554,6 +592,7 @@ public class ApiModelParser {
 					List<String> allowableValues = returnTypeReader.getFieldAllowableValues(method);
 					Boolean required = returnTypeReader.getFieldRequired(method);
 					boolean hasView = ParserHelper.hasJsonViews(method, this.options);
+					boolean isDeprecated = ParserHelper.isDeprecated(method, this.options);
 
 					// process getters/setters in a way that can override the field details
 					if (rawFieldName != null) {
@@ -574,7 +613,7 @@ public class ApiModelParser {
 						if (typeRef == null) {
 							// its a getter/setter but without a corresponding field
 							typeRef = new TypeRef(rawFieldName, null, " method: " + method.name(), returnType, description, format, min, max, defaultValue,
-									allowableValues, required, false);
+									allowableValues, required, false, isDeprecated);
 							elements.put(rawFieldName, typeRef);
 						}
 
@@ -621,7 +660,7 @@ public class ApiModelParser {
 						// its a non getter/setter
 						String paramCategory = ParserHelper.paramTypeOf(false, this.consumesMultipart, method, returnType, this.options);
 						elements.put(translatedNameViaMethod, new TypeRef(null, paramCategory, " method: " + method.name(), returnType, description, format,
-								min, max, defaultValue, allowableValues, required, hasView));
+								min, max, defaultValue, allowableValues, required, hasView, isDeprecated));
 					}
 				}
 			}
@@ -851,7 +890,7 @@ public class ApiModelParser {
 			}
 
 			PropertyWrapper propertyWrapper = buildPropertyWrapper(typeRef.rawName, typeRef.paramCategory, propertyType, format, typeRef.description, itemsRef, itemsType,
-					itemsFormat, itemsAllowableValues, uniqueItems, allowableValues, typeRef.min, typeRef.max, typeRef.defaultValue);
+					itemsFormat, itemsAllowableValues, uniqueItems, allowableValues, typeRef.min, typeRef.max, typeRef.defaultValue, typeRef.required, typeRef.isDeprecated);
 
 			elements.put(typeName, propertyWrapper);
 		}
@@ -920,8 +959,7 @@ public class ApiModelParser {
 		return type;
 	}
 
-	private boolean alreadyStoredType(Type type, Set<ModelWrapper> apiModels) {
-
+	private ModelWrapper getAlreadyStoredType(Type type, Set<ModelWrapper> apiModels) {
 		// if a collection then the type to check is the param type
 		Type containerOf = ParserHelper.getContainerType(type, this.varsToTypes, null);
 		if (containerOf != null) {
@@ -932,35 +970,37 @@ public class ApiModelParser {
 		final ClassDoc[] viewClasses = this.viewClasses;
 		final String modelId = this.translator.typeName(typeToCheck, this.options.isUseFullModelIds(), viewClasses).value();
 
-		return filter(apiModels, new Predicate<ModelWrapper>() {
+		return apiModels.stream().filter(wrapper -> wrapper.getName().equals(modelId)).findFirst().orElse(null);
+	}
 
-			public boolean apply(ModelWrapper model) {
-				return model.getModel().getReference().equals(modelId);
-			}
-		}).size() > 0;
+	private boolean alreadyStoredType(Type type, Set<ModelWrapper> apiModels) {
+		return getAlreadyStoredType(type, apiModels) != null;
 	}
 
 	private PropertyWrapper buildPropertyWrapper(String rawFieldName, String paramCategory, String type, String format, String description, String itemsRef, String itemsType,
-												 String itemsFormat, List<String> itemsAllowableValues, Boolean uniqueItems, List<String> allowableValues, String minimum, String maximum, String defaultValue) {
-		Map<PropertyBuilder.PropertyId, Object> args = new HashMap<>();
-		args.put(PropertyBuilder.PropertyId.DESCRIPTION, description);
-		args.put(PropertyBuilder.PropertyId.ENUM, allowableValues);
-		args.put(PropertyBuilder.PropertyId.UNIQUE_ITEMS, uniqueItems);
-		args.put(PropertyBuilder.PropertyId.MINIMUM, minimum);
-		args.put(PropertyBuilder.PropertyId.MAXIMUM, maximum);
-		args.put(PropertyBuilder.PropertyId.DEFAULT, defaultValue);
+												 String itemsFormat, List<String> itemsAllowableValues, Boolean uniqueItems, List<String> allowableValues, String minimum, String maximum, String defaultValue, Boolean required, boolean deprecated) {
+		Map<SchemaBuilder.PropertyId, Object> args = new HashMap<>();
+		args.put(SchemaBuilder.PropertyId.DESCRIPTION, description);
+		args.put(SchemaBuilder.PropertyId.ENUM, allowableValues);
+		args.put(SchemaBuilder.PropertyId.UNIQUE_ITEMS, uniqueItems);
+		args.put(SchemaBuilder.PropertyId.MINIMUM, minimum);
+		args.put(SchemaBuilder.PropertyId.MAXIMUM, maximum);
+		args.put(SchemaBuilder.PropertyId.DEFAULT, defaultValue);
 
-		io.swagger.models.properties.Property property = PropertyBuilder.build(type, format, args);
+		Schema property = SchemaBuilder.build(type, format, args);
 
 		// if PropertyBuilder.build is null then this is a RefProperty
 		if (property == null) {
-			property = new RefProperty(type);
+			property = createRef(type);
 		}
 
-		if (property instanceof ArrayProperty) {
-			((ArrayProperty) property).setItems(ParserHelper.buildItems(itemsRef, itemsType, itemsFormat, itemsAllowableValues, uniqueItems));
+		if (property instanceof ArraySchema) {
+			Map<SchemaBuilder.PropertyId, Object> arrayArgs = new HashMap<>();
+			arrayArgs.put(SchemaBuilder.PropertyId.ENUM, itemsAllowableValues);
+
+			((ArraySchema) property).setItems(ParserHelper.buildItems(itemsRef, itemsType, itemsFormat, arrayArgs));
 		}
 
-		return new PropertyWrapper(rawFieldName, paramCategory, property);
+		return new PropertyWrapper(rawFieldName, property, paramCategory, required, deprecated);
 	}
 }

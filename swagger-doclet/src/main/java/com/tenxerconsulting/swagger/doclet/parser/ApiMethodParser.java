@@ -1,24 +1,18 @@
 package com.tenxerconsulting.swagger.doclet.parser;
 
-import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.tenxerconsulting.swagger.doclet.parser.ParserHelper.createRef;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.core.MediaType;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.MethodDoc;
@@ -30,14 +24,21 @@ import com.tenxerconsulting.swagger.doclet.model.*;
 import com.tenxerconsulting.swagger.doclet.model.HttpMethod;
 import com.tenxerconsulting.swagger.doclet.translator.Translator;
 import com.tenxerconsulting.swagger.doclet.translator.Translator.OptionalName;
-import io.swagger.models.*;
-import io.swagger.models.properties.*;
-import io.swagger.models.refs.RefType;
+import io.swagger.oas.models.media.*;
+import io.swagger.oas.models.parameters.RequestBody;
+import io.swagger.oas.models.responses.ApiResponse;
+import io.swagger.oas.models.responses.ApiResponses;
+import io.swagger.oas.models.security.Scopes;
+import io.swagger.oas.models.security.SecurityRequirement;
+import io.swagger.oas.models.security.SecurityScheme;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The ApiMethodParser represents a parser for resource methods
  * @version $Id$
  */
+@Slf4j
 public class ApiMethodParser {
 
 	private static final Pattern GENERIC_RESPONSE_PATTERN = Pattern.compile("(.*)<(.*)>");
@@ -102,7 +103,7 @@ public class ApiMethodParser {
 		String methodPath = ParserHelper.resolveMethodPath(this.methodDoc, this.options);
 		if (this.httpMethod == null && methodPath.isEmpty()) {
 			if (this.options.isLogDebug()) {
-				System.out.println("skipping method: " + this.methodDoc.name() + " as it has neither @Path nor a http method annotation");
+				log.debug("skipping method: {} as it has neither @Path nor a http method annotation", this.methodDoc.name());
 			}
 			return null;
 		}
@@ -112,7 +113,7 @@ public class ApiMethodParser {
 		if (ParserHelper.isInheritableDeprecated(this.methodDoc, this.options)) {
 			if (this.options.isExcludeDeprecatedOperations()) {
 				if (this.options.isLogDebug()) {
-					System.out.println("skipping method: " + this.methodDoc.name() + " as it is deprecated and configuration excludes deprecated methods");
+					log.debug("skipping method: {} as it is deprecated and configuration excludes deprecated methods", this.methodDoc.name());
 				}
 				return null;
 			}
@@ -122,13 +123,13 @@ public class ApiMethodParser {
 		// exclude if it has exclusion tags/annotations
 		if (ParserHelper.hasInheritableTag(this.methodDoc, this.options.getExcludeOperationTags())) {
 			if (this.options.isLogDebug()) {
-				System.out.println("skipping method: " + this.methodDoc.name() + " as it has an exclusion tag");
+				log.debug("skipping method: {} as it has an exclusion tag", this.methodDoc.name());
 			}
 			return null;
 		}
 		if (ParserHelper.hasInheritableAnnotation(this.methodDoc, this.options.getExcludeOperationAnnotations(), this.options)) {
 			if (this.options.isLogDebug()) {
-				System.out.println("skipping method: " + this.methodDoc.name() + " as it has an exclusion annotation");
+				log.debug("skipping method: {} as it has an exclusion annotation", this.methodDoc.name());
 			}
 			return null;
 		}
@@ -140,26 +141,40 @@ public class ApiMethodParser {
 			path = this.parentPath + methodPath;
 		}
 
+
+
+		// ************************************
+		// Produces & consumes
+		// ************************************
+		List<String> consumes = ParserHelper.getConsumes(this.methodDoc, this.options);
+		List<String> produces = ParserHelper.getProduces(this.methodDoc, this.options);
+
+		// Build input
+		RequestBody requestBody = null;
+		if (consumes != null && !consumes.isEmpty()) {
+			requestBody = new RequestBody();
+
+			Content content = new Content();
+			requestBody.content(content);
+
+			consumes.forEach(item -> {
+				io.swagger.oas.models.media.MediaType mediaType = new io.swagger.oas.models.media.MediaType();
+
+				if ("text/plain".equals(item)) {
+					StringSchema schema = new StringSchema();
+					mediaType.setSchema(schema);
+				}
+
+				// TODO :: how can we handle other mediaTypes ?
+
+				content.addMediaType(item, mediaType);
+			});
+		}
+
 		// build params
-		List<io.swagger.models.parameters.Parameter> parameters = this.generateParameters();
+		ParametersAndBody parameters = this.generateParameters(consumes);
 
 		ClassDoc[] viewClasses = ParserHelper.getInheritableJsonViews(this.methodDoc, this.options);
-
-		Map<String, Response> responseMap = new HashMap<>();
-
-		// build response messages
-		for (ApiResponseMessage responseMessage: generateResponseMessages(viewClasses)) {
-			Response response = new Response();
-
-			response.setDescription(responseMessage.getMessage());
-
-			if (null != responseMessage.getResponseModel()) {
-				io.swagger.models.properties.Property property = new RefProperty(RefType.DEFINITION.getInternalPrefix() + responseMessage.getResponseModel());
-				response.setSchema(property);
-			}
-
-			responseMap.put(String.valueOf(responseMessage.getCode()), response);
-		}
 
 		// ************************************
 		// Return type
@@ -253,46 +268,78 @@ public class ApiMethodParser {
 			returnTypeFormat = tagFormat;
 		}
 
-		io.swagger.models.properties.Property property;
-		if (returnType != null && returnTypeName.equals("array")) {
-			io.swagger.models.properties.Property items = ParserHelper.buildItems(
-					returnTypeItemsRef,
-					returnTypeItemsType,
-					returnTypeItemsFormat,
-					returnTypeItemsAllowableValues,
-					false
-			);
-
-			ArrayProperty arrayProperty = new ArrayProperty(items);
-			if (ParserHelper.isSet(returnType.qualifiedTypeName())) {
-				arrayProperty.setUniqueItems(true);
-			}
-
-			property = arrayProperty;
-
-		} else {
-			Map<PropertyBuilder.PropertyId, Object> args = new HashMap<>();
-			args.put(PropertyBuilder.PropertyId.MINIMUM, returnTypeReader.getFieldMin(this.methodDoc, returnType));
-			args.put(PropertyBuilder.PropertyId.MAXIMUM, returnTypeReader.getFieldMax(this.methodDoc, returnType));
-			args.put(PropertyBuilder.PropertyId.DEFAULT, returnTypeReader.getFieldDefaultValue(this.methodDoc, returnType));
-			args.put(PropertyBuilder.PropertyId.ENUM, returnTypeAllowableValues);
-
-			property = PropertyBuilder.build(returnTypeName, returnTypeFormat, args);
-
-            if (property == null) {
-				property = new RefProperty(RefType.DEFINITION.getInternalPrefix() + returnTypeName);
-			}
-		}
-
+		// Process all models to attach
 		if (modelType != null && this.options.isParseModels()) {
 			this.models.addAll(new ApiModelParser(this.options, this.translator, modelType, viewClasses, this.classes).addVarsToTypes(varsToTypes).parse());
 		}
 
-		Response defaultResponse = new Response();
+		Schema schema;
+		if (returnType != null && returnTypeName.equals("array")) {
+			Map<SchemaBuilder.PropertyId, Object> args = new HashMap<>();
+			args.put(SchemaBuilder.PropertyId.ENUM, returnTypeItemsAllowableValues);
+			args.put(SchemaBuilder.PropertyId.UNIQUE_ITEMS, false);
 
-		defaultResponse.setSchema(property);
-		defaultResponse.setDescription("");
-		responseMap.put("default", defaultResponse);
+			Schema items = ParserHelper.buildItems(
+					returnTypeItemsRef,
+					returnTypeItemsType,
+					returnTypeItemsFormat,
+					args
+			);
+
+			ArraySchema arrayProperty = new ArraySchema();
+			arrayProperty.setItems(items);
+			if (ParserHelper.isSet(returnType.qualifiedTypeName())) {
+				arrayProperty.setUniqueItems(true);
+			}
+
+			schema = arrayProperty;
+		} else if(returnTypeName.equals("array")) {
+			Map<SchemaBuilder.PropertyId, Object> args = new HashMap<>();
+			args.put(SchemaBuilder.PropertyId.ENUM, returnTypeItemsAllowableValues);
+			args.put(SchemaBuilder.PropertyId.UNIQUE_ITEMS, false);
+
+			Schema items = ParserHelper.buildItems(
+					returnTypeItemsRef,
+					returnTypeItemsType,
+					returnTypeItemsFormat,
+					args
+			);
+
+			ArraySchema arrayProperty = new ArraySchema();
+			arrayProperty.setItems(items);
+
+			schema = arrayProperty;
+		} else if("void".equals(returnTypeName)) {
+			// Doing nothing with void types
+			// TODO :: should this be handled at a separate place ?
+			schema = null;
+		} else {
+			Map<SchemaBuilder.PropertyId, Object> args = new HashMap<>();
+			args.put(SchemaBuilder.PropertyId.MINIMUM, returnTypeReader.getFieldMin(this.methodDoc, returnType));
+			args.put(SchemaBuilder.PropertyId.MAXIMUM, returnTypeReader.getFieldMax(this.methodDoc, returnType));
+			args.put(SchemaBuilder.PropertyId.DEFAULT, returnTypeReader.getFieldDefaultValue(this.methodDoc, returnType));
+			args.put(SchemaBuilder.PropertyId.ENUM, returnTypeAllowableValues);
+
+			schema = SchemaBuilder.build(returnTypeName, returnTypeFormat, args);
+
+			if (schema == null) {
+				// If we have a version of this model with a ___discriminatorResponse, use it instead
+				String finalReturnTypeName = returnTypeName;
+
+				if (this.models.stream().anyMatch(wrapper -> wrapper.getName().equals(finalReturnTypeName + "___discriminatorResponse"))) {
+					returnTypeName += "___discriminatorResponse";
+				}
+				schema = createRef(returnTypeName);
+			}
+		}
+
+
+
+		// ************************************
+		// Response messages
+		// ************************************
+
+		ApiResponses responseMap = generateResponseMap(viewClasses, produces, schema);
 
 		// ************************************
 		// Summary and notes
@@ -321,105 +368,150 @@ public class ApiMethodParser {
 		notes = this.options.replaceVars(notes);
 
 		// Auth support
-		OperationAuthorizations authorizations = generateAuthorizations();
-
-		// ************************************
-		// Produces & consumes
-		// ************************************
-		List<String> consumes = ParserHelper.getConsumes(this.methodDoc, this.options);
-		List<String> produces = ParserHelper.getProduces(this.methodDoc, this.options);
+		List<SecurityRequirement> security = generateSecurityRequirements();
 
 		if (this.options.isLogDebug()) {
-			System.out.println("finished parsing method: " + this.methodDoc.name());
+			log.debug("Finished parsing method: {}", this.methodDoc.name());
 		}
 
 		// final result!
-		return new Method(this.httpMethod, this.methodDoc.name(), path, parameters, summary, notes,
-				responseMap, consumes, produces, authorizations, deprecated);
+		return new Method(this.httpMethod, this.methodDoc.name(), path, parameters.getParameters(), summary, notes,
+				responseMap, consumes, produces, security, deprecated, parameters.getBody() != null ? parameters.getBody() : requestBody);
 	}
 
-	private OperationAuthorizations generateAuthorizations() {
-		// TODO this needs to be updated
-		OperationAuthorizations authorizations = null;
-
+	private List<SecurityRequirement> generateSecurityRequirements() {
 		// build map of scopes from the api auth
-		Map<String, Oauth2Scope> apiScopes = new HashMap<String, Oauth2Scope>();
-		if (this.options.getApiAuthorizations() != null && this.options.getApiAuthorizations().getOauth2() != null
-				&& this.options.getApiAuthorizations().getOauth2().getScopes() != null) {
-			List<Oauth2Scope> scopes = this.options.getApiAuthorizations().getOauth2().getScopes();
-			if (scopes != null) {
-				for (Oauth2Scope scope : scopes) {
-					apiScopes.put(scope.getScope(), scope);
-				}
-			}
+		// For each oauth security scheme we collect the scopes
+		// v scheme name
+		Map<String, Scopes> apiScopes = new HashMap<>();
+		if (this.options.getSecuritySchemes() != null) {
+			this.options.getSecuritySchemes()
+					.entrySet()
+					.stream()
+					.filter(scheme -> scheme.getValue().getType().equals(SecurityScheme.Type.OAUTH2)
+							&& scheme.getValue().getFlows() != null
+							&& scheme.getValue().getFlows().getImplicit() != null
+							&& scheme.getValue().getFlows().getImplicit().getScopes() != null)
+					.forEach(scheme -> {
+						apiScopes.put(scheme.getKey(), scheme.getValue().getFlows().getImplicit().getScopes());
+					});
 		}
+
 		// see if method has a tag that implies there is no authentication
 		// in this case set the authentication object to {} to indicate we override
 		// at the operation level
 		// a) if method has an explicit unauth tag
 		if (ParserHelper.hasInheritableTag(this.methodDoc, this.options.getUnauthOperationTags())) {
-			authorizations = new OperationAuthorizations();
-		} else {
-
-			// otherwise if method has scope tags then add those to indicate method requires scope
-			List<String> scopeValues = ParserHelper.getInheritableTagValues(this.methodDoc, this.options.getOperationScopeTags(), this.options);
-			if (scopeValues != null) {
-				List<Oauth2Scope> oauth2Scopes = new ArrayList<Oauth2Scope>();
-				for (String scopeVal : scopeValues) {
-					Oauth2Scope apiScope = apiScopes.get(scopeVal);
-					if (apiScope == null) {
-						throw new IllegalStateException("The scope: " + scopeVal + " was referenced in the method: " + this.methodDoc
-								+ " but this scope was not part of the API service.json level authorization object.");
-					}
-					oauth2Scopes.add(apiScope);
-				}
-				authorizations = new OperationAuthorizations(oauth2Scopes);
-			}
-
-			// if not scopes see if its auth and whether we need to add default scope to it
-			if (scopeValues == null || scopeValues.isEmpty()) {
-				// b) if method has an auth tag that starts with one of the known values that indicates whether auth required.
-				String authSpec = ParserHelper.getInheritableTagValue(this.methodDoc, this.options.getAuthOperationTags(), this.options);
-				if (authSpec != null) {
-
-					boolean unauthFound = false;
-					for (String unauthValue : this.options.getUnauthOperationTagValues()) {
-						if (authSpec.toLowerCase().startsWith(unauthValue.toLowerCase())) {
-							authorizations = new OperationAuthorizations();
-							unauthFound = true;
-							break;
-						}
-					}
-					if (!unauthFound) {
-						// its deemed to require authentication, however there is no explicit scope so we need to use
-						// the default scopes
-						List<String> defaultScopes = this.options.getAuthOperationScopes();
-						if (defaultScopes != null && !defaultScopes.isEmpty()) {
-							List<Oauth2Scope> oauth2Scopes = new ArrayList<Oauth2Scope>();
-							for (String scopeVal : defaultScopes) {
-								Oauth2Scope apiScope = apiScopes.get(scopeVal);
-								if (apiScope == null) {
-									throw new IllegalStateException("The default scope: " + scopeVal + " needed for the authorized method: " + this.methodDoc
-											+ " was not part of the API service.json level authorization object.");
-								}
-								oauth2Scopes.add(apiScope);
-							}
-							authorizations = new OperationAuthorizations(oauth2Scopes);
-						}
-					}
-				}
-			}
-
+			return new ArrayList<>(Collections.singleton(new SecurityRequirement()));
 		}
-		return authorizations;
+
+		List<SecurityRequirement> securityRequirements = new ArrayList<>();
+
+		// otherwise if method has scope tags then add those to indicate method requires scope
+		List<String> scopeValues = ParserHelper.getInheritableTagValues(this.methodDoc, this.options.getOperationScopeTags(), this.options);
+		if (scopeValues != null) {
+			for (String scopeVal : scopeValues) {
+				addScopes(apiScopes, securityRequirements, scopeVal);
+			}
+		}
+
+		// if not scopes see if its auth and whether we need to add default scope to it
+		if (scopeValues == null || scopeValues.isEmpty()) {
+			// b) if method has an auth tag that starts with one of the known values that indicates whether auth required.
+			String authSpec = ParserHelper.getInheritableTagValue(this.methodDoc, this.options.getAuthOperationTags(), this.options);
+			if (authSpec != null) {
+
+				boolean unauthFound = false;
+				for (String unauthValue : this.options.getUnauthOperationTagValues()) {
+					if (authSpec.toLowerCase().startsWith(unauthValue.toLowerCase())) {
+						securityRequirements.add(new SecurityRequirement());
+						unauthFound = true;
+						break;
+					}
+				}
+
+				if (!unauthFound) {
+					// its deemed to require authentication, however there is no explicit scope so we need to use
+					// the default scopes
+					List<String> defaultScopes = this.options.getAuthOperationScopes();
+					if (defaultScopes != null && !defaultScopes.isEmpty()) {
+						for (String scopeVal : defaultScopes) {
+							addScopes(apiScopes, securityRequirements, scopeVal);
+						}
+					}
+				}
+			}
+		}
+
+		if (securityRequirements.isEmpty()) {
+			return null;
+		}
+
+		return securityRequirements;
 	}
 
-	private List<ApiResponseMessage> generateResponseMessages(ClassDoc[] viewClasses) {
-		List<ApiResponseMessage> responseMessages = new ArrayList<ApiResponseMessage>();
+	private void addScopes(Map<String, Scopes> apiScopes, List<SecurityRequirement> securityRequirements, String scopeVal) {
+		boolean foundScope = false;
 
-		Map<Integer, Integer> codeToMessageIdx = new HashMap<Integer, Integer>();
+		// Each security scheme has some scopes
+		// Check each security scheme, create a security requirement named
+		// after them if they contain the scope we're looking for
+		for (Map.Entry<String, Scopes> securityScheme : apiScopes.entrySet()) {
+			if (!securityScheme.getValue().containsKey(scopeVal)) {
+				continue;
+			}
+			foundScope = true;
+
+			String securitySchemeName = securityScheme.getKey();
+
+			AtomicReference<Boolean> requirementExists = new AtomicReference<>(true);
+
+			// Get or create the SecurityRequirement for the current scope
+			SecurityRequirement requirement = securityRequirements
+					.stream()
+					.filter(req -> req.containsKey(securitySchemeName))
+					.findFirst()
+					.orElseGet(() -> {
+						requirementExists.set(false);
+						SecurityRequirement sr = new SecurityRequirement();
+						sr.put(securitySchemeName, new ArrayList<>());
+						return sr;
+					});
+
+			// Only add the scope if it isn't already in
+			List<String> srScopes = requirement.get(securitySchemeName);
+			if (!srScopes.contains(scopeVal)) {
+				srScopes.add(scopeVal);
+			}
+
+			if (!requirementExists.get()) {
+				securityRequirements.add(requirement);
+			}
+		}
+		if (!foundScope) {
+			throw new IllegalStateException("The scope: " + scopeVal + " was referenced in the method: " + this.methodDoc
+					+ " but this scope was not part of the API service.json level authorization object.");
+		}
+	}
+
+	private ApiResponses generateResponseMap(ClassDoc[] viewClasses, List<String> produces, Schema defaultSchema) {
+		ApiResponses responseMap = new ApiResponses();
 
 		List<String> tagValues = ParserHelper.getInheritableTagValues(this.methodDoc, this.options.getResponseMessageTags(), this.options);
+
+		boolean usedDefaultContent = false;
+
+		ApiResponse defaultResponse = new ApiResponse();
+		defaultResponse.setDescription("");
+
+		if (defaultSchema != null) {
+			Content defaultContent = new Content();
+			io.swagger.oas.models.media.MediaType defaultMediaType = new io.swagger.oas.models.media.MediaType();
+			defaultMediaType.setSchema(defaultSchema);
+			(produces == null ? Collections.singletonList("*/*") : produces).forEach(item -> defaultContent.addMediaType(item, defaultMediaType));
+			defaultResponse.setContent(defaultContent);
+		}
+
 		if (tagValues != null) {
 			for (String tagValue : tagValues) {
 				for (Pattern pattern : RESPONSE_MESSAGE_PATTERNS) {
@@ -438,7 +530,7 @@ public class ApiMethodParser {
 							responseModelClass = ParserHelper.trimLeadingChars(matcher.group(3), '`');
 						}
 						// If no custom one use the method level one if there is one
-						if (statusCode >= 200) {
+						if (statusCode >= 400) {
 							if (responseModelClass == null) {
 								responseModelClass = this.methodDefaultErrorType;
 							}
@@ -448,23 +540,54 @@ public class ApiMethodParser {
 							}
 						}
 
-						String responseModel = null;
+						Schema schema = null;
 						if (responseModelClass != null) {
 							Type responseType = ParserHelper.findModel(this.classes, responseModelClass);
 							if (responseType != null) {
-								responseModel = this.translator.typeName(responseType, this.options.isUseFullModelIds()).value();
+								String responseModel = this.translator.typeName(responseType, this.options.isUseFullModelIds()).value();
+								String finalResponseModel = responseModel;
+
+								// If we have a version of this model with a ___discriminatorResponse, use it instead
+								if (this.models.stream().anyMatch(wrapper -> wrapper.getName().equals(finalResponseModel + "___discriminatorResponse"))) {
+									responseModel += "___discriminatorResponse";
+								}
+								schema = createRef(responseModel);
 								if (this.options.isParseModels()) {
 									this.models.addAll(new ApiModelParser(this.options, this.translator, responseType, viewClasses, this.classes).parse());
 								}
 							}
 						}
 
-						if (codeToMessageIdx.containsKey(statusCode)) {
-							int idx = codeToMessageIdx.get(statusCode);
-							responseMessages.get(idx).merge(desc, responseModel);
+						if (responseModelClass == null && statusCode >= 200 && statusCode < 300) {
+							usedDefaultContent = true;
+							schema = defaultSchema;
+						}
+
+						String stringStatusCode = String.valueOf(statusCode);
+
+						if (responseMap.containsKey(stringStatusCode)) {
+							ApiResponse apiResponse = responseMap.get(stringStatusCode);
+
+							if (null != schema && null == apiResponse.getContent()) {
+								apiResponse.setContent(createContent(produces, schema));
+							}
+
+							String description = apiResponse.getDescription();
+							if (description == null || description.trim().length() == 0) {
+								description = desc;
+							} else {
+								description += "<br>" + desc;
+							}
+							apiResponse.description(description);
+
 						} else {
-							responseMessages.add(new ApiResponseMessage(statusCode, desc, responseModel));
-							codeToMessageIdx.put(statusCode, responseMessages.size() - 1);
+							ApiResponse apiResponse = new ApiResponse();
+							apiResponse.description(desc);
+							if (null != schema) {
+								apiResponse.setContent(createContent(produces, schema));
+							}
+
+							responseMap.put(stringStatusCode, apiResponse);
 						}
 						break;
 					}
@@ -473,42 +596,64 @@ public class ApiMethodParser {
 		}
 
 		// sort the response messages as required
-		if (!responseMessages.isEmpty() && this.options.getResponseMessageSortMode() != null) {
+		if (!responseMap.isEmpty() && this.options.getResponseMessageSortMode() != null) {
+			Comparator<Map.Entry<String, ApiResponse>> comparator = null;
+
 			switch (this.options.getResponseMessageSortMode()) {
 				case CODE_ASC:
-					Collections.sort(responseMessages, new Comparator<ApiResponseMessage>() {
-
-						public int compare(ApiResponseMessage o1, ApiResponseMessage o2) {
-							return Integer.compare(o1.getCode(), o2.getCode());
-						}
-					});
+					comparator = Map.Entry.comparingByKey();
 					break;
 				case CODE_DESC:
-					Collections.sort(responseMessages, new Comparator<ApiResponseMessage>() {
-
-						public int compare(ApiResponseMessage o1, ApiResponseMessage o2) {
-							return Integer.compare(o2.getCode(), o1.getCode());
-						}
-					});
+					comparator = Collections.reverseOrder(Map.Entry.comparingByKey());
 					break;
 				case AS_APPEARS:
 					// noop
 					break;
 				default:
 					throw new UnsupportedOperationException("Unknown ResponseMessageSortMode: " + this.options.getResponseMessageSortMode());
+			}
 
+			if (comparator != null) {
+				ApiResponses newMap = new ApiResponses();
+				responseMap.entrySet()
+						.stream()
+						.sorted(comparator)
+						.forEach(entry -> {
+							newMap.put(entry.getKey(), entry.getValue());
+						});
+
+				responseMap = newMap;
 			}
 		}
 
-		return responseMessages;
+		if (!usedDefaultContent) {
+			responseMap.setDefault(defaultResponse);
+		}
+
+		return responseMap;
 	}
 
-	private List<io.swagger.models.parameters.Parameter> generateParameters() {
+	public Content createContent(List<String> types, Schema schema) {
+		Content content = new Content();
+		io.swagger.oas.models.media.MediaType mediaType = new io.swagger.oas.models.media.MediaType();
+		mediaType.setSchema(schema);
+
+		(types == null ? Collections.singletonList("*/*") : types).forEach(item -> content.addMediaType(item, mediaType));
+
+		return content;
+	}
+
+	@Data
+	static class Parameters {
+		List<io.swagger.oas.models.parameters.Parameter> parameters;
+		RequestBody body;
+	}
+
+	private ParametersAndBody generateParameters(List<String> consumes) {
 		// parameters
-		List<io.swagger.models.parameters.Parameter> parameters = new LinkedList<>();
+		ParametersAndBody parameters = new ParametersAndBody();
 
 		// read whether the method consumes multipart
-		List<String> consumes = ParserHelper.getConsumes(this.methodDoc, this.options);
 		boolean consumesMultipart = consumes != null && consumes.contains(MediaType.MULTIPART_FORM_DATA);
 
 		// get raw parameter names from method signature
@@ -525,11 +670,10 @@ public class ApiMethodParser {
 				ApiModelParser modelParser = new ApiModelParser(this.options, this.translator, paramType, consumesMultipart, true);
 				Set<ModelWrapper> models = modelParser.parse();
 				String rootModelId = modelParser.getRootModelId();
-				for (ModelWrapper modelWrapper : models) {
-					io.swagger.models.Model model = modelWrapper.getModel();
-					if (model.getReference().equals(rootModelId)) {
-						for (Map.Entry<String, PropertyWrapper> entry: modelWrapper.getProperties().entrySet()) {
-							String rawFieldName = entry.getValue().getRawFieldName();
+				for (ModelWrapper<?> modelWrapper : models) {
+					if (rootModelId.equals(modelWrapper.getName())) {
+						for (PropertyWrapper entry : modelWrapper.getProperties().values()) {
+							String rawFieldName = entry.getRawFieldName();
 							allParamNames.add(rawFieldName);
 						}
 					}
@@ -544,6 +688,7 @@ public class ApiMethodParser {
 		paramReader.readClass(this.methodDoc.containingClass());
 
 		Set<String> addedParamNames = new HashSet<String>();
+		Set<FormItem> formItems = new HashSet<>();
 
 		// build params from the method's params
 		for (int paramIndex = 0; paramIndex < this.methodDoc.parameters().length; paramIndex++) {
@@ -552,35 +697,94 @@ public class ApiMethodParser {
 				continue;
 			}
 
-			List<io.swagger.models.parameters.Parameter> apiParams = paramReader.buildApiParams(this.methodDoc, parameter, consumesMultipart, allParamNames, this.models);
-			addUniqueParam(addedParamNames, apiParams, parameters);
+			List<ParameterOrBody> apiParams = paramReader.buildApiParams(this.methodDoc, parameter, consumesMultipart, allParamNames, this.models, consumes);
+			addUniqueParam(addedParamNames, formItems, apiParams, parameters);
 		}
 
 		// add any parent method parameters that are inherited
 		if (this.parentMethod != null) {
-			addUniqueParam(addedParamNames, this.parentMethod.getParameters(), parameters);
+			List<ParameterOrBody> parentParameters = new ArrayList();
+			if (parentMethod.getRequestBody() != null) {
+				parentParameters.add(new ParameterOrBody(parentMethod.getRequestBody()));
+			}
+			parentParameters.addAll(this.parentMethod.getApiParameters().stream().map(ParameterOrBody::new).collect(Collectors.toList()));
+			addUniqueParam(addedParamNames, formItems, parentParameters, parameters);
 		}
 
 		// add class level parameters
-		List<io.swagger.models.parameters.Parameter> classLevelParams = paramReader.readClassLevelParameters(this.models);
-		addUniqueParam(addedParamNames, classLevelParams, parameters);
+		List<ParameterOrBody> classLevelParams = paramReader.readClassLevelParameters(this.models, consumes);
+		addUniqueParam(addedParamNames, formItems, classLevelParams, parameters);
 
 		// add on any implicit params
-		List<io.swagger.models.parameters.Parameter> implicitParams = paramReader.readImplicitParameters(this.methodDoc, consumesMultipart, this.models);
-		addUniqueParam(addedParamNames, implicitParams, parameters);
+		List<ParameterOrBody> implicitParams = paramReader.readImplicitParameters(this.methodDoc, this.models, consumes);
+		addUniqueParam(addedParamNames, formItems, implicitParams, parameters);
+
+		// Take all collected form items, and group them in a single RequestBody
+		if (!formItems.isEmpty()) {
+			ObjectSchema schema = createFormSchema(formItems);
+			ParameterOrBody param = paramReader.buildForm(schema, schema.getRequired() != null, null, consumes);
+			addUniqueParam(addedParamNames, null, Collections.singletonList(param), parameters);
+		}
 
 		return parameters;
 	}
 
-	private void addUniqueParam(Set<String> addedParamNames, List<io.swagger.models.parameters.Parameter> paramsToAdd, List<io.swagger.models.parameters.Parameter> targetList) {
-		if (paramsToAdd != null) {
-			for (io.swagger.models.parameters.Parameter apiParam : paramsToAdd) {
-				if (!addedParamNames.contains(apiParam.getName())) {
-					addedParamNames.add(apiParam.getName());
-					targetList.add(apiParam);
+	private ObjectSchema createFormSchema(Set<FormItem> formItems) {
+		ObjectSchema schema = new ObjectSchema();
+		List<String> required = new ArrayList<>();
+		formItems.forEach(item -> {
+			schema.addProperties(item.getName(), item.getSchema());
+
+			if (Boolean.TRUE.equals(item.getRequired())) {
+				required.add(item.getName());
+			}
+		});
+
+		if (!required.isEmpty()) {
+			schema.required(required);
+		}
+
+		return schema;
+	}
+
+	private void addUniqueParam(Set<String> addedParamNames, Set<FormItem> formItems, List<ParameterOrBody> paramsToAdd, ParametersAndBody targetList) {
+		if (paramsToAdd == null) {
+			return;
+		}
+
+		for (ParameterOrBody apiParam : paramsToAdd) {
+			if (apiParam.getParameter() != null) {
+				if (!addedParamNames.contains(apiParam.getParameter().getName())) {
+					addedParamNames.add(apiParam.getParameter().getName());
+					targetList.getParameters().add(apiParam.getParameter());
 				}
 			}
+
+			if (apiParam.getBody() != null) {
+				if (targetList.getBody() != null) {
+					try {
+						ObjectMapper mapper = this.options.getMapper();
+						log.debug(
+								"This method seems to have two bodies \nBefore: {}, \nAfter: {}",
+								mapper.writeValueAsString(targetList.getBody()),
+								mapper.writeValueAsString(apiParam.getBody())
+						);
+					} catch (JsonProcessingException e) {
+						log.debug(
+								"This method seems to have two bodies \nBefore: {}, \nAfter: {}",
+								targetList.getBody(),
+								apiParam.getBody()
+						);
+					}
+				}
+				targetList.setBody(apiParam.getBody());
+			}
+
+			if (apiParam.getFormItem() != null) {
+				formItems.add(apiParam.getFormItem());
+			}
 		}
+
 	}
 
 	/**
@@ -592,7 +796,6 @@ public class ApiMethodParser {
 	}
 
 	static class NameToType {
-
 		Type returnType;
 		Type containerOf;
 		String containerOfPrimitiveType;
@@ -665,7 +868,7 @@ public class ApiMethodParser {
 			customType = ParserHelper.findModel(this.classes, customTypeName);
 			if (customType == null) {
 			    if (this.options.isLogDebug()) {
-			    	System.out.println("Warning: couldn't find model for customType {" + customTypeName + "}");
+			    	log.debug("Warning: couldn't find model for customType {}", customTypeName);
 				}
 			} else {
 				customType = firstNonNull(ApiModelParser.getReturnType(this.options, customType), customType);

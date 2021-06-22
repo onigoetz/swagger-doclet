@@ -20,26 +20,31 @@ import com.sun.jersey.api.JResponse;
 public class GenericResponseResource {
 
 	@GET
+	@Path("getParameterized")
 	public Parameterized<String, Integer> getParameterized() {
 		return new Parameterized<String, Integer>();
 	}
 
 	@GET
+	@Path("getJResponse")
 	public JResponse<String> getJResponse() {
 		return new JResponse<String>(200, null, "");
 	}
 
 	@GET
+	@Path("getOptional")
 	public Response getOptional(@QueryParam("name") com.google.common.base.Optional<String> name) {
 		return null;
 	}
 
 	@GET
+	@Path("getOptional2")
 	public Response getOptional2(@QueryParam("name") jersey.repackaged.com.google.common.base.Optional<Integer> name) {
 		return null;
 	}
 
 	@GET
+	@Path("getIntMap")
 	public Map<String, Integer> getIntMap() {
 		return Collections.emptyMap();
 	}
@@ -48,11 +53,13 @@ public class GenericResponseResource {
 	 * @returnType fixtures.genericresponse.Parameterized2<java.lang.Integer>
 	 */
 	@GET
+	@Path("getParameterized2")
 	public Response getParameterized2() {
 		return null;
 	}
 
 	@GET
+	@Path("getBatch")
 	public Batch<Item> getBatch() {
 		return null;
 	}
@@ -61,6 +68,7 @@ public class GenericResponseResource {
 	 * @returnType fixtures.genericresponse.Batch<fixtures.genericresponse.Item>
 	 */
 	@GET
+	@Path("getBatch2")
 	public Response getBatch2() {
 		return null;
 	}

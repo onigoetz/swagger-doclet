@@ -1,12 +1,18 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "apis": [
-     	{
-            "path": "/r2b.{format}"
-        },
-        {
-            "path": "/r4.{format}"
-        }
-    ]
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "tags": [
+    {
+      "name": "/r2b"
+    },
+    {
+      "name": "/r4"
+    }
+  ],
+  "paths": {
+    "/r2b/2b": {},
+    "/r4/4": {}
+  }
 }

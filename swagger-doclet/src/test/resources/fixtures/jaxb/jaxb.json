@@ -1,82 +1,124 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/jaxb",
-    "apis": [
-        {
-            "path": "/jaxb",
-            "operations": [
-            	{
-                    "method": "GET",
-                    "nickname": "get",
-                    "type": "response"
-                },
-                {
-                    "method": "POST",
-                    "nickname": "create",
-                    "type": "Response",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "payload",
-                            "type": "payload",
-                            "required": true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/jaxb/user",
-            "operations": [
-            	{
-                    "method": "GET",
-                    "nickname": "getUser",
-                    "type": "User"
-                }
-            ]
-        }
-    ],
-    "models": {
-    	"response": {
-            "id": "response",
-            "properties": {
-                "visibleField": {
-                    "type": "string"
-                },
-                "odd-name": {
-                    "type": "string"
-                }
-            }
-        },
-        "payload": {
-            "id": "payload",
-            "properties": {
-                "visibleField": {
-                    "type": "string"
-                },
-                "odd-name": {
-                    "type": "string"
-                }
-            }
-        },
-        "User": {
-            "id": "User",
-            "properties": {
-                "username": {
-                    "type": "string"
-                },
-                "first_name": {
-                    "type": "string"
-                },
-                "middle_name": {
-                    "type": "string"
-                },
-                "ti": {
-                    "type": "string"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/jaxb"
+    }
+  ],
+  "paths": {
+    "/jaxb": {
+      "get": {
+        "tags": ["/jaxb"],
+        "operationId": "get",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/response"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/jaxb"],
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/payload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "payload"
+      }
+    },
+    "/jaxb/user": {
+      "get": {
+        "tags": ["/jaxb"],
+        "operationId": "getUser",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "first_name": {
+            "type": "string"
+          },
+          "middle_name": {
+            "type": "string"
+          },
+          "ti": {
+            "type": "string"
+          }
+        }
+      },
+      "payload": {
+        "type": "object",
+        "properties": {
+          "visibleField": {
+            "type": "string"
+          },
+          "odd-name": {
+            "type": "string"
+          }
+        }
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "visibleField": {
+            "type": "string"
+          },
+          "odd-name": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
 }

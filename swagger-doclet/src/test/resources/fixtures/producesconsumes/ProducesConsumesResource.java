@@ -27,11 +27,13 @@ public class ProducesConsumesResource {
 	@POST
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("postData")
 	public Data postData(Data data) {
 		return data;
 	}
 
 	@POST
+	@Path("postData2")
 	public Data postData2(Data data) {
 		return new Data("test2");
 	}

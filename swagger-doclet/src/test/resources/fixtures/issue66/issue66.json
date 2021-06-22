@@ -1,32 +1,57 @@
 {
-  "apiVersion" : "0",
-  "swaggerVersion" : "1.2",
-  "basePath" : "http://localhost:8080",
-  "resourcePath" : "/issue66",
-  "apis" : [ {
-    "path" : "/issue66",
-    "operations" : [ 
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
     {
-      "method" : "GET",
-      "nickname" : "getUser",
-      "type" : "UserModel",
-      "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "id",
-                            "type": "string",
-                            "required" : true
-                        }
-                    ]
+      "url": "http://localhost:8080/"
     }
-    ]
-  } ],
-  "models" : {
-    "UserModel" : {
-      "id" : "UserModel",
-      "properties" : {
-        "_id" : {
-          "type" : "string"
+  ],
+  "tags": [
+    {
+      "name": "/issue66"
+    }
+  ],
+  "paths": {
+    "/issue66": {
+      "get": {
+        "tags": ["/issue66"],
+        "operationId": "getUser",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserModel"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "id"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UserModel": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          }
         }
       }
     }

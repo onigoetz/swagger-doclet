@@ -1,28 +1,40 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/resource",
-    "apis": [
-        {
-            "path": "/resource/bar",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "doSomething",
-                    "type": "void"
-                }
-            ]
-        },
-        {
-            "path": "/resource/foo",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "doSomething",
-                    "type": "void"
-                }
-            ]
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "/resource"
+    }
+  ],
+  "paths": {
+    "/resource/foo": {
+      "get": {
+        "tags": ["/resource"],
+        "operationId": "doSomething",
+        "responses": {
+          "default": {
+            "description": ""
+          }
         }
-    ]
+      }
+    },
+    "/resource/bar": {
+      "get": {
+        "tags": ["/resource"],
+        "operationId": "doSomething",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    }
+  }
 }

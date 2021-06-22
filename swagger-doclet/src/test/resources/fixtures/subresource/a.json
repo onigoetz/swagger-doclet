@@ -1,161 +1,236 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/a",
-    "apis": [
-        {
-            "path": "/a/{id}/sub",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "y",
-                    "type": "integer",
-                    "format" : "int32",
-                    "parameters": [
-
-                        {
-                            "paramType": "path",
-                            "name": "id",
-                            "type": "string",
-                            "required" : true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/a/{id}/sub/1",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "x",
-                    "type": "SubData",
-                    "parameters": [
-
-                        {
-                            "paramType": "path",
-                            "name": "id",
-                            "type": "string",
-                            "required" : true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/a/{id}/sub/2",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "z",
-                    "type": "SubSubData",
-                    "parameters": [
-
-                        {
-                            "paramType": "path",
-                            "name": "id",
-                            "type": "string",
-                            "required" : true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/a/{id}/sub/sub2",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "z",
-                    "type": "SubSubData",
-                    "parameters": [
-
-                        {
-                            "paramType": "path",
-                            "name": "id",
-                            "type": "string",
-                            "required" : true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/a/{id}/subb",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "y",
-                    "type": "integer",
-                    "format" : "int32",
-                    "parameters": [
-
-                        {
-                            "paramType": "path",
-                            "name": "id",
-                            "type": "string",
-                            "required" : true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/a/{id}/subb/1",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "x",
-                    "type": "SubData",
-                    "parameters": [
-
-                        {
-                            "paramType": "path",
-                            "name": "id",
-                            "type": "string",
-                            "required" : true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/a/{id}/subb/sub2b",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "z",
-                    "type": "SubSubData",
-                    "parameters": [
-
-                        {
-                            "paramType": "path",
-                            "name": "id",
-                            "type": "string",
-                            "required" : true
-                        }
-                    ]
-                }
-            ]
-        }
-    ],
-    "models": {
-        "SubSubData": {
-            "id": "SubSubData",
-            "properties": {
-                "value": {
-                    "type": "string"
-                }
-            }
-        },
-        "SubData": {
-            "id": "SubData",
-            "properties": {
-                "value": {
-                    "type": "string"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/a"
+    }
+  ],
+  "paths": {
+    "/a/{id}/sub": {
+      "post": {
+        "tags": ["/a"],
+        "operationId": "y",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/a/{id}/sub/1": {
+      "get": {
+        "tags": ["/a"],
+        "operationId": "x",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/a/{id}/sub/2": {
+      "post": {
+        "tags": ["/a"],
+        "operationId": "z",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubSubData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/a/{id}/sub/sub2": {
+      "post": {
+        "tags": ["/a"],
+        "operationId": "z",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubSubData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/a/{id}/subb": {
+      "post": {
+        "tags": ["/a"],
+        "operationId": "y",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/a/{id}/subb/1": {
+      "get": {
+        "tags": ["/a"],
+        "operationId": "x",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/a/{id}/subb/sub2b": {
+      "post": {
+        "tags": ["/a"],
+        "operationId": "z",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubSubData"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SubSubData": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "SubData": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
 }

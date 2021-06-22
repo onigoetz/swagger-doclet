@@ -8,7 +8,7 @@ import javax.ws.rs.Path;
 public class Res1 {
 
 	/**
-	 * @resourcePath a
+	 * @resource a
 	 * @priority 2
 	 * @resourceDescription A
 	 * @apiDescription A

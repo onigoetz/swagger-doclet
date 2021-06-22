@@ -1,39 +1,54 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/a",
-    "apis": [
-        {
-            "path": "/v1/x",
-            "description": "A",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getX",
-                    "type": "void"
-                }
-            ]
-        },
-        {
-            "path": "/v1/x/sub/w",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getW",
-                    "type": "SubData"
-                }
-            ]
-        }
-    ],
-    "models": {
-        "SubData": {
-            "id": "SubData",
-            "properties": {
-                "value": {
-                    "type": "string"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "paths": {
+    "/v1/x/sub/w": {
+      "get": {
+        "tags": ["a"],
+        "operationId": "getW",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/x": {
+      "get": {
+        "tags": ["a"],
+        "operationId": "getX",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SubData": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
 }

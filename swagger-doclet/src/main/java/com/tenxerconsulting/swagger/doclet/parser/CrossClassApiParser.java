@@ -3,17 +3,26 @@ package com.tenxerconsulting.swagger.doclet.parser;
 import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.collect.Maps.uniqueIndex;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
-import com.google.common.base.Function;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.Tag;
 import com.sun.javadoc.Type;
 import com.tenxerconsulting.swagger.doclet.DocletOptions;
+import com.tenxerconsulting.swagger.doclet.json.MapperModule;
 import com.tenxerconsulting.swagger.doclet.model.*;
-import io.swagger.models.*;
-import io.swagger.models.Swagger;
+import io.swagger.oas.models.*;
+import io.swagger.oas.models.media.Schema;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The CrossClassApiParser represents an api class parser that supports ApiDeclaration being
@@ -22,9 +31,10 @@ import io.swagger.models.Swagger;
  * @author conor.roche
  * @version $Id$
  */
+@Slf4j
 public class CrossClassApiParser {
 
-    private final Swagger swagger;
+    private final OpenAPI openapi;
     private final DocletOptions options;
     private final ClassDoc classDoc;
     private final Collection<ClassDoc> classes;
@@ -42,7 +52,7 @@ public class CrossClassApiParser {
     /**
      * This creates a CrossClassApiParser for top level parsing
      *
-     * @param swagger            Swagger object
+     * @param openapi            OpenAPI object
      * @param options            The options for parsing
      * @param classDoc           The class doc
      * @param classes            The doclet classes to document
@@ -50,10 +60,10 @@ public class CrossClassApiParser {
      * @param subResourceClasses Sub resource doclet classes
      * @param tags               List of TagWrappers
      */
-    public CrossClassApiParser(Swagger swagger, DocletOptions options, ClassDoc classDoc, Collection<ClassDoc> classes, List<ClassDoc> subResourceClasses,
+    public CrossClassApiParser(OpenAPI openapi, DocletOptions options, ClassDoc classDoc, Collection<ClassDoc> classes, List<ClassDoc> subResourceClasses,
                                Collection<ClassDoc> typeClasses, List<TagWrapper> tags) {
         super();
-        this.swagger = swagger;
+        this.openapi = openapi;
         this.options = options;
         this.classDoc = classDoc;
         this.classes = classes;
@@ -67,7 +77,7 @@ public class CrossClassApiParser {
     /**
      * This creates a CrossClassApiParser for parsing a subresource
      *
-     * @param swagger            Swagger object
+     * @param openapi            OpenAPI object
      * @param options            The options for parsing
      * @param classDoc           The class doc
      * @param classes            The doclet classes to document
@@ -77,11 +87,11 @@ public class CrossClassApiParser {
      * @param parentMethod       The parent method that "owns" this sub resource
      * @param parentPath         The parent path
      */
-    public CrossClassApiParser(Swagger swagger, DocletOptions options, ClassDoc classDoc, Collection<ClassDoc> classes, List<ClassDoc> subResourceClasses,
+    public CrossClassApiParser(OpenAPI openapi, DocletOptions options, ClassDoc classDoc, Collection<ClassDoc> classes, List<ClassDoc> subResourceClasses,
                                Collection<ClassDoc> typeClasses, List<TagWrapper> tags, Method parentMethod, String parentPath, String classResourceTag,
                                String classResourcePriority, String classResourceDescription) {
         super();
-        this.swagger = swagger;
+        this.openapi = openapi;
         this.options = options;
         this.classDoc = classDoc;
         this.classes = classes;
@@ -109,7 +119,7 @@ public class CrossClassApiParser {
      *
      * @param declarations The map of resource name to declaration which will be added to
      */
-    public void parse(Map<String, Path> declarations) {
+    public void parse(Paths declarations) {
 
         Collection<ClassDoc> allClasses = new ArrayList<ClassDoc>();
         allClasses.addAll(this.classes);
@@ -129,7 +139,7 @@ public class CrossClassApiParser {
             }
             if (!methodFound) {
                 if (this.options.isLogDebug()) {
-                    System.out.println("ignoring non resource class: " + this.classDoc.name());
+                    log.debug("Ignoring non resource class: {}", this.classDoc.name());
                 }
                 return;
             }
@@ -139,7 +149,7 @@ public class CrossClassApiParser {
         while (currentClassDoc != null) {
 
             if (this.options.isLogDebug()) {
-                System.out.println("processing resource class: " + currentClassDoc.name());
+                log.debug("Processing resource class: {}", currentClassDoc.name());
             }
 
             // read default error type for class
@@ -170,13 +180,13 @@ public class CrossClassApiParser {
             if (isSubResourceClass && this.parentMethod == null) {
                 // skip
                 if (this.options.isLogDebug()) {
-                    System.out.println("skipping class as its a sub resource class and we are outside of the parent method context.");
+                    log.debug("Skipping class as its a sub resource class and we are outside of the parent method context.");
                 }
             } else {
                 for (MethodDoc method : currentClassDoc.methods()) {
 
                     if (this.options.isLogDebug()) {
-                        System.out.println("processing method: " + method.name());
+                        log.debug("Processing method: {}", method.name());
                     }
 
                     ApiMethodParser methodParser = this.parentMethod == null ? new ApiMethodParser(this.options, this.rootPath, method, allClasses,
@@ -185,7 +195,7 @@ public class CrossClassApiParser {
                     Method parsedMethod = methodParser.parse();
                     if (parsedMethod == null) {
                         if (this.options.isLogDebug()) {
-                            System.out.println("skipping method: " + method.name() + " as it was not parsed to an api method");
+                            log.debug("skipping method: {} as it was not parsed to an api method", method.name());
                         }
                         continue;
                     }
@@ -202,7 +212,7 @@ public class CrossClassApiParser {
 
                     if (parsedMethod.isSubResource()) {
                         if (this.options.isLogDebug()) {
-                            System.out.println("parsing method: " + method.name() + " as a subresource");
+                            log.debug("parsing method: {} as a subresource", method.name());
                         }
                         ClassDoc subResourceClassDoc = classCache.findByType(method.returnType());
                         // look for a custom return type, this is useful where we return a jaxrs Resource in the method signature
@@ -216,7 +226,7 @@ public class CrossClassApiParser {
                             Collection<ClassDoc> shrunkClasses = new ArrayList<ClassDoc>(this.classes);
                             shrunkClasses.remove(currentClassDoc);
                             // recursively parse the sub-resource class
-                            CrossClassApiParser subResourceParser = new CrossClassApiParser(this.swagger, this.options, subResourceClassDoc, shrunkClasses,
+                            CrossClassApiParser subResourceParser = new CrossClassApiParser(this.openapi, this.options, subResourceClassDoc, shrunkClasses,
                                     this.subResourceClasses, this.typeClasses, this.tags, parsedMethod, parsedMethod.getPath(), resourceTag,
                                     String.valueOf(tagPriority), tagDescription);
                             subResourceParser.parse(declarations);
@@ -224,68 +234,57 @@ public class CrossClassApiParser {
                         continue;
                     }
 
-                    Path path = declarations.get(parsedMethod.getPath());
+                    PathItem path = declarations.get(parsedMethod.getPath());
                     if (path == null) {
-                        path = new Path();
+                        path = new PathItem();
                         declarations.put(parsedMethod.getPath(), path);
                         if (this.options.isLogDebug()) {
-                            System.out.println("creating new api path for method: " + method.name());
+                            log.debug("Creating new api path for method: {}", method.name());
                         }
                     } else {
                         if (this.options.isLogDebug()) {
-                            System.out.println("reusing api declaration (" + parsedMethod.getPath() + ") for method: " + method.name());
+                            log.debug("Reusing api declaration ({}) for method: {}", parsedMethod.getPath(), method.name());
                         }
                     }
-
-
 
                     // find api this method should be added to
                     addOperation(parsedMethod, path, resourceTag);
 
                     // add Tag to Swagger object. This is referenced in the Operation Object and is used to layout the apis
-                    io.swagger.models.Tag tag = new io.swagger.models.Tag();
+                    io.swagger.oas.models.tags.Tag tag = new io.swagger.oas.models.tags.Tag();
                     tag.name(resourceTag);
                     tag.description(tagDescription);
                     TagWrapper tagWrapper = new TagWrapper(tag, tagPriority);
 
-                    if (!tags.contains(tagWrapper)) {
-                        this.tags.add(new TagWrapper(tag, tagPriority));
+                    if (!tags.stream().anyMatch(t -> tag.getName().equals(t.getTag().getName()))) {
+                        // TODO :: merge tags if they already exists, might get a missing description
+                        this.tags.add(tagWrapper);
                     }
 
                     // add models
                     Set<ModelWrapper> methodModels = methodParser.models();
 
                     for (Map.Entry<String, ModelWrapper> entry : addApiModels(classModels, methodModels, method).entrySet()) {
+                        log.info("Adding model: {}", entry.getKey());
                         if (this.options.isLogDebug()) {
-                            System.out.println("adding model: " + entry.getKey());
-                            if (swagger.getDefinitions() != null && swagger.getDefinitions().containsKey(entry.getKey())) {
-                                System.out.println("WARNING: model with name {" + entry.getKey() + "} already exists. Overwriting previous model");
+                            Map<String, Schema> schemas = openapi.getComponents().getSchemas();
+                            if (schemas != null && schemas.containsKey(entry.getKey())) {
+                                log.warn("model with name {} already exists. Overwriting previous model", entry.getKey());
                             }
                         }
 
-                        ModelWrapper modelWrapper = entry.getValue();
-                        io.swagger.models.Model model = modelWrapper.getModel();
-
-                        // add properties to model
-                        Map<String, io.swagger.models.properties.Property> propertyMap = new HashMap<>();
-                        for (Map.Entry<String, PropertyWrapper> propEntry : modelWrapper.getProperties().entrySet()) {
-                            if (model instanceof ModelImpl) {
-                                ((ModelImpl) model).addProperty(propEntry.getKey(), propEntry.getValue().getProperty());
-                            } else {
-                                propertyMap.put(propEntry.getKey(), propEntry.getValue().getProperty());
-                            }
+                        if (openapi.getComponents() == null) {
+                            openapi.components(new Components());
                         }
 
-                        if (!(model instanceof ModelImpl)) {
-                            model.setProperties(propertyMap);
-                        }
-
-                        swagger.addDefinition(entry.getKey(), entry.getValue().getModel());
-
+                        openapi.getComponents().addSchemas(
+                                entry.getKey(),
+                                entry.getValue().getSchema()
+                        );
                     }
 
                     if (this.options.isLogDebug()) {
-                        System.out.println("finished processing for method: " + method.name());
+                        log.debug("Finished processing for method: {}", method.name());
                     }
                 }
             }
@@ -295,7 +294,6 @@ public class CrossClassApiParser {
                 break;
             }
         }
-
     }
 
     private String getResourceTag(String classResourceTag, MethodDoc method) {
@@ -325,20 +323,33 @@ public class CrossClassApiParser {
 
     private Map<String, ModelWrapper> addApiModels(Set<ModelWrapper> classModels, Set<ModelWrapper> methodModels, MethodDoc method) {
         methodModels.addAll(classModels);
-        Map<String, ModelWrapper> idToModels = Collections.emptyMap();
-        try {
-            idToModels = uniqueIndex(methodModels, new Function<ModelWrapper, String>() {
 
-                public String apply(ModelWrapper model) {
-                    return model.getModel().getReference();
-                }
-            });
+        try {
+            return methodModels.stream()
+                    .filter(model ->
+                            openapi.getComponents() == null ||
+                                    !openapi.getComponents()
+                                            .getSchemas()
+                                            .containsKey(model.getName())
+                    )
+                    .collect(Collectors.toMap(ModelWrapper::getName, model -> model));
         } catch (Exception ex) {
+            StringBuilder stringifiedModels = new StringBuilder();
+            int num = 0;
+            for (ModelWrapper wrapper : methodModels) {
+                num++;
+                stringifiedModels.append("\n\n" + num + ":\n");
+                try {
+                    stringifiedModels.append(options.getMapper().writeValueAsString(wrapper));
+                } catch (JsonProcessingException e) {
+                    stringifiedModels.append(wrapper.toString());
+                }
+            }
+
             throw new IllegalStateException(
                     "Detected duplicate models, if you use classes with the same name from different packages please set the doclet option -useFullModelIds and retry. The problematic method was : "
-                            + method + ", and models were: " + methodModels, ex);
+                            + method + ", and models were: " + stringifiedModels, ex);
         }
-        return idToModels;
     }
 
     private int getTagPriority(String classResourcePriority, MethodDoc method) {
@@ -362,33 +373,39 @@ public class CrossClassApiParser {
         return description;
     }
 
-    private void addOperation(Method method, Path path, String tag) {
+    private void addOperation(Method method, PathItem path, String tag) {
         // read api level description
 //		String apiDescription = ParserHelper.getInheritableTagValue(cmethod, this.options.getApiDescriptionTags(), this.options);
 //
-        io.swagger.models.Operation operation = new io.swagger.models.Operation();
+        io.swagger.oas.models.Operation operation = new io.swagger.oas.models.Operation();
 //		operation.description(this.options.replaceVars(apiDescription));
 
         operation.setOperationId(emptyToNull(method.getMethodName()));
+        operation.setRequestBody(method.getRequestBody());
         operation.setResponses(method.getResponses());
-        operation.addTag(tag);
+        operation.setTags(Collections.singletonList(tag));
 
-        operation.setParameters(method.getParameters().isEmpty() ? null : method.getParameters());
+        operation.setParameters(method.getApiParameters().isEmpty() ? null : method.getApiParameters());
 
         operation.setSummary(emptyToNull(method.getSummary()));
         operation.setDescription(emptyToNull(method.getDescription()));
-        operation.consumes(method.getConsumes() == null || method.getConsumes().isEmpty() ? null : method.getConsumes());
-        operation.produces(method.getProduces() == null || method.getProduces().isEmpty() ? null : method.getProduces());
-//		this.authorizations = method.getAuthorizations();
+        operation.setSecurity(method.getSecurity());
 
-        operation.deprecated(method.isDeprecated());
-
-        if (parentMethod != null && parentMethod.getMethod() != null) {
-            path.set(parentMethod.getMethod().name().toLowerCase(), operation);
-        } else {
-            path.set(method.getMethod().name().toLowerCase(), operation);
+        if (method.isDeprecated()) {
+            operation.deprecated(method.isDeprecated());
         }
 
+        PathItem.HttpMethod httpMethod = parentMethod != null && parentMethod.getMethod() != null
+                ? parentMethod.getMethod().getOpenapiMethod()
+                : method.getMethod().getOpenapiMethod();
+
+        if (path.readOperationsMap().containsKey(httpMethod)) {
+            if (!path.readOperationsMap().get(httpMethod).getOperationId().equals(method.getMethodName())) {
+                log.error("An operation for '" + httpMethod.name() + " " + method.getPath() + "' already exists. Replacing '" + path.readOperationsMap().get(httpMethod).getOperationId() + "' with '" + method.getMethodName() + "'");
+            }
+        }
+
+        path.operation(httpMethod, operation);
     }
 
 }

@@ -1,169 +1,234 @@
 {
-   "apiVersion":"0",
-   "swaggerVersion":"1.2",
-   "basePath":"http://localhost:8080",
-   "resourcePath":"/issue17d",
-   "apis":[
-      {
-         "path":"/issue17d",
-         "operations":[
-            {
-               "method":"POST",
-               "nickname":"addBlacklistedDevice",
-               "type":"Response",
-               "parameters":[
-                  {
-                     "type":"BlacklistedDevice",
-                     "paramType":"body",
-                     "name":"blacklistedDevice",
-                     "required":true
-                  }
-               ],
-               "consumes":[
-                  "application/json"
-               ]
-            },
-            {
-               "method":"GET",
-               "nickname":"getBlacklistedDevices",
-               "type":"array",
-               "items":{
-                  "$ref":"BlacklistedDevice"
-               },
-               "produces":[
-                  "application/json"
-               ],
-               "parameters":[
-                  {
-                     "paramType":"query",
-                     "name":"start",
-                     "type":"integer",
-                     "format":"int32",
-                     "defaultValue":"-1"
-                  },
-                  {
-                     "paramType":"query",
-                     "name":"max",
-                     "type":"integer",
-                     "format":"int32",
-                     "defaultValue":"-1"
-                  },
-                  {
-                     "paramType":"query",
-                     "name":"account_id",
-                     "type":"string"
-                  },
-                  {
-                     "paramType":"query",
-                     "name":"partial_name",
-                     "type":"string"
-                  }
-               ]
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "/issue17d"
+    }
+  ],
+  "paths": {
+    "/issue17d": {
+      "get": {
+        "tags": ["/issue17d"],
+        "operationId": "getBlacklistedDevices",
+        "parameters": [
+          {
+            "name": "start",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": -1
             }
-         ]
+          },
+          {
+            "name": "max",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": -1
+            }
+          },
+          {
+            "name": "account_id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "partial_name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BlacklistedDevice"
+                  }
+                }
+              }
+            }
+          }
+        }
       },
-      {
-         "path":"/issue17d/{device_name_type}-{device_name}",
-         "operations":[
-            {
-               "method":"GET",
-               "nickname":"getBlacklistedDevice",
-               "type":"BlacklistedDevice",
-               "parameters":[
-                  {
-                     "type":"string",
-                     "paramType":"path",
-                     "name":"device_name_type",
-                     "required":true
-                  },
-                  {
-                     "type":"string",
-                     "paramType":"path",
-                     "name":"device_name",
-                     "required":true
-                  }
-               ],
-               "produces":[
-                  "application/json"
-               ]
-            },
-            {
-               "method":"PUT",
-               "nickname":"updateBlacklistedDevice",
-               "type":"void",
-               "parameters":[
-                  {
-                     "type":"string",
-                     "paramType":"path",
-                     "name":"device_name_type",
-                     "required":true
-                  },
-                  {
-                     "type":"string",
-                     "paramType":"path",
-                     "name":"device_name",
-                     "required":true
-                  },
-                  {
-                     "type":"BlacklistedDevice",
-                     "paramType":"body",
-                     "name":"blacklistedDevice",
-                     "required":true
-                  }
-               ],
-               "consumes":[
-                  "application/json"
-               ]
-            },
-            {
-               "method":"DELETE",
-               "nickname":"deleteBlacklistedDevice",
-               "type":"void",
-               "parameters":[
-                  {
-                     "type":"string",
-                     "paramType":"path",
-                     "name":"device_name_type",
-                     "required":true
-                  },
-                  {
-                     "type":"string",
-                     "paramType":"path",
-                     "name":"device_name",
-                     "required":true
-                  }
-               ],
-               "consumes":[
-                  "application/json"
-               ]
+      "post": {
+        "tags": ["/issue17d"],
+        "operationId": "addBlacklistedDevice",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BlacklistedDevice"
+              }
             }
-         ]
-      }
-   ],
-   "models":{
-      "BlacklistedDevice":{
-         "id":"BlacklistedDevice",
-         "properties":{
-            "id":{
-               "type":"string"
-            },
-            "timestamp":{
-               "type":"string",
-               "format":"date-time"
-            },
-            "device_name":{
-               "type":"string"
-            },
-            "device_name_type":{
-               "type":"string"
-            },
-            "reason":{
-               "type":"string"
-            },
-            "battery_active":{
-            	"type":"boolean"
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
             }
-         }
+          }
+        },
+        "x-codegen-request-body-name": "blacklistedDevice"
       }
-   }
+    },
+    "/issue17d/{device_name_type}-{device_name}": {
+      "get": {
+        "tags": ["/issue17d"],
+        "operationId": "getBlacklistedDevice",
+        "parameters": [
+          {
+            "name": "device_name_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "device_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlacklistedDevice"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["/issue17d"],
+        "operationId": "updateBlacklistedDevice",
+        "parameters": [
+          {
+            "name": "device_name_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "device_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BlacklistedDevice"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "blacklistedDevice"
+      },
+      "delete": {
+        "tags": ["/issue17d"],
+        "operationId": "deleteBlacklistedDevice",
+        "parameters": [
+          {
+            "name": "device_name_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "device_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {}
+          }
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BlacklistedDevice": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "device_name": {
+            "type": "string"
+          },
+          "device_name_type": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "battery_active": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
 }

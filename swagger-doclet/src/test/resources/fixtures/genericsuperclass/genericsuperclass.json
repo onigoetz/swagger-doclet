@@ -1,77 +1,93 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/users",
-    "apis": [
-        {
-            "path": "/users/query/{parentIds}",
-            "operations" : [ {
-                "method" : "GET",
-                "nickname" : "findAll",
-                "type" : "array",
-                "parameters": [ {
-                        "paramType": "path",
-                        "name": "parentIds",
-                        "type": "string",
-                        "required" : true,
-                        "allowMultiple" : true
-                    },
-                    {
-                            "paramType": "query",
-                            "name": "req1",
-                            "type": "string",
-                            "required" : true
-                        },
-                        {
-                            "paramType": "body",
-                            "name": "opt",
-                            "type": "string"
-                        },
-                        {
-                            "paramType": "body",
-                            "name": "p1",
-                            "type": "integer",
-                			"format" : "int32",
-                			"minimum": 5,
-                			"maximum": 15,
-                			"defaultValue" : 10,
-                			"required" : true
-                        }
-                ],
-                "responseMessages": [
-                        {
-                            "code": 200,
-                            "message": "The API call completed successfully."
-                        },
-                        {
-                            "code": 404,
-                            "message": "image_not_found|An image that was specified could not be found."
-                        }
-                    ],
-                "summary" : "first sentence.",
-                "notes" : "remaining sentence",
-                "items" : {
-                    "$ref" : "User"
-                },
-                "consumes": [
-                    "text/plain"
-                ],
-                "produces": [
-                    "application/json"
-                ]
-            } ]
-        }
-    ]
-    ,
-    "models": {
-    	"User": {
-            "id": "User",
-            "properties" : {
-                "id" : {
-                    "type" : "string"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/users"
+    }
+  ],
+  "paths": {
+    "/users/query/{parentIds}": {
+      "get": {
+        "tags": ["/users"],
+        "summary": "first sentence.",
+        "description": "remaining sentence",
+        "operationId": "findAll",
+        "parameters": [
+          {
+            "name": "parentIds",
+            "in": "path",
+            "required": true,
+            "explode": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "req1",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "minimum": 5,
+                "maximum": 15,
+                "default": 10
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The API call completed successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "image_not_found|An image that was specified could not be found."
+          }
+        },
+        "x-codegen-request-body-name": "p1"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
 }

@@ -1,43 +1,24 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "apis": [
-        {
-            "path": "/oauth2.{format}"
-        }
-    ],
-    "authorizations": {
-		  "oauth2": {
-		    "type": "oauth2",
-		    "scopes": [
-			      {
-			        "scope": "write:pets",
-					"description": "modify pets in your account"
-			      },
-			      {
-			        "scope": "read:pets",
-					"description": "read pets in your account"
-			      }
-			    ],
-		    "grantTypes": {
-		      "implicit": {
-		        "loginEndpoint": {
-		          "url": "http://petstore.swagger.wordnik.com/oauth/dialog"
-		        },
-		        "tokenName": "access_token"
-		      },
-		      "authorization_code": {
-		        "tokenRequestEndpoint": {
-		          "url": "http://petstore.swagger.wordnik.com/oauth/requestToken",
-		          "clientIdName": "client_id",
-		          "clientSecretName": "client_secret"
-		        },
-		        "tokenEndpoint": {
-		          "url": "http://petstore.swagger.wordnik.com/oauth/token",
-		          "tokenName": "access_code"
-		        }
-		      }
-		    }
-		  }
-	}
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "/oauth2"
+    }
+  ],
+  "paths": {
+    "/oauth2/customScope": {},
+    "/oauth2/customScopes": {},
+    "/oauth2/defaultAuth": {},
+    "/oauth2/defaultNoAuth": {},
+    "/oauth2/noAuth1": {},
+    "/oauth2/noAuth2": {}
+  }
 }

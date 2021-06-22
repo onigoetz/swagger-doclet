@@ -1,74 +1,111 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/beanparam",
-    "apis": [
-        {
-            "path": "/beanparam/1",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getMultipleQueryParams",
-                    "type": "string",
-                    "parameters": [
-                    	{
-                            "paramType": "query",
-                            "name": "p1",
-                            "type": "string",
-                            "required": true
-                        },
-                        {
-                            "paramType": "query",
-                            "name": "p2",
-                            "type": "integer",
-                            "format" : "int32"
-                        },
-                        {
-                            "paramType": "query",
-                            "name": "p3",
-                            "type": "string"
-                        }
-                    ],
-                    "produces": [
-                    	"text/plain"
-                    ]
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "/beanparam"
+    }
+  ],
+  "paths": {
+    "/beanparam/1": {
+      "get": {
+        "tags": ["/beanparam"],
+        "operationId": "getMultipleQueryParams",
+        "parameters": [
+          {
+            "name": "p1",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "p2",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "p3",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
                 }
-                
-            ]
-        },
-        {
-            "path": "/beanparam/2",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "postMixedParams",
-                    "type": "string",
-                    "parameters": [
-                    	{
-                            "paramType": "form",
-                            "name": "p1",
-                            "type": "string"
-                        },
-                        {
-                            "paramType": "path",
-                            "name": "p2",
-                            "type": "integer",
-                            "format" : "int32"
-                        },
-                        {
-                            "paramType": "query",
-                            "name": "p3",
-                            "type": "string",
-                            "required": true
-                        }
-                    ],
-                    "produces": [
-                    	"text/plain"
-                    ]
-                }
-                
-            ]
+              }
+            }
+          }
         }
-    ]
+      }
+    },
+    "/beanparam/2": {
+      "post": {
+        "tags": ["/beanparam"],
+        "operationId": "postMixedParams",
+        "parameters": [
+          {
+            "name": "p2",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "p3",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "p1": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }

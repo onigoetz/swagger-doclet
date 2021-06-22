@@ -1,14 +1,15 @@
 package com.tenxerconsulting.swagger.doclet;
 
-import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.sun.javadoc.LanguageVersion;
 import com.sun.javadoc.RootDoc;
 import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
+import lombok.extern.slf4j.Slf4j;
 
 @SuppressWarnings("javadoc")
+@Slf4j
 public class ServiceDoclet {
 
 	/**
@@ -47,7 +48,7 @@ public class ServiceDoclet {
 
 		long end = System.currentTimeMillis();
 
-		System.out.println("Completed doclet api generation in " + (end - start) + " ms.");
+		log.info("Completed doclet api generation in {} ms.", end - start);
 
 		return result;
 	}
@@ -86,7 +87,6 @@ public class ServiceDoclet {
 		options.put("-schemes", 2);
 		options.put("-apiBasePath", 2);
 		options.put("-apiVersion", 2);
-		options.put("-resourceRootPath", 2);
 
 		options.put("-genericWrapperTypes", 2);
 
@@ -145,9 +145,8 @@ public class ServiceDoclet {
 		options.put("-optionalFieldAnnotations", 2);
 
 		// file inclusions
-		options.put("-apiAuthorizationsFile", 2);
+		options.put("-securitySchemesFile", 2);
 		options.put("-apiInfoFile", 2);
-		options.put("-extraApiDeclarations", 2);
 
 		options.put("-unauthOperationTags", 2);
 		options.put("-authOperationTags", 2);

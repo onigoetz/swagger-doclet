@@ -1,13 +1,14 @@
 package com.tenxerconsulting.swagger.doclet.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Objects;
+import lombok.EqualsAndHashCode;
 
 /**
  * The Oauth2GrantTypes represents different oauth2 grant types
  * @version $Id$
  * @author conor.roche
  */
+@EqualsAndHashCode
 public class Oauth2GrantTypes {
 
 	private Oauth2AuthorizationCodeGrantType authorizationCode;
@@ -67,38 +68,5 @@ public class Oauth2GrantTypes {
 		return this.implicit;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		Oauth2GrantTypes that = (Oauth2GrantTypes) o;
-		return Objects.equal(this.authorizationCode, that.authorizationCode) && Objects.equal(this.implicit, that.implicit);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(this.authorizationCode, this.implicit);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return "Oauth2GrantTypes [authorizationCode=" + this.authorizationCode + ", implicit=" + this.implicit + "]";
-	}
 
 }

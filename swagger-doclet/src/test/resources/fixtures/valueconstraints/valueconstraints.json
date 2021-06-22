@@ -1,217 +1,252 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/valueconstraints",
-    "apis": [
-        {
-            "path": "/valueconstraints",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "postData",
-                    "type": "Data",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "Data",
-                            "required" : true
-                        },
-                        {
-                            "paramType": "query",
-                            "name": "enumValue",
-                            "type": "string",
-                            "enum": [
-						        "VALUE1",
-						        "VALUE2"
-						    	],
-						    "defaultValue" : "VALUE1"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/valueconstraints/1",
-            "operations": [
-                {
-                    "method": "PUT",
-                    "nickname": "putMinMax",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "query",
-                            "name": "p1",
-                            "type": "integer",
-                			"format" : "int32",
-                			"minimum": 5,
-                			"maximum": 15,
-                			"defaultValue" : 10
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/valueconstraints/2",
-            "operations": [
-                {
-                    "method": "PUT",
-                    "nickname": "putMinMaxes",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "query",
-                            "name": "p1",
-                            "type": "number",
-                			"format" : "double",
-                			"minimum": 6.5,
-                			"maximum": 9,
-                			"defaultValue" : 6.95
-                        },
-                        {
-                            "paramType": "query",
-                            "name": "p2a",
-                            "type": "integer",
-                			"format" : "int64",
-                			"minimum": 10,
-                			"maximum": 17,
-                			"defaultValue" : 12
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/valueconstraints/3",
-            "operations": [
-                {
-                    "method": "PUT",
-                    "nickname": "putBoolean",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "query",
-                            "name": "p1",
-                            "type": "boolean",
-                			"defaultValue" : true
-                        },
-                        {
-                            "paramType": "query",
-                            "name": "p2",
-                            "type": "boolean",
-                			"defaultValue" : false
-                        },
-                        {
-                            "paramType": "query",
-                            "name": "p3",
-                            "type": "boolean",
-                			"defaultValue" : true
-                        },
-                        {
-                            "paramType": "query",
-                            "name": "p4",
-                            "type": "boolean",
-                			"defaultValue" : false
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/valueconstraints/4",
-            "operations": [
-                {
-                    "method": "PUT",
-                    "nickname": "putEnum",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "query",
-                            "name": "p1",
-                            "type": "string",
-                			"defaultValue" : "C",
-                			"enum": [
-						        "A",
-						        "C"
-						    ]
-                        },
-                        {
-                            "paramType": "query",
-                            "name": "p2",
-                            "type": "string",
-                			"enum": [
-						        "B"
-						    ]
-                        }
-                    ]
-                }
-            ]
-        }
-    ],
-    "models": {
-        "Data": {
-            "id": "Data",
-            "properties": {
-            	"value": {
-                    "type": "string",
-                    "enum": [
-						        "VALUE1",
-						        "VALUE2"
-						    ]
-                },
-                "minFieldTag": {
-                	"type": "integer",
-                	"format" : "int32",
-                	"minimum": 1
-                },
-                "maxFieldTag": {
-                	"type": "integer",
-                	"format" : "int32",
-                	"maximum": 10
-                },
-                "minMaxFieldTag": {
-                	"type": "integer",
-                	"format" : "int32",
-                	"minimum": 2,
-                	"maximum": 8
-                },
-                "minGetterTag": {
-                	"type": "integer",
-                	"format" : "int32",
-                	"minimum": 1,
-                	"defaultValue" : 2
-                },
-                "maxGetterTag": {
-                	"type": "integer",
-                	"format" : "int32",
-                	"maximum": 10,
-                	"defaultValue" : 5
-                },
-                "minMaxGetterTag": {
-                	"type": "integer",
-                	"format" : "int32",
-                	"minimum": 2,
-                	"maximum": 8,
-                	"defaultValue" : 2
-                },
-                "trueFieldTag" : {
-                    "type": "boolean",
-                    "defaultValue" : true
-                },
-                "falseFieldTag" : {
-                    "type": "boolean",
-                    "defaultValue" : false
-                },
-                "aValues" : {
-                    "type": "string",
-                    "enum": [
-						        "A",
-						        "B"
-						    ]
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/valueconstraints"
+    }
+  ],
+  "paths": {
+    "/valueconstraints": {
+      "post": {
+        "tags": ["/valueconstraints"],
+        "operationId": "postData",
+        "parameters": [
+          {
+            "name": "enumValue",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "VALUE1",
+              "enum": ["VALUE1", "VALUE2"]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/Data"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    },
+    "/valueconstraints/4": {
+      "put": {
+        "tags": ["/valueconstraints"],
+        "operationId": "putEnum",
+        "parameters": [
+          {
+            "name": "p1",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "C",
+              "enum": ["A", "C"]
+            }
+          },
+          {
+            "name": "p2",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["B"]
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/valueconstraints/3": {
+      "put": {
+        "tags": ["/valueconstraints"],
+        "operationId": "putBoolean",
+        "parameters": [
+          {
+            "name": "p1",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "name": "p2",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "p3",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "name": "p4",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/valueconstraints/2": {
+      "put": {
+        "tags": ["/valueconstraints"],
+        "operationId": "putMinMaxes",
+        "parameters": [
+          {
+            "name": "p1",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double",
+              "default": 6.95,
+              "minimum": 6.5,
+              "maximum": 9
+            }
+          },
+          {
+            "name": "p2a",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "default": 12,
+              "minimum": 10,
+              "maximum": 17
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/valueconstraints/1": {
+      "put": {
+        "tags": ["/valueconstraints"],
+        "operationId": "putMinMax",
+        "parameters": [
+          {
+            "name": "p1",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 5,
+              "maximum": 15,
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Data": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "enum": ["VALUE1", "VALUE2"]
+          },
+          "minFieldTag": {
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxFieldTag": {
+            "maximum": 10,
+            "type": "integer",
+            "format": "int32"
+          },
+          "minMaxFieldTag": {
+            "maximum": 8,
+            "minimum": 2,
+            "type": "integer",
+            "format": "int32"
+          },
+          "minGetterTag": {
+            "minimum": 1,
+            "default": 2,
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxGetterTag": {
+            "maximum": 10,
+            "default": 5,
+            "type": "integer",
+            "format": "int32"
+          },
+          "minMaxGetterTag": {
+            "maximum": 8,
+            "minimum": 2,
+            "default": 2,
+            "type": "integer",
+            "format": "int32"
+          },
+          "trueFieldTag": {
+            "type": "boolean",
+            "default": true
+          },
+          "falseFieldTag": {
+            "type": "boolean",
+            "default": false
+          },
+          "aValues": {
+            "type": "string",
+            "enum": ["A", "B"]
+          }
+        }
+      }
+    }
+  }
 }

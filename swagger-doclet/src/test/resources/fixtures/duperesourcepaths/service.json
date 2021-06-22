@@ -1,9 +1,20 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "apis": [
-     	{
-            "path": "/resource.{format}"
-        }
-    ]
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "/resource"
+    }
+  ],
+  "paths": {
+    "/resource/bar": {},
+    "/resource/foo": {}
+  }
 }

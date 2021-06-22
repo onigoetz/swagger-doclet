@@ -1,109 +1,172 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/foo",
-    "apis": [
-        {
-            "path": "/foo",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "sayHello",
-                    "type": "string",
-                    "parameters": [
-                        {
-                            "paramType": "query",
-                            "name": "name",
-                            "type": "string",
-                            "defaultValue": "World"
-                        }
-                    ],
-                    "responseMessages": [
-                        {
-                            "code": 404,
-                            "message": "not found"
-                        }
-                    ]
-                },
-                {
-                    "method": "POST",
-                    "nickname": "createSpeech",
-                    "type": "integer",
-                    "format" : "int32",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "speech",
-                            "type": "string",
-                            "required" : true
-                        }
-                    ]
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "/foo"
+    }
+  ],
+  "paths": {
+    "/foo": {
+      "get": {
+        "tags": ["/foo"],
+        "operationId": "sayHello",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "World"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
                 }
-            ]
-        },
-        {
-            "path": "/foo/annotated",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "createSpeechWithAnnotatedPayload",
-                    "type": "integer",
-                    "format" : "int32",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "speech",
-                            "type": "string",
-                            "required" : true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/foo/{fooId}/sub",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "createSub",
-                    "type": "integer",
-                    "format" : "int32",
-                    "parameters": [
-
-                        {
-                            "paramType": "path",
-                            "name": "fooId",
-                            "type": "string",
-                            "required" : true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/foo/{fooId}/sub/annotated",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "sayHello",
-                    "type": "string",
-                    "parameters": [
-                        {
-                            "paramType": "query",
-                            "name": "name",
-                            "type": "string",
-                            "defaultValue" : "World2"
-                        },
-                        {
-                            "paramType": "path",
-                            "name": "fooId",
-                            "type": "string",
-                            "required" : true
-                        }
-                    ]
-                }
-            ]
+              }
+            }
+          },
+          "404": {
+            "description": "not found"
+          }
         }
-    ]
+      },
+      "post": {
+        "tags": ["/foo"],
+        "operationId": "createSpeech",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "speech"
+      }
+    },
+    "/foo/{fooId}/sub": {
+      "post": {
+        "tags": ["/foo"],
+        "operationId": "createSub",
+        "parameters": [
+          {
+            "name": "fooId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/foo/{fooId}/sub/annotated": {
+      "get": {
+        "tags": ["/foo"],
+        "operationId": "sayHello",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "World2"
+            }
+          },
+          {
+            "name": "fooId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/foo/annotated": {
+      "post": {
+        "tags": ["/foo"],
+        "operationId": "createSpeechWithAnnotatedPayload",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "speech"
+      }
+    }
+  }
 }

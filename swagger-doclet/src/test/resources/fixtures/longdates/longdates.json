@@ -1,125 +1,197 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/longdates",
-    "apis": [
-        {
-            "path": "/longdates",
-            "operations": [
-            	{
-                    "method": "GET",
-                    "nickname": "get",
-                    "type": "Data"
-                },
-                {
-                    "method": "POST",
-                    "nickname": "post",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "Data",
-                            "required": true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/longdates/calendar",
-            "operations": [
-            	{
-                    "method": "GET",
-                    "nickname": "getCalendar",
-                    "type": "integer",
-                    "format": "int64"
-                },
-                {
-                    "method": "POST",
-                    "nickname": "setCalendar",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "integer",
-                    		"format": "int64",
-                            "required": true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/longdates/date",
-            "operations": [
-            	{
-                    "method": "GET",
-                    "nickname": "getDate",
-                    "type": "integer",
-                    "format": "int64"
-                },
-                {
-                    "method": "POST",
-                    "nickname": "setDate",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "integer",
-                    		"format": "int64",
-                            "required": true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/longdates/sqldate",
-            "operations": [
-            	{
-                    "method": "GET",
-                    "nickname": "getSqlDate",
-                    "type": "string",
-                    "format": "date-time"
-                },
-                {
-                    "method": "POST",
-                    "nickname": "setSqlDate",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "string",
-                    		"format": "date-time",
-                            "required": true
-                        }
-                    ]
-                }
-            ]
-        }
-    ],
-    "models": {
-    	"Data": {
-            "id": "Data",
-            "properties": {
-                "date": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "sqlDate": {
-                    "type": "string",
-                    "format": "date-time"
-                },
-                "calendar": {
-                    "type": "integer",
-                    "format": "int64"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/longdates"
+    }
+  ],
+  "paths": {
+    "/longdates": {
+      "get": {
+        "tags": ["/longdates"],
+        "operationId": "get",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/longdates"],
+        "operationId": "post",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/Data"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    },
+    "/longdates/calendar": {
+      "get": {
+        "tags": ["/longdates"],
+        "operationId": "getCalendar",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/longdates"],
+        "operationId": "setCalendar",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    },
+    "/longdates/date": {
+      "get": {
+        "tags": ["/longdates"],
+        "operationId": "getDate",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/longdates"],
+        "operationId": "setDate",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    },
+    "/longdates/sqldate": {
+      "get": {
+        "tags": ["/longdates"],
+        "operationId": "getSqlDate",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/longdates"],
+        "operationId": "setSqlDate",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Data": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sqlDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "calendar": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      }
+    }
+  }
 }

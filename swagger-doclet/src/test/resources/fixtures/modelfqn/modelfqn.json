@@ -1,73 +1,109 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/modelfqn",
-    "apis": [
-        {
-        	"path": "/modelfqn/data",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getData",
-                    "type": "fixtures-modelfqn-Data"
-                }
-            ]
-        },
-        {
-        	"path": "/modelfqn/id1col",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getId1Col",
-                    "type": "array",
-                    "items": {
-                    	"$ref": "fixtures-modelfqn-sub1-Id"
-                    }
-                }
-            ]
-        },
-        {
-        	"path": "/modelfqn/id2col",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getId2Col",
-                    "type": "array",
-                    "items": {
-                    	"$ref": "fixtures-modelfqn-sub2-Id"
-                    }
-                }
-            ]
-        }
-    ], 
-    "models": {
-    	"fixtures-modelfqn-Data": {
-            "id": "fixtures-modelfqn-Data",
-            "properties": {
-            	"id1" : {
-            		"type": "fixtures-modelfqn-sub1-Id"
-            	},
-            	"id2" : {
-            		"type": "fixtures-modelfqn-sub2-Id"
-            	}
-            }
-        },
-    	"fixtures-modelfqn-sub1-Id": {
-            "id": "fixtures-modelfqn-sub1-Id",
-            "properties": {
-                "val": {
-                    "type": "string"
-                }
-            }
-        },
-        "fixtures-modelfqn-sub2-Id": {
-            "id": "fixtures-modelfqn-sub2-Id",
-            "properties": {
-                "val": {
-                    "type": "string"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/modelfqn"
+    }
+  ],
+  "paths": {
+    "/modelfqn/id1col": {
+      "get": {
+        "tags": ["/modelfqn"],
+        "operationId": "getId1Col",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/fixtures-modelfqn-sub1-Id"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modelfqn/data": {
+      "get": {
+        "tags": ["/modelfqn"],
+        "operationId": "getData",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/fixtures-modelfqn-Data"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modelfqn/id2col": {
+      "get": {
+        "tags": ["/modelfqn"],
+        "operationId": "getId2Col",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/fixtures-modelfqn-sub2-Id"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "fixtures-modelfqn-sub2-Id": {
+        "type": "object",
+        "properties": {
+          "val": {
+            "type": "string"
+          }
+        }
+      },
+      "fixtures-modelfqn-sub1-Id": {
+        "type": "object",
+        "properties": {
+          "val": {
+            "type": "string"
+          }
+        }
+      },
+      "fixtures-modelfqn-Data": {
+        "type": "object",
+        "properties": {
+          "id1": {
+            "$ref": "#/components/schemas/fixtures-modelfqn-sub1-Id"
+          },
+          "id2": {
+            "$ref": "#/components/schemas/fixtures-modelfqn-sub2-Id"
+          }
+        }
+      }
+    }
+  }
 }

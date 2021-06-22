@@ -11,7 +11,7 @@ import javax.ws.rs.Path;
 public class Res1Sub {
 
 	/**
-	 * @resourcePath a
+	 * @resource a
 	 * @priority 1
 	 */
 	@SuppressWarnings("javadoc")

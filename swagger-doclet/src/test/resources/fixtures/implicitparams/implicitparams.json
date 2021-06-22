@@ -1,105 +1,137 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/implicitparams",
-    "apis": [
-        {
-            "path": "/implicitparams/m1",
-            "operations": [
-            	{
-                    "method": "GET",
-                    "nickname": "m1",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "header",
-                            "name": "p1",
-                            "type": "string"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/implicitparams/m2/{p3}",
-            "operations": [
-            	{
-                    "method": "GET",
-                    "nickname": "m2",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "query",
-                            "name": "p1",
-                            "type": "string"
-                        },
-                        {
-                            "paramType": "query",
-                            "name": "p2",
-                            "type": "integer",
-                            "format": "int32",
-                            "required" : true,
-                            "minimum": 1,
-                			"maximum": 10,
-                			"defaultValue" : 5,
-                			"allowMultiple": true,
-                			"description" : "test dec"
-                        },
-                        {
-                            "paramType": "path",
-                            "name": "p3",
-                            "type": "string",
-                            "required" : true,
-                            "defaultValue" : "A",
-                            "enum": [
-						        "A",
-						        "B"
-						    	],
-						    "description" : "test"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/implicitparams/m3",
-            "operations": [
-            	{
-                    "method": "GET",
-                    "nickname": "m3",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "query",
-                            "name": "p3",
-                            "type": "integer",
-                            "format": "int32"
-                        },
-                        {
-                            "paramType": "body",
-                            "name": "p2",
-                            "type": "Data",
-                            "required" : true
-                        },
-                        {
-                            "paramType": "header",
-                            "name": "p1",
-                            "type": "string"
-                        }
-                    ]
-                }
-            ]
-        }
-    ],
-    "models": {
-        "Data": {
-            "id": "Data",
-            "properties": {
-                "id": {
-                    "type": "string"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/implicitparams"
+    }
+  ],
+  "paths": {
+    "/implicitparams/m1": {
+      "get": {
+        "tags": ["/implicitparams"],
+        "operationId": "m1",
+        "parameters": [
+          {
+            "name": "p1",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/implicitparams/m2/{p3}": {
+      "get": {
+        "tags": ["/implicitparams"],
+        "operationId": "m2",
+        "parameters": [
+          {
+            "name": "p1",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "p2",
+            "in": "query",
+            "description": "test dec",
+            "required": true,
+            "explode": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int32",
+                "minimum": 1,
+                "maximum": 10,
+                "default": 5
+              }
+            }
+          },
+          {
+            "name": "p3",
+            "in": "path",
+            "description": "test",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "default": "A",
+              "enum": ["A", "B"]
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/implicitparams/m3": {
+      "get": {
+        "tags": ["/implicitparams"],
+        "operationId": "m3",
+        "parameters": [
+          {
+            "name": "p3",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "p1",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/Data"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "p2"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Data": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
 }

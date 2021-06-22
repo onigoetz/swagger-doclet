@@ -1,55 +1,89 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/codehausjackson",
-    "apis": [
-        {
-            "path": "/codehausjackson",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "get",
-                    "type": "response"
-                },
-                {
-                    "method": "POST",
-                    "nickname": "create",
-                    "type": "Response",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "payload",
-                            "type": "payload",
-                            "required" : true
-                        }
-                    ]
-                }
-            ]
-        }
-    ],
-    "models": {
-        "response": {
-            "id": "response",
-            "properties": {
-                "visibleField": {
-                    "type": "string"
-                },
-                "odd-name": {
-                    "type": "string"
-                }
-            }
-        },
-        "payload": {
-            "id": "payload",
-            "properties": {
-                "visibleField": {
-                    "type": "string"
-                },
-                "odd-name": {
-                    "type": "string"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/codehausjackson"
+    }
+  ],
+  "paths": {
+    "/codehausjackson": {
+      "get": {
+        "tags": ["/codehausjackson"],
+        "operationId": "get",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/response"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/codehausjackson"],
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/payload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "payload"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "payload": {
+        "type": "object",
+        "properties": {
+          "visibleField": {
+            "type": "string"
+          },
+          "odd-name": {
+            "type": "string"
+          }
+        }
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "visibleField": {
+            "type": "string"
+          },
+          "odd-name": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
 }

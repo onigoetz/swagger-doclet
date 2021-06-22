@@ -1,189 +1,293 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/fileupload",
-    "apis": [
-        {
-            "path": "/fileupload/bytearraymultipart",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "byteArrayMultiPart",
-                    "type": "Response",
-                    "parameters": [
-                        {
-                            "paramType": "form",
-                            "name": "payload",
-                            "type": "File",
-                            "required" : true
-                        }
-                    ],
-                    "consumes": [
-                        "multipart/form-data"
-                    ]
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "/fileupload"
+    }
+  ],
+  "paths": {
+    "/fileupload/bytearraymultipart": {
+      "post": {
+        "tags": ["/fileupload"],
+        "operationId": "byteArrayMultiPart",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": ["payload"],
+                "properties": {
+                  "payload": {
+                    "type": "string",
+                    "format": "binary"
+                  }
                 }
-            ]
+              }
+            }
+          },
+          "required": true
         },
-        {
-            "path": "/fileupload/bytearraysinglepart",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "byteArraySinglePart",
-                    "type": "Response",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "payload",
-                            "type": "array",
-                            "items": {
-                                "type" : "string",
-                                "format" : "byte"
-                            },
-                            "required" : true
-                        }
-                    ],
-                    "consumes": [
-                        "application/octet-stream"
-                    ]
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
                 }
-            ]
-        },
-        {
-            "path": "/fileupload/formparams",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "formParams",
-                    "type": "Response",
-                    "parameters": [
-                        {
-                            "paramType": "form",
-                            "name": "param1",
-                            "type": "string"
-                        },
-                        {
-                            "paramType": "form",
-                            "name": "param2",
-                            "type": "string"
-                        }
-                    ],
-                    "consumes": [
-                        "application/x-www-form-urlencoded"
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/fileupload/jerseyformdata",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "jerseyFormData",
-                    "type": "Response",
-                    "parameters": [
-                        {
-                            "paramType": "form",
-                            "name": "file",
-                            "type": "File",
-                            "required" : true
-                        },
-                        {
-                            "paramType": "form",
-                            "name": "contentDisposition",
-                            "type": "string"
-                        }
-                    ],
-                    "consumes": [
-                        "multipart/form-data"
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/fileupload/multipartjavafile",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "multipartJavafile",
-                    "type": "Response",
-                    "parameters": [
-                        {
-                            "paramType": "form",
-                            "name": "theFile",
-                            "type": "File",
-                            "required" : true
-                        }
-                    ],
-                    "consumes": [
-                        "multipart/form-data","application/octet-stream"
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/fileupload/resteasymultipartformdatainput",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "resteasyMultipartFormDataInput",
-                    "type": "Response",
-                    "parameters": [
-                        {
-                            "paramType": "form",
-                            "name": "photo",
-                            "type": "File",
-                            "required" : true
-                        }
-                    ],
-                    "consumes": [
-                        "multipart/form-data"
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/fileupload/singlepartinputstream",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "singlePartInputStream",
-                    "type": "Response",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "photo",
-                            "type": "InputStream",
-                            "required" : true
-                        }
-                    ],
-                    "consumes": [
-                        "image/*"
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/fileupload/singlepartjavafile",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "singlePartJavaFile",
-                    "type": "Response",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "theFile",
-                            "type": "JavaFile",
-                            "required" : true
-                        }
-                    ],
-                    "consumes": [
-                        "image/*"
-                    ]
-                }
-            ]
+              }
+            }
+          }
         }
-    ]
+      }
+    },
+    "/fileupload/bytearraysinglepart": {
+      "post": {
+        "tags": ["/fileupload"],
+        "operationId": "byteArraySinglePart",
+        "requestBody": {
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "byte"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "payload"
+      }
+    },
+    "/fileupload/formparams": {
+      "post": {
+        "tags": ["/fileupload"],
+        "operationId": "formParams",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "param1": {
+                    "type": "string"
+                  },
+                  "param2": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fileupload/jerseyformdata": {
+      "post": {
+        "tags": ["/fileupload"],
+        "operationId": "jerseyFormData",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": ["file"],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "contentDisposition": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fileupload/multipartjavafile": {
+      "post": {
+        "tags": ["/fileupload"],
+        "operationId": "multipartJavafile",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": ["theFile"],
+                "properties": {
+                  "theFile": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            },
+            "application/octet-stream": {
+              "schema": {
+                "required": ["theFile"],
+                "properties": {
+                  "theFile": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fileupload/resteasymultipartformdatainput": {
+      "post": {
+        "tags": ["/fileupload"],
+        "operationId": "resteasyMultipartFormDataInput",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": ["photo"],
+                "properties": {
+                  "photo": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fileupload/singlepartinputstream": {
+      "post": {
+        "tags": ["/fileupload"],
+        "operationId": "singlePartInputStream",
+        "requestBody": {
+          "content": {
+            "image/*": {
+              "schema": {
+                "$ref": "#/components/schemas/InputStream"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "photo"
+      }
+    },
+    "/fileupload/singlepartjavafile": {
+      "post": {
+        "tags": ["/fileupload"],
+        "operationId": "singlePartJavaFile",
+        "requestBody": {
+          "content": {
+            "image/*": {
+              "schema": {
+                "$ref": "#/components/schemas/JavaFile"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "theFile"
+      }
+    }
+  }
 }

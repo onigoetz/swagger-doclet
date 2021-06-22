@@ -1,29 +1,25 @@
 package com.tenxerconsulting.swagger.doclet.apidocs;
 
-import com.sun.javadoc.RootDoc;
-import com.tenxerconsulting.swagger.doclet.DocletOptions;
-import com.tenxerconsulting.swagger.doclet.Recorder;
-import com.tenxerconsulting.swagger.doclet.model.ApiDeclaration;
-import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.io.File;
 import java.io.IOException;
 
-import static com.tenxerconsulting.swagger.doclet.apidocs.FixtureLoader.loadFixture;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import com.sun.javadoc.RootDoc;
+import com.tenxerconsulting.swagger.doclet.DocletOptions;
+import com.tenxerconsulting.swagger.doclet.JSONCompare;
+import com.tenxerconsulting.swagger.doclet.Recorder;
+import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
 
 public class JsonSubTypesParentReferenceResourceTest {
     private Recorder recorderMock;
     private DocletOptions options;
 
-    @Before
+    @BeforeEach
     public void setup() {
         this.recorderMock = mock(Recorder.class);
         //this.recorderMock = new ObjectMapperRecorder(null, null, null, null);
@@ -37,10 +33,10 @@ public class JsonSubTypesParentReferenceResourceTest {
     @Test
     public void testStart() throws IOException {
         final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.jsonsubtypesparentreference");
-        Assert.assertNotNull(rootDoc);
+        assertNotNull(rootDoc);
         boolean result = new JaxRsAnnotationParser(this.options, rootDoc).run();
-        Assert.assertTrue(result);
-        final ApiDeclaration api = loadFixture("/fixtures/jsonsubtypesparentreference/node.json", ApiDeclaration.class);
-        verify(this.recorderMock).record(any(File.class), eq(api));
+        assertTrue(result);
+
+        JSONCompare.compare("/fixtures/jsonsubtypesparentreference/node.json", recorderMock);
     }
 }

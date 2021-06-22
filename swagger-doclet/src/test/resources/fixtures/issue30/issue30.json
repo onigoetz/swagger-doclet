@@ -1,81 +1,103 @@
 {
-  "apiVersion" : "0",
-  "swaggerVersion" : "1.2",
-  "basePath" : "http://localhost:8080",
-  "resourcePath" : "/issue30",
-  "apis" : [ {
-    "path" : "/issue30",
-    "operations" : [ {
-      "method" : "POST",
-      "nickname" : "postComment",
-      "type" : "Comment-Comment.UserView",
-      "parameters" : [ {
-        "type" : "Comment",
-        "paramType" : "body",
-        "name" : "comment",
-        "required" : true
-      } ],
-      "produces": [
-                    	"application/json"
-      ]
-    } ]
-  } ],
-  "models" : {
-    "User" : {
-      "id" : "User",
-      "properties" : {
-        "name" : {
-          "type" : "string"
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
+    }
+  ],
+  "tags": [{ "name": "/issue30" }],
+  "paths": {
+    "/issue30": {
+      "post": {
+        "tags": ["/issue30"],
+        "operationId": "postComment",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/Comment"
+              }
+            }
+          },
+          "required": true
         },
-        "comments" : {
-          "type" : "array",
-          "items" : {
-            "$ref" : "Comment"
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Comment-Comment.UserView"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "comment"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Comment": {
+        "type": "object",
+        "properties": {
+          "commentThread": {
+            "$ref": "#/components/schemas/CommentThread"
+          },
+          "text": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
           }
         }
-      }
-    },
-    "User-Comment.UserView" : {
-      "id" : "User-Comment.UserView",
-      "properties" : {
-        "name" : {
-          "type" : "string"
-        }
-      }
-    },
-    "CommentThread" : {
-      "id" : "CommentThread",
-      "properties" : {
-        "name" : {
-          "type" : "string"
-        },
-        "comments" : {
-          "type" : "array",
-          "items" : {
-            "$ref" : "Comment"
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "comments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Comment"
+            }
           }
         }
-      }
-    },
-    "Comment-Comment.UserView" : {
-      "id" : "Comment-Comment.UserView",
-      "properties" : {
-        "user" : {
-          "type" : "User-Comment.UserView"
+      },
+      "User-Comment.UserView": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
         }
-      }
-    },
-    "Comment" : {
-      "id" : "Comment",
-      "properties" : {
-        "commentThread" : {
-          "type" : "CommentThread"
-        },
-        "text" : {
-          "type" : "string"
-        },
-        "user" : {
-          "type" : "User"
+      },
+      "CommentThread": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "comments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Comment"
+            }
+          }
+        }
+      },
+      "Comment-Comment.UserView": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/User-Comment.UserView"
+          }
         }
       }
     }

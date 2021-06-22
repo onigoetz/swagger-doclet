@@ -9,12 +9,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tenxerconsulting.swagger.doclet.model.ApiAuthorizations;
+import com.fasterxml.jackson.databind.type.MapType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.tenxerconsulting.swagger.doclet.json.MapperModule;
 import com.tenxerconsulting.swagger.doclet.parser.NamingConvention;
 import com.tenxerconsulting.swagger.doclet.parser.ParserHelper;
 import com.tenxerconsulting.swagger.doclet.parser.ResponseMessageSortMode;
@@ -23,8 +23,10 @@ import com.tenxerconsulting.swagger.doclet.translator.AnnotationAwareTranslator;
 import com.tenxerconsulting.swagger.doclet.translator.FirstNotNullTranslator;
 import com.tenxerconsulting.swagger.doclet.translator.NameBasedTranslator;
 import com.tenxerconsulting.swagger.doclet.translator.Translator;
-import io.swagger.models.Info;
-import io.swagger.models.Path;
+import io.swagger.oas.models.info.Info;
+import io.swagger.oas.models.security.SecurityScheme;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * The DocletOptions represents the supported options for this doclet.
@@ -40,7 +42,32 @@ public class DocletOptions {
 		InputStream is = null;
 		try {
 			is = new BufferedInputStream(new FileInputStream(file));
-			return new ObjectMapper().readValue(is, resourceClass);
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.registerModule(new MapperModule());
+			return mapper.readValue(is, resourceClass);
+		} catch (Exception ex) {
+			throw new IllegalArgumentException("Failed to read model file: " + path + ", error : " + ex.getMessage(), ex);
+		} finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (Exception ex) {
+					// ignore
+				}
+			}
+		}
+	}
+
+	private static <T> T loadModelFromJson(String option, String path, MapType resourceClass) {
+		File file = new File(path);
+		checkArgument(file.isFile(), "Path for " + option + " (" + file.getAbsolutePath() + ") is expected to be an existing file!");
+		// load it as json and build the object from it
+		InputStream is = null;
+		try {
+			is = new BufferedInputStream(new FileInputStream(file));
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.registerModule(new MapperModule());
+			return mapper.readValue(is, resourceClass);
 		} catch (Exception ex) {
 			throw new IllegalArgumentException("Failed to read model file: " + path + ", error : " + ex.getMessage(), ex);
 		} finally {
@@ -63,7 +90,7 @@ public class DocletOptions {
 
 		DocletOptions parsedOptions = new DocletOptions();
 
-		boolean clearedDefaultSchemes = false;
+		boolean clearedDefaultServers = false;
 
 		// Object mapper settings
 		String serializationFeaturesCsv = null;
@@ -80,22 +107,11 @@ public class DocletOptions {
 						throw new IllegalArgumentException("Path after -d is expected to be a directory!");
 					}
 				}
-			} else if (option[0].equals("-apiAuthorizationsFile")) {
-				parsedOptions.apiAuthorizations = loadModelFromJson("-apiAuthorizationsFile", option[1], ApiAuthorizations.class);
+			} else if (option[0].equals("-securitySchemesFile")) {
+				MapType type = TypeFactory.defaultInstance().constructMapType(HashMap.class, String.class, SecurityScheme.class);
+				parsedOptions.securitySchemes = loadModelFromJson("-securitySchemesFile", option[1], type);
 			} else if (option[0].equals("-apiInfoFile")) {
 				parsedOptions.apiInfo = loadModelFromJson("-apiInfoFile", option[1], Info.class);
-
-			} else if (option[0].equals("-extraApiDeclarations")) {
-				List<Path> extraApiDeclarations = new ArrayList<>();
-				String[] filePaths = option[1].split(",");
-				for (String filePath : filePaths) {
-					filePath = filePath.trim();
-					Path path = loadModelFromJson("-extraApiDeclarations", filePath, Path.class);
-					extraApiDeclarations.add(path);
-				}
-				if (!extraApiDeclarations.isEmpty()) {
-					parsedOptions.extraApiDeclarations = extraApiDeclarations;
-				}
 
 			} else if (option[0].equals("-variablesPropertiesFile")) {
 
@@ -121,24 +137,18 @@ public class DocletOptions {
 						}
 					}
 				}
-			} else if (option[0].equals("-host")) {
-				parsedOptions.host = option[1];
-			} else if (option[0].equals("-schemes")) {
-			    if (!clearedDefaultSchemes) {
-			    	parsedOptions.schemes.clear();
-			    	clearedDefaultSchemes = true;
+			} else if (option[0].equals("-servers")) {
+				if (!clearedDefaultServers) {
+					parsedOptions.servers.clear();
+					clearedDefaultServers = true;
 				}
-				parsedOptions.schemes.addAll(asList(copyOfRange(option, 1, option.length)));
+				parsedOptions.servers.addAll(asList(copyOfRange(option, 1, option.length)));
 			} else if (option[0].equals("-docBasePath")) {
 				parsedOptions.docBasePath = option[1];
-			} else if (option[0].equals("-apiBasePath")) {
-				parsedOptions.apiBasePath = option[1];
 			} else if (option[0].equals("-apiVersion")) {
 				parsedOptions.apiVersion = option[1];
 			} else if (option[0].equals("-swaggerUiZipPath") || option[0].equals("-swaggerUiPath")) {
 				parsedOptions.swaggerUiPath = option[1];
-			} else if (option[0].equals("-resourceRootPath")) {
-				parsedOptions.resourceRootPath = option[1];
 			} else if (option[0].equals("-responseMessageSortMode")) {
 				parsedOptions.responseMessageSortMode = ResponseMessageSortMode.valueOf(option[1]);
 			} else if (option[0].equals("-disableModels")) {
@@ -367,8 +377,17 @@ public class DocletOptions {
 				serializationInclusion = option[1];
 			}
 		}
-		parsedOptions.recorder = new ObjectMapperRecorder(serializationFeaturesCsv, deserializationFeaturesCsv, defaultTyping, serializationInclusion);
+		parsedOptions.mapper = ObjectMapperBuilder.build(serializationFeaturesCsv, deserializationFeaturesCsv, defaultTyping, serializationInclusion);
+		parsedOptions.recorder = new ObjectMapperRecorder(parsedOptions.mapper);
 		return parsedOptions;
+	}
+
+	public ObjectMapper getMapper() {
+		if (mapper == null) {
+			mapper = ObjectMapperBuilder.build(null, null, null, null);
+		}
+
+		return mapper;
 	}
 
 	private static void addTagsOption(List<String> list, String[] option) {
@@ -381,136 +400,348 @@ public class DocletOptions {
 		}
 	}
 
+	@Getter
 	private File outputDirectory;
-	private String host = null;
+
+	@Getter
+	@Setter
 	private String docBasePath = null;
-	private String apiBasePath = "http://localhost:8080";
+
+	@Getter
 	private String swaggerUiPath = null;
+
+	@Getter
+	@Setter
 	private String apiVersion = "0";
 
-	private String resourceRootPath = "/root";
-
+	@Getter
+	@Setter
 	private boolean includeSwaggerUi = true;
 
+	@Getter
+	@Setter
 	private boolean profileMode = false;
 
+	@Setter
 	private Properties variableReplacements;
 
-	private List<String> schemes;
+	@Getter
+	@Setter
+	private List<String> servers;
 
+	/**
+	 * This gets prefixes of the FQN of resource classes to exclude
+	 */
+	@Getter
+	@Setter
 	private List<String> excludeResourcePrefixes;
+
+	/**
+	 * prefixes of the FQN of resource classes to include, if specified then resources must match these
+	 */
+	@Getter
+	@Setter
 	private List<String> includeResourcePrefixes;
+
+	/**
+	 * This sets the prefixes of the FQN of model classes to exclude
+	 */
+	@Getter
+	@Setter
 	private List<String> excludeModelPrefixes;
+
+	@Getter
 	private List<String> genericWrapperTypes;
+	@Getter
 	private List<String> responseMessageTags;
+	@Getter
 	private List<String> responseTypeTags;
+
+	/**
+	 * This gets tags that can customize the type for input body params
+	 */
+	@Getter
 	private List<String> inputTypeTags;
+	@Getter
 	private List<String> defaultErrorTypeTags;
-
+	@Getter
 	private List<String> compositeParamAnnotations;
+	@Getter
 	private List<String> compositeParamTypes;
-
+	@Getter
 	private List<String> discriminatorAnnotations;
+	@Getter
 	private List<String> subTypesAnnotations;
-
+	@Getter
 	private List<String> excludeParamsTags;
+	@Getter
 	private List<String> excludeParamAnnotations;
-
+	@Getter
 	private List<String> excludeClassTags;
+	@Getter
 	private List<String> excludeClassAnnotations;
-
+	@Getter
 	private List<String> excludeOperationTags;
+	@Getter
 	private List<String> excludeOperationAnnotations;
-
+	@Getter
 	private List<String> excludeFieldTags;
+	@Getter
 	private List<String> excludeFieldAnnotations;
-
+	@Getter
 	private List<String> csvParamsTags;
+	@Getter
 	private List<String> implicitParamTags;
+	@Getter
 	private List<String> paramsFormatTags;
+	@Getter
 	private List<String> paramsMinValueTags;
+	@Getter
 	private List<String> paramMinValueAnnotations;
+	@Getter
 	private List<String> paramsMaxValueTags;
+	@Getter
 	private List<String> paramMaxValueAnnotations;
+	@Getter
 	private List<String> paramsDefaultValueTags;
+	@Getter
 	private List<String> paramsAllowableValuesTags;
+	@Getter
 	private List<String> paramsNameTags;
+	@Getter
 	private List<String> resourceTags;
+
+	/**
+	 * This gets a list of javadoc tag names that can be used for the api description
+	 */
+	@Getter
 	private List<String> apiDescriptionTags;
+
+	/**
+	 * This gets a list of javadoc tag names that can be used for the operation notes
+	 */
+	@Getter
 	private List<String> operationNotesTags;
+
+	/**
+	 * This gets a list of javadoc tag names that can be used for the operation summary
+	 */
+	@Getter
 	private List<String> operationSummaryTags;
+	/**
+	 * This gets list of javadoc tag names that can be used for the model field/method descriptions
+	 */
+	@Getter
 	private List<String> fieldDescriptionTags;
-
+	@Getter
 	private List<String> fieldFormatTags;
+	@Getter
 	private List<String> fieldMinTags;
+	@Getter
 	private List<String> fieldMinAnnotations;
+	@Getter
 	private List<String> fieldMaxTags;
+	@Getter
 	private List<String> fieldMaxAnnotations;
+	@Getter
 	private List<String> fieldDefaultTags;
+	@Getter
 	private List<String> fieldAllowableValuesTags;
-
+	@Getter
 	private List<String> requiredParamsTags;
+	@Getter
 	private List<String> requiredParamAnnotations;
+	@Getter
 	private List<String> optionalParamsTags;
+	@Getter
 	private List<String> optionalParamAnnotations;
-
+	@Getter
 	private List<String> requiredFieldTags;
+	@Getter
 	private List<String> requiredFieldAnnotations;
+	@Getter
 	private List<String> optionalFieldTags;
+	@Getter
 	private List<String> optionalFieldAnnotations;
 
-	private List<String> unauthOperationTags; // tags that say a method does NOT require authorization
-	private List<String> authOperationTags; // tags that indicate whether an operation requires auth or not, coupled with a value from unauthOperationTagValues
-	private List<String> unauthOperationTagValues; // for tags in authOperationTags this is the value to look for to indicate method does NOT require
-													// authorization
-	private List<String> authOperationScopes; // default scopes to add if authOperationTags is present but no scopes
-	private List<String> operationScopeTags; // explicit scopes that are required for authorization for a method
+	/**
+	 * tags that say a method does NOT require authorization
+	 */
+	@Getter
+	private List<String> unauthOperationTags;
 
+	/**
+	 * tags that indicate whether an operation requires auth or not, coupled with a value from unauthOperationTagValues
+	 */
+	@Getter
+	private List<String> authOperationTags;
+
+	/**
+	 * for tags in authOperationTags this is the value to look for to indicate method does NOT require authorization
+	 */
+	@Getter
+	private List<String> unauthOperationTagValues;
+
+	/**
+	 * default scopes to add if authOperationTags is present but no scopes
+	 */
+	@Getter
+	private List<String> authOperationScopes;
+
+	/**
+	 * explicit scopes that are required for authorization for a method
+	 */
+	@Getter
+	private List<String> operationScopeTags;
+
+	/**
+	 * This gets list of javadoc tag names that can be used for ordering resources in the resource listing
+	 */
+	@Getter
 	private List<String> resourcePriorityTags;
+
+	/**
+	 * This gets list of javadoc tag names that can be used for the description of resources
+	 */
+	@Getter
 	private List<String> resourceDescriptionTags;
 
-	private List<String> fileParameterAnnotations; // FQN of annotations that if present denote a parameter as being a File data type
-	private List<String> fileParameterTypes; // FQN of types of a parameter that are File data types
+	/**
+	 * FQN of annotations that if present denote a parameter as being a File data type
+	 */
+	@Getter
+	private List<String> fileParameterAnnotations;
 
-	private List<String> formParameterAnnotations; // FQN of annotations that if present denote a parameter as being a form parameter type
-	private List<String> formParameterTypes; // FQN of types of a parameter that are form parameter types
+	/**
+	 * FQN of types of a parameter that are File data types
+	 */
+	@Getter
+	private List<String> fileParameterTypes;
 
+	/**
+	 * FQN of annotations that if present denote a parameter as being a form parameter type
+	 */
+	@Getter
+	private List<String> formParameterAnnotations;
+
+	/**
+	 * FQN of types of a parameter that are form parameter types
+	 */
+	@Getter
+	private List<String> formParameterTypes;
+
+	@Getter
 	private List<String> parameterNameAnnotations;
 
-	private List<String> longTypePrefixes; // list of type prefixes that are mapped to long data type
-	private List<String> intTypePrefixes; // list of type prefixes that are mapped to int data type
-	private List<String> floatTypePrefixes; // list of type prefixes that are mapped to float data type
-	private List<String> doubleTypePrefixes; // list of type prefixes that are mapped to double data type
-	private List<String> stringTypePrefixes; // list of type prefixes that are mapped to string data type, can be used for example to map header types to
-												// strings
+	/**
+	 * list of type prefixes that are mapped to long data type
+	 */
+	@Getter
+	private List<String> longTypePrefixes;
 
+	/**
+	 * list of type prefixes that are mapped to int data type
+	 */
+	@Getter
+	private List<String> intTypePrefixes;
+
+	/**
+	 * list of type prefixes that are mapped to float data type
+	 */
+	@Getter
+	private List<String> floatTypePrefixes;
+
+	/**
+	 * list of type prefixes that are mapped to double data type
+	 */
+	@Getter
+	private List<String> doubleTypePrefixes;
+
+	/**
+	 * list of type prefixes that are mapped to string data type, can be used for example to map header types to string
+	 */
+	@Getter
+	private List<String> stringTypePrefixes;
+
+	@Getter
 	private boolean excludeDeprecatedResourceClasses = true;
+
+	@Getter
 	private boolean excludeDeprecatedModelClasses = true;
+
+	@Getter
+	@Setter
 	private boolean excludeDeprecatedOperations = true;
+
+	@Getter
+	@Setter
 	private boolean excludeDeprecatedFields = true;
+
+	@Getter
+	@Setter
 	private boolean excludeDeprecatedParams = true;
 
+	@Getter
 	private boolean logDebug = false;
+
+	@Getter
 	private boolean parseModels = true;
+
+	@Getter
+	@Setter
 	private boolean useFullModelIds = false;
+
+	/**
+	 * This is whether model fields are required by default e.g. if it is not specified whether a field is optional or not
+	 */
+	@Getter
+	@Setter
 	private boolean modelFieldsRequiredByDefault = false;
+
+	@Getter
+	@Setter
 	private boolean modelFieldsXmlAccessTypeEnabled = true;
+
+	@Getter
+	@Setter
 	private boolean modelFieldsDefaultXmlAccessTypeEnabled = false;
+
+	@Getter
+	@Setter
 	private NamingConvention modelFieldsNamingConvention = NamingConvention.DEFAULT_NAME;
 
+	@Getter
+	@Setter
 	private boolean sortResourcesByPath = false;
+
+	@Getter
+	@Setter
 	private boolean sortResourcesByPriority = false;
+
+	@Getter
+	@Setter
 	private boolean sortApisByPath = true;
 
+	@Getter
+	@Setter
 	private ResponseMessageSortMode responseMessageSortMode;
 
-	private ApiAuthorizations apiAuthorizations;
+	@Getter
+	@Setter
+	private Map<String, SecurityScheme> securitySchemes;
 
+	@Getter
+	@Setter
 	private Info apiInfo;
 
-	private List<Path> extraApiDeclarations;
+	ObjectMapper mapper;
 
+	@Getter
+	@Setter
 	private Recorder recorder;
+
+	@Getter
+	@Setter
 	private Translator translator;
 
 	/**
@@ -518,8 +749,8 @@ public class DocletOptions {
 	 */
 	public DocletOptions() {
 
-		this.schemes = new ArrayList<>();
-		this.schemes.add("http");
+		this.servers = new ArrayList<>();
+		this.servers.add("http://localhost:8080/");
 
 		this.responseMessageTags = new ArrayList<String>();
 		this.responseMessageTags.add("responseMessage");
@@ -669,7 +900,6 @@ public class DocletOptions {
 		this.resourceTags = new ArrayList<String>();
 		this.resourceTags.add("resourceTag");
 		this.resourceTags.add("parentEndpointName");
-		this.resourceTags.add("resourcePath");
 		this.resourceTags.add("resource");
 
 		this.responseTypeTags = new ArrayList<String>();
@@ -795,9 +1025,7 @@ public class DocletOptions {
 
 		this.responseMessageSortMode = ResponseMessageSortMode.CODE_ASC;
 
-		FirstNotNullTranslator fnnTranslator =
-
-		new FirstNotNullTranslator();
+		FirstNotNullTranslator fnnTranslator = new FirstNotNullTranslator();
 		for (String paramAnnotation : ParserHelper.JAXRS_PARAM_ANNOTATIONS) {
 			fnnTranslator.addNext(new AnnotationAwareTranslator(this).element(paramAnnotation, "value"));
 		}
@@ -822,997 +1050,6 @@ public class DocletOptions {
 		fnnTranslator.addNext(new NameBasedTranslator(this));
 
 		this.translator = fnnTranslator;
-	}
-
-	public File getOutputDirectory() {
-		return this.outputDirectory;
-	}
-
-	public String getDocBasePath() {
-		return this.docBasePath;
-	}
-
-	/**
-	 * This sets the docBasePath
-	 * @param docBasePath the docBasePath to set
-	 * @return this
-	 */
-	public DocletOptions setDocBasePath(String docBasePath) {
-		this.docBasePath = docBasePath;
-		return this;
-	}
-
-	/**
-	 * This gets the resourceRootPath
-	 * @return the resourceRootPath
-	 */
-	public String getResourceRootPath() {
-		return this.resourceRootPath;
-	}
-
-	/**
-	 * This sets the resourceRootPath
-	 * @param resourceRootPath the resourceRootPath to set
-	 * @return this
-	 */
-	public DocletOptions setResourceRootPath(String resourceRootPath) {
-		this.resourceRootPath = resourceRootPath;
-		return this;
-	}
-
-	public String getApiBasePath() {
-		return this.apiBasePath;
-	}
-
-	/**
-	 * This sets the apiBasePath
-	 * @param apiBasePath the apiBasePath to set
-	 * @return this
-	 */
-	public DocletOptions setApiBasePath(String apiBasePath) {
-		this.apiBasePath = apiBasePath;
-		return this;
-	}
-
-	public String getApiVersion() {
-		return this.apiVersion;
-	}
-
-	public String getHost() {
-		return host;
-	}
-
-	public void setHost(String host) {
-		this.host = host;
-	}
-
-	public List<String> getSchemes() {
-		return schemes;
-	}
-
-	public void setSchemes(List<String> schemes) {
-		this.schemes = schemes;
-	}
-
-	/**
-	 * This sets the apiVersion
-	 * @param apiVersion the apiVersion to set
-	 * @return this
-	 */
-	public DocletOptions setApiVersion(String apiVersion) {
-		this.apiVersion = apiVersion;
-		return this;
-	}
-
-	/**
-	 * This gets the swaggerUiPath
-	 * @return the swaggerUiPath
-	 */
-	public String getSwaggerUiPath() {
-		return this.swaggerUiPath;
-	}
-
-	/**
-	 * This gets the responseMessageTags
-	 * @return the responseMessageTags
-	 */
-	public List<String> getResponseMessageTags() {
-		return this.responseMessageTags;
-	}
-
-	/**
-	 * This gets the excludeOperationTags
-	 * @return the excludeOperationTags
-	 */
-	public List<String> getExcludeOperationTags() {
-		return this.excludeOperationTags;
-	}
-
-	/**
-	 * This gets the excludeOperationAnnotations
-	 * @return the excludeOperationAnnotations
-	 */
-	public List<String> getExcludeOperationAnnotations() {
-		return this.excludeOperationAnnotations;
-	}
-
-	/**
-	 * This gets the excludeClassTags
-	 * @return the excludeClassTags
-	 */
-	public List<String> getExcludeClassTags() {
-		return this.excludeClassTags;
-	}
-
-	/**
-	 * This gets the excludeClassAnnotations
-	 * @return the excludeClassAnnotations
-	 */
-	public List<String> getExcludeClassAnnotations() {
-		return this.excludeClassAnnotations;
-	}
-
-	/**
-	 * This gets the excludeFieldTags
-	 * @return the excludeFieldTags
-	 */
-	public List<String> getExcludeFieldTags() {
-		return this.excludeFieldTags;
-	}
-
-	/**
-	 * This gets the excludeFieldAnnotations
-	 * @return the excludeFieldAnnotations
-	 */
-	public List<String> getExcludeFieldAnnotations() {
-		return this.excludeFieldAnnotations;
-	}
-
-	/**
-	 * This gets the excludeParamAnnotations
-	 * @return the excludeParamAnnotations
-	 */
-	public List<String> getExcludeParamAnnotations() {
-		return this.excludeParamAnnotations;
-	}
-
-	/**
-	 * This gets the excludeParamsTags
-	 * @return the excludeParamsTags
-	 */
-	public List<String> getExcludeParamsTags() {
-		return this.excludeParamsTags;
-	}
-
-	/**
-	 * This gets the csvParamsTags
-	 * @return the csvParamsTags
-	 */
-	public List<String> getCsvParamsTags() {
-		return this.csvParamsTags;
-	}
-
-	public List<String> getImplicitParamTags() {
-		return this.implicitParamTags;
-	}
-
-	/**
-	 * This gets the paramsFormatTags
-	 * @return the paramsFormatTags
-	 */
-	public List<String> getParamsFormatTags() {
-		return this.paramsFormatTags;
-	}
-
-	/**
-	 * This gets the paramsMinValueTags
-	 * @return the paramsMinValueTags
-	 */
-	public List<String> getParamsMinValueTags() {
-		return this.paramsMinValueTags;
-	}
-
-	/**
-	 * This gets the paramsMaxValueTags
-	 * @return the paramsMaxValueTags
-	 */
-	public List<String> getParamsMaxValueTags() {
-		return this.paramsMaxValueTags;
-	}
-
-	/**
-	 * This gets the paramsDefaultValueTags
-	 * @return the paramsDefaultValueTags
-	 */
-	public List<String> getParamsDefaultValueTags() {
-		return this.paramsDefaultValueTags;
-	}
-
-	/**
-	 * This gets the paramsAllowableValuesTags
-	 * @return the paramsAllowableValuesTags
-	 */
-	public List<String> getParamsAllowableValuesTags() {
-		return this.paramsAllowableValuesTags;
-	}
-
-	/**
-	 * This gets the paramsNameTags
-	 * @return the paramsNameTags
-	 */
-	public List<String> getParamsNameTags() {
-		return this.paramsNameTags;
-	}
-
-	/**
-	 * This gets the resourceTags
-	 * @return the resourceTags
-	 */
-	public List<String> getResourceTags() {
-		return this.resourceTags;
-	}
-
-	/**
-	 * This gets prefixes of the FQN of resource classes to exclude
-	 * @return the prefixes of the FQN of resource classes to exclude
-	 */
-	public List<String> getExcludeResourcePrefixes() {
-		return this.excludeResourcePrefixes;
-	}
-
-	/**
-	 * This sets the prefixes of the FQN of resource classes to exclude
-	 * @param excludeResourcePrefixes the prefixes of the FQN of resource classes to exclude
-	 * @return this
-	 */
-	public DocletOptions setExcludeResourcePrefixes(List<String> excludeResourcePrefixes) {
-		this.excludeResourcePrefixes = excludeResourcePrefixes;
-		return this;
-	}
-
-	/**
-	 * This gets prefixes of the FQN of resource classes to include, if specified then resources must match these
-	 * @return the prefixes of the FQN of resource classes to include, if specified then resources must match these
-	 */
-	public List<String> getIncludeResourcePrefixes() {
-		return this.includeResourcePrefixes;
-	}
-
-	/**
-	 * This sets the prefixes of the FQN of resource classes to include, if specified then resources must match these
-	 * @param includeResourcePrefixes the prefixes of the FQN of resource classes to include, if specified then resources must match these
-	 * @return this
-	 */
-	public DocletOptions setIncludeResourcePrefixes(List<String> includeResourcePrefixes) {
-		this.includeResourcePrefixes = includeResourcePrefixes;
-		return this;
-	}
-
-	/**
-	 * This gets the discriminatorAnnotations
-	 * @return the discriminatorAnnotations
-	 */
-	public List<String> getDiscriminatorAnnotations() {
-		return this.discriminatorAnnotations;
-	}
-
-	/**
-	 * This gets the subTypesAnnotations
-	 * @return the subTypesAnnotations
-	 */
-	public List<String> getSubTypesAnnotations() {
-		return this.subTypesAnnotations;
-	}
-
-	/**
-	 * This gets prefixes of the FQN of model classes to exclude
-	 * @return prefixes of the FQN of model classes to exclude
-	 */
-	public List<String> getExcludeModelPrefixes() {
-		return this.excludeModelPrefixes;
-	}
-
-	/**
-	 * This sets the prefixes of the FQN of model classes to exclude
-	 * @param excludeModelPrefixes prefixes of the FQN of model classes to exclude
-	 * @return this
-	 */
-	public DocletOptions setExcludeModelPrefixes(List<String> excludeModelPrefixes) {
-		this.excludeModelPrefixes = excludeModelPrefixes;
-		return this;
-	}
-
-	/**
-	 * This gets a list of FQN of types which simply wrap the
-	 * real underlying data type
-	 * @return The type
-	 */
-	public List<String> getGenericWrapperTypes() {
-		return this.genericWrapperTypes;
-	}
-
-	/**
-	 * This gets the fileParameterAnnotations
-	 * @return the fileParameterAnnotations
-	 */
-	public List<String> getFileParameterAnnotations() {
-		return this.fileParameterAnnotations;
-	}
-
-	/**
-	 * This gets the fileParameterTypes
-	 * @return the fileParameterTypes
-	 */
-	public List<String> getFileParameterTypes() {
-		return this.fileParameterTypes;
-	}
-
-	/**
-	 * This gets the formParameterAnnotations
-	 * @return the formParameterAnnotations
-	 */
-	public List<String> getFormParameterAnnotations() {
-		return this.formParameterAnnotations;
-	}
-
-	/**
-	 * This gets the formParameterTypes
-	 * @return the formParameterTypes
-	 */
-	public List<String> getFormParameterTypes() {
-		return this.formParameterTypes;
-	}
-
-	/**
-	 * This gets the compositeParamAnnotations
-	 * @return the compositeParamAnnotations
-	 */
-	public List<String> getCompositeParamAnnotations() {
-		return this.compositeParamAnnotations;
-	}
-
-	/**
-	 * This gets the compositeParamTypes
-	 * @return the compositeParamTypes
-	 */
-	public List<String> getCompositeParamTypes() {
-		return this.compositeParamTypes;
-	}
-
-	/**
-	 * This gets the parameterNameAnnotations
-	 * @return the parameterNameAnnotations
-	 */
-	public List<String> getParameterNameAnnotations() {
-		return this.parameterNameAnnotations;
-	}
-
-	/**
-	 * This gets the stringTypePrefixes
-	 * @return the stringTypePrefixes
-	 */
-	public List<String> getStringTypePrefixes() {
-		return this.stringTypePrefixes;
-	}
-
-	/**
-	 * This gets the longTypePrefixes
-	 * @return the longTypePrefixes
-	 */
-	public List<String> getLongTypePrefixes() {
-		return this.longTypePrefixes;
-	}
-
-	/**
-	 * This gets the intTypePrefixes
-	 * @return the intTypePrefixes
-	 */
-	public List<String> getIntTypePrefixes() {
-		return this.intTypePrefixes;
-	}
-
-	/**
-	 * This gets the floatTypePrefixes
-	 * @return the floatTypePrefixes
-	 */
-	public List<String> getFloatTypePrefixes() {
-		return this.floatTypePrefixes;
-	}
-
-	/**
-	 * This gets the doubleTypePrefixes
-	 * @return the doubleTypePrefixes
-	 */
-	public List<String> getDoubleTypePrefixes() {
-		return this.doubleTypePrefixes;
-	}
-
-	/**
-	 * This is whether model parsing is enabled
-	 * @return Whether model parsing is enabled
-	 */
-	public boolean isParseModels() {
-		return this.parseModels;
-	}
-
-	/**
-	 * This is whether to use FQN of classes for model ids, only needed if your model uses
-	 * same name classes from different packages.
-	 * @return the useFullModelIds
-	 */
-	public boolean isUseFullModelIds() {
-		return this.useFullModelIds;
-	}
-
-	/**
-	 * This sets the useFullModelIds
-	 * @param useFullModelIds the useFullModelIds to set
-	 */
-	public void setUseFullModelIds(boolean useFullModelIds) {
-		this.useFullModelIds = useFullModelIds;
-	}
-
-	/**
-	 * This is whether model fields are required by default e.g. if it is not specified whether a field is optional or not
-	 * @return whether model fields are required by default e.g. if it is not specified whether a field is optional or not
-	 */
-	public boolean isModelFieldsRequiredByDefault() {
-		return this.modelFieldsRequiredByDefault;
-	}
-
-	/**
-	 * This sets the modelFieldsRequiredByDefault
-	 * @param modelFieldsRequiredByDefault the modelFieldsRequiredByDefault to set
-	 * @return this
-	 */
-	public DocletOptions setModelFieldsRequiredByDefault(boolean modelFieldsRequiredByDefault) {
-		this.modelFieldsRequiredByDefault = modelFieldsRequiredByDefault;
-		return this;
-	}
-
-	/**
-	 * This gets the modelFieldsXmlAccessTypeEnabled
-	 * @return the modelFieldsXmlAccessTypeEnabled
-	 */
-	public boolean isModelFieldsXmlAccessTypeEnabled() {
-		return this.modelFieldsXmlAccessTypeEnabled;
-	}
-
-	/**
-	 * This sets the modelFieldsXmlAccessTypeEnabled
-	 * @param modelFieldsXmlAccessTypeEnabled the modelFieldsXmlAccessTypeEnabled to set
-	 * @return this
-	 */
-	public DocletOptions setModelFieldsXmlAccessTypeEnabled(boolean modelFieldsXmlAccessTypeEnabled) {
-		this.modelFieldsXmlAccessTypeEnabled = modelFieldsXmlAccessTypeEnabled;
-		return this;
-	}
-
-	/**
-	 * This gets the modelFieldsDefaultXmlAccessTypeEnabled
-	 * @return the modelFieldsDefaultXmlAccessTypeEnabled
-	 */
-	public boolean isModelFieldsDefaultXmlAccessTypeEnabled() {
-		return this.modelFieldsDefaultXmlAccessTypeEnabled;
-	}
-
-	/**
-	 * This sets the modelFieldsDefaultXmlAccessTypeEnabled
-	 * @param modelFieldsDefaultXmlAccessTypeEnabled the modelFieldsDefaultXmlAccessTypeEnabled to set
-	 * @return this
-	 */
-	public DocletOptions setModelFieldsDefaultXmlAccessTypeEnabled(boolean modelFieldsDefaultXmlAccessTypeEnabled) {
-		this.modelFieldsDefaultXmlAccessTypeEnabled = modelFieldsDefaultXmlAccessTypeEnabled;
-		return this;
-	}
-
-	/**
-	 * This gets the modelFieldsNamingConvention
-	 * @return the modelFieldsNamingConvention
-	 */
-	public NamingConvention getModelFieldsNamingConvention() {
-		return this.modelFieldsNamingConvention;
-	}
-
-	/**
-	 * This sets the modelFieldsNamingConvention
-	 * @param modelFieldsNamingConvention the modelFieldsNamingConvention to set
-	 * @return this
-	 */
-	public DocletOptions setModelFieldsNamingConvention(NamingConvention modelFieldsNamingConvention) {
-		this.modelFieldsNamingConvention = modelFieldsNamingConvention;
-		return this;
-	}
-
-	/**
-	 * This gets the responseTypeTags
-	 * @return the responseTypeTags
-	 */
-	public List<String> getResponseTypeTags() {
-		return this.responseTypeTags;
-	}
-
-	/**
-	 * This gets tags that can customize the type for input body params
-	 * @return The list of tags that can customize input body params
-	 */
-	public List<String> getInputTypeTags() {
-		return this.inputTypeTags;
-	}
-
-	/**
-	 * This gets the defaultErrorTypeTags
-	 * @return the defaultErrorTypeTags
-	 */
-	public List<String> getDefaultErrorTypeTags() {
-		return this.defaultErrorTypeTags;
-	}
-
-	/**
-	 * This gets a list of javadoc tag names that can be used for the api description
-	 * @return list of javadoc tag names that can be used for the api description
-	 */
-	public List<String> getApiDescriptionTags() {
-		return this.apiDescriptionTags;
-	}
-
-	/**
-	 * This gets a list of javadoc tag names that can be used for the operation notes
-	 * @return list of javadoc tag names that can be used for the operation notes
-	 */
-	public List<String> getOperationNotesTags() {
-		return this.operationNotesTags;
-	}
-
-	/**
-	 * This gets a list of javadoc tag names that can be used for the operation summary
-	 * @return a list of javadoc tag names that can be used for the operation summary
-	 */
-	public List<String> getOperationSummaryTags() {
-		return this.operationSummaryTags;
-	}
-
-	/**
-	 * This gets list of javadoc tag names that can be used for the model field/method descriptions
-	 * @return list of javadoc tag names that can be used for the model field/method descriptions
-	 */
-	public List<String> getFieldDescriptionTags() {
-		return this.fieldDescriptionTags;
-	}
-
-	/**
-	 * This gets list of javadoc tag names that can be used for ordering resources in the resource listing
-	 * @return the list of javadoc tag names that can be used for ordering resources in the resource listing
-	 */
-	public List<String> getResourcePriorityTags() {
-		return this.resourcePriorityTags;
-	}
-
-	/**
-	 * This gets list of javadoc tag names that can be used for the description of resources
-	 * @return the list of javadoc tag names that can be used for the description of resources
-	 */
-	public List<String> getResourceDescriptionTags() {
-		return this.resourceDescriptionTags;
-	}
-
-	/**
-	 * This gets the fieldFormatTags
-	 * @return the fieldFormatTags
-	 */
-	public List<String> getFieldFormatTags() {
-		return this.fieldFormatTags;
-	}
-
-	/**
-	 * This gets the fieldMinTags
-	 * @return the fieldMinTags
-	 */
-	public List<String> getFieldMinTags() {
-		return this.fieldMinTags;
-	}
-
-	/**
-	 * This gets the fieldMaxTags
-	 * @return the fieldMaxTags
-	 */
-	public List<String> getFieldMaxTags() {
-		return this.fieldMaxTags;
-	}
-
-	/**
-	 * This gets the fieldDefaultTags
-	 * @return the fieldDefaultTags
-	 */
-	public List<String> getFieldDefaultTags() {
-		return this.fieldDefaultTags;
-	}
-
-	/**
-	 * This gets the fieldAllowableValuesTags
-	 * @return the fieldAllowableValuesTags
-	 */
-	public List<String> getFieldAllowableValuesTags() {
-		return this.fieldAllowableValuesTags;
-	}
-
-	/**
-	 * This gets the requiredParamsTags
-	 * @return the requiredParamsTags
-	 */
-	public List<String> getRequiredParamsTags() {
-		return this.requiredParamsTags;
-	}
-
-	/**
-	 * This gets the optionalParamsTags
-	 * @return the optionalParamsTags
-	 */
-	public List<String> getOptionalParamsTags() {
-		return this.optionalParamsTags;
-	}
-
-	/**
-	 * This gets the requiredFieldTags
-	 * @return the requiredFieldTags
-	 */
-	public List<String> getRequiredFieldTags() {
-		return this.requiredFieldTags;
-	}
-
-	/**
-	 * This gets the optionalFieldTags
-	 * @return the optionalFieldTags
-	 */
-	public List<String> getOptionalFieldTags() {
-		return this.optionalFieldTags;
-	}
-
-	public List<String> getParamMinValueAnnotations() {
-		return this.paramMinValueAnnotations;
-	}
-
-	public List<String> getParamMaxValueAnnotations() {
-		return this.paramMaxValueAnnotations;
-	}
-
-	public List<String> getFieldMinAnnotations() {
-		return this.fieldMinAnnotations;
-	}
-
-	public List<String> getFieldMaxAnnotations() {
-		return this.fieldMaxAnnotations;
-	}
-
-	public List<String> getRequiredParamAnnotations() {
-		return this.requiredParamAnnotations;
-	}
-
-	public List<String> getOptionalParamAnnotations() {
-		return this.optionalParamAnnotations;
-	}
-
-	public List<String> getRequiredFieldAnnotations() {
-		return this.requiredFieldAnnotations;
-	}
-
-	public List<String> getOptionalFieldAnnotations() {
-		return this.optionalFieldAnnotations;
-	}
-
-	/**
-	 * This gets the unauthOperationTags
-	 * @return the unauthOperationTags
-	 */
-	public List<String> getUnauthOperationTags() {
-		return this.unauthOperationTags;
-	}
-
-	/**
-	 * This gets the authOperationTags
-	 * @return the authOperationTags
-	 */
-	public List<String> getAuthOperationTags() {
-		return this.authOperationTags;
-	}
-
-	/**
-	 * This gets the unauthOperationTagValues
-	 * @return the unauthOperationTagValues
-	 */
-	public List<String> getUnauthOperationTagValues() {
-		return this.unauthOperationTagValues;
-	}
-
-	/**
-	 * This gets the operationScopeTags
-	 * @return the operationScopeTags
-	 */
-	public List<String> getOperationScopeTags() {
-		return this.operationScopeTags;
-	}
-
-	/**
-	 * This gets the authOperationScopes
-	 * @return the authOperationScopes
-	 */
-	public List<String> getAuthOperationScopes() {
-		return this.authOperationScopes;
-	}
-
-	public Recorder getRecorder() {
-		return this.recorder;
-	}
-
-	/**
-	 * This sets the recorder to use
-	 * @param recorder The recorder
-	 * @return this
-	 */
-	public DocletOptions setRecorder(Recorder recorder) {
-		this.recorder = recorder;
-		return this;
-	}
-
-	public Translator getTranslator() {
-		return this.translator;
-	}
-
-	/**
-	 * This sets the translator to use
-	 * @param translator The translator
-	 * @return this
-	 */
-	public DocletOptions setTranslator(Translator translator) {
-		this.translator = translator;
-		return this;
-	}
-
-	/**
-	 * This gets the sortResourcesByPath
-	 * @return the sortResourcesByPath
-	 */
-	public boolean isSortResourcesByPath() {
-		return this.sortResourcesByPath;
-	}
-
-	/**
-	 * This sets the sortResourcesByPath
-	 * @param sortResourcesByPath the sortResourcesByPath to set
-	 * @return this
-	 */
-	public DocletOptions setSortResourcesByPath(boolean sortResourcesByPath) {
-		this.sortResourcesByPath = sortResourcesByPath;
-		return this;
-	}
-
-	/**
-	 * This gets the sortResourcesByPriority
-	 * @return the sortResourcesByPriority
-	 */
-	public boolean isSortResourcesByPriority() {
-		return this.sortResourcesByPriority;
-	}
-
-	/**
-	 * This sets the sortResourcesByPriority
-	 * @param sortResourcesByPriority the sortResourcesByPriority to set
-	 * @return this
-	 */
-	public DocletOptions setSortResourcesByPriority(boolean sortResourcesByPriority) {
-		this.sortResourcesByPriority = sortResourcesByPriority;
-		return this;
-	}
-
-	/**
-	 * This gets the sortOperationsByPath
-	 * @return the sortOperationsByPath
-	 */
-	public boolean isSortApisByPath() {
-		return this.sortApisByPath;
-	}
-
-	/**
-	 * This sets the sortApisByPath
-	 * @param sortApisByPath the sortApisByPath to set
-	 * @return this
-	 */
-	public DocletOptions setSortApisByPath(boolean sortApisByPath) {
-		this.sortApisByPath = sortApisByPath;
-		return this;
-	}
-
-	/**
-	 * This gets the includeSwaggerUi
-	 * @return the includeSwaggerUi
-	 */
-	public boolean isIncludeSwaggerUi() {
-		return this.includeSwaggerUi;
-	}
-
-	/**
-	 * This sets the includeSwaggerUi
-	 * @param includeSwaggerUi the includeSwaggerUi to set
-	 * @return this
-	 */
-	public DocletOptions setIncludeSwaggerUi(boolean includeSwaggerUi) {
-		this.includeSwaggerUi = includeSwaggerUi;
-		return this;
-	}
-
-	/**
-	 * This gets the excludeDeprecatedResourceClasses
-	 * @return the excludeDeprecatedResourceClasses
-	 */
-	public boolean isExcludeDeprecatedResourceClasses() {
-		return this.excludeDeprecatedResourceClasses;
-	}
-
-	/**
-	 * This gets the excludeDeprecatedModelClasses
-	 * @return the excludeDeprecatedModelClasses
-	 */
-	public boolean isExcludeDeprecatedModelClasses() {
-		return this.excludeDeprecatedModelClasses;
-	}
-
-	/**
-	 * This gets the excludeDeprecatedOperations
-	 * @return the excludeDeprecatedOperations
-	 */
-	public boolean isExcludeDeprecatedOperations() {
-		return this.excludeDeprecatedOperations;
-	}
-
-	/**
-	 * This sets the excludeDeprecatedOperations
-	 * @param excludeDeprecatedOperations the excludeDeprecatedOperations to set
-	 * @return this
-	 */
-	public DocletOptions setExcludeDeprecatedOperations(boolean excludeDeprecatedOperations) {
-		this.excludeDeprecatedOperations = excludeDeprecatedOperations;
-		return this;
-	}
-
-	/**
-	 * This gets the excludeDeprecatedFields
-	 * @return the excludeDeprecatedFields
-	 */
-	public boolean isExcludeDeprecatedFields() {
-		return this.excludeDeprecatedFields;
-	}
-
-	/**
-	 * This sets the excludeDeprecatedFields
-	 * @param excludeDeprecatedFields the excludeDeprecatedFields to set
-	 * @return this
-	 */
-	public DocletOptions setExcludeDeprecatedFields(boolean excludeDeprecatedFields) {
-		this.excludeDeprecatedFields = excludeDeprecatedFields;
-		return this;
-	}
-
-	/**
-	 * This gets the excludeDeprecatedParams
-	 * @return the excludeDeprecatedParams
-	 */
-	public boolean isExcludeDeprecatedParams() {
-		return this.excludeDeprecatedParams;
-	}
-
-	/**
-	 * This sets the excludeDeprecatedParams
-	 * @param excludeDeprecatedParams the excludeDeprecatedParams to set
-	 * @return this
-	 */
-	public DocletOptions setExcludeDeprecatedParams(boolean excludeDeprecatedParams) {
-		this.excludeDeprecatedParams = excludeDeprecatedParams;
-		return this;
-	}
-
-	/**
-	 * This gets the responseMessageSortMode
-	 * @return the responseMessageSortMode
-	 */
-	public ResponseMessageSortMode getResponseMessageSortMode() {
-		return this.responseMessageSortMode;
-	}
-
-	/**
-	 * This sets the responseMessageSortMode
-	 * @param responseMessageSortMode the responseMessageSortMode to set
-	 * @return this
-	 */
-	public DocletOptions setResponseMessageSortMode(ResponseMessageSortMode responseMessageSortMode) {
-		this.responseMessageSortMode = responseMessageSortMode;
-		return this;
-	}
-
-	/**
-	 * This gets the apiAuthorizations
-	 * @return the apiAuthorizations
-	 */
-	public ApiAuthorizations getApiAuthorizations() {
-		return this.apiAuthorizations;
-	}
-
-	/**
-	 * This sets the apiAuthorizations
-	 * @param apiAuthorizations the apiAuthorizations to set
-	 * @return this
-	 */
-	public DocletOptions setApiAuthorizations(ApiAuthorizations apiAuthorizations) {
-		this.apiAuthorizations = apiAuthorizations;
-		return this;
-	}
-
-	/**
-	 * This gets the apiInfo
-	 * @return the apiInfo
-	 */
-	public Info getApiInfo() {
-		return this.apiInfo;
-	}
-
-	/**
-	 * This sets the apiInfo
-	 * @param apiInfo the apiInfo to set
-	 * @return this
-	 */
-	public DocletOptions setApiInfo(Info apiInfo) {
-		this.apiInfo = apiInfo;
-		return this;
-	}
-
-	/**
-	 * This gets the extraApiDeclarations
-	 * @return the extraApiDeclarations
-	 */
-	public List<Path> getExtraApiDeclarations() {
-		return this.extraApiDeclarations;
-	}
-
-	/**
-	 * This sets the extraApiDeclarations
-	 * @param extraApiDeclarations the extraApiDeclarations to set
-	 */
-	public DocletOptions setExtraApiDeclarations(List<Path> extraApiDeclarations) {
-		this.extraApiDeclarations = extraApiDeclarations;
-		return this;
-	}
-
-	/**
-	 * This sets the variable replacements to use
-	 * @param variableReplacements properties to use for variable replacements
-	 * @return this
-	 */
-	public DocletOptions setVariableReplacements(Properties variableReplacements) {
-		this.variableReplacements = variableReplacements;
-		return this;
-	}
-
-	/**
-	 * This gets the profileMode
-	 * @return the profileMode
-	 */
-	public boolean isProfileMode() {
-		return this.profileMode;
-	}
-
-	/**
-	 * This sets the profileMode
-	 * @param profileMode the profileMode to set
-	 */
-	public void setProfileMode(boolean profileMode) {
-		this.profileMode = profileMode;
-	}
-
-	/**
-	 * This gets the logDebug
-	 * @return the logDebug
-	 */
-	public boolean isLogDebug() {
-		return this.logDebug;
 	}
 
 	/**

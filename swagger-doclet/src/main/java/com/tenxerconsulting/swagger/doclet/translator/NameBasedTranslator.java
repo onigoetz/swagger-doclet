@@ -41,7 +41,7 @@ public class NameBasedTranslator implements Translator {
 		if (multipart) {
 			boolean isFileDataType = ParserHelper.isFileParameterDataType(parameter, this.options);
 			if (isFileDataType) {
-				OptionalName res = presentOrMissing("File");
+				OptionalName res = presentOrMissing("internalFileSchema");
 				return res;
 			}
 		}

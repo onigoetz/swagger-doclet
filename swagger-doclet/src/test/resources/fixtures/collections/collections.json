@@ -1,213 +1,280 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/collections",
-    "apis": [
-        {
-        	"path": "/collections",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getCollectionHolder",
-                    "type": "collectionHolder"
-                }
-            ]
-        },
-        {
-        	"path": "/collections/collectionofstrings",
-            "operations": [
-               {
-                    "method": "POST",
-                    "nickname": "setCollectionOfStrings",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "items",
-                            "type": "array",
-                            "items": {
-                    			"type": "string"
-                    		},
-                    		"required" : true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-        	"path": "/collections/items",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getItems",
-                    "type": "array",
-                    "items": {
-                    	"$ref": "collectionItem"
-                    }
-                }
-            ]
-        },
-        {
-        	"path": "/collections/listofints",
-            "operations": [
-               {
-                    "method": "POST",
-                    "nickname": "setListOfInts",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "items",
-                            "type": "array",
-                            "items": {
-                    			"type": "integer",
-                            	"format": "int32"
-                    		},
-                    		"required" : true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-        	"path": "/collections/listofitems",
-            "operations": [
-               {
-                    "method": "POST",
-                    "nickname": "setListOfItems",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "items",
-                            "type": "array",
-                            "items": {
-                    			"$ref": "collectionItem"
-                    		},
-                    		"required" : true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-        	"path": "/collections/listofstrings",
-            "operations": [
-               {
-                    "method": "POST",
-                    "nickname": "setListOfStrings",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "items",
-                            "type": "array",
-                            "items": {
-                    			"type": "string"
-                    		},
-                    		"required" : true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-        	"path": "/collections/setofstrings",
-            "operations": [
-              {
-                    "method": "GET",
-                    "nickname": "getSetOfStrings",
-                    "type": "array",
-                    "uniqueItems": true,
-                    "items": {
-            			"type": "string"
-            		}
-               },
-               {
-                    "method": "POST",
-                    "nickname": "setSetOfStrings",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "items",
-                            "type": "array",
-                            "uniqueItems": true,
-                            "items": {
-                    			"type": "string"
-                    		},
-                    		"required" : true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-        	"path": "/collections/strings",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getStrings",
-                    "type": "array",
-                    "items": {
-                    	"type": "string"
-                    }
-                }
-            ]
-        }
-    ], 
-    "models": {
-    	"collectionItem": {
-            "id": "collectionItem",
-            "properties": {
-            	"name" : {
-            		"type": "string"
-            	}
-            }
-        },
-    	"collectionHolder": {
-            "id": "collectionHolder",
-            "properties": {
-                "listStrings": {
-                    "type": "array",
-                    "items": {
-                    	"type": "string"
-                    }
-                },
-                "setItems": {
-                    "type": "array",
-                    "uniqueItems": true,
-                    "items": {
-                    	"$ref": "collectionItem"
-                    }
-                },
-                "listItems": {
-                    "type": "array",
-                    "items": {
-                    	"$ref": "collectionItem"
-                    }
-                },
-                "setStrings": {
-                    "type": "array",
-                    "uniqueItems": true,
-                    "items": {
-                    	"type": "string"
-                    }
-                },
-                "collectionStrings": {
-                    "type": "array",
-                    "items": {
-                    	"type": "string"
-                    }
-                },
-                "collectionItems": {
-                    "type": "array",
-                    "items": {
-                    	"$ref": "collectionItem"
-                    }
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/collections"
+    }
+  ],
+  "paths": {
+    "/collections": {
+      "get": {
+        "tags": ["/collections"],
+        "operationId": "getCollectionHolder",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/collectionHolder"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/collections/collectionofstrings": {
+      "post": {
+        "tags": ["/collections"],
+        "operationId": "setCollectionOfStrings",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "items"
+      }
+    },
+    "/collections/items": {
+      "get": {
+        "tags": ["/collections"],
+        "operationId": "getItems",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/collectionItem"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/collections/listofints": {
+      "post": {
+        "tags": ["/collections"],
+        "operationId": "setListOfInts",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "items"
+      }
+    },
+    "/collections/listofitems": {
+      "post": {
+        "tags": ["/collections"],
+        "operationId": "setListOfItems",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/collectionItem"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "items"
+      }
+    },
+    "/collections/listofstrings": {
+      "post": {
+        "tags": ["/collections"],
+        "operationId": "setListOfStrings",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "items"
+      }
+    },
+    "/collections/setofstrings": {
+      "get": {
+        "tags": ["/collections"],
+        "operationId": "getSetOfStrings",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["/collections"],
+        "operationId": "setSetOfStrings",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "items"
+      }
+    },
+    "/collections/strings": {
+      "get": {
+        "tags": ["/collections"],
+        "operationId": "getStrings",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "collectionItem": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "collectionHolder": {
+        "type": "object",
+        "properties": {
+          "listStrings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "setItems": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/components/schemas/collectionItem"
+            }
+          },
+          "listItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/collectionItem"
+            }
+          },
+          "setStrings": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "collectionStrings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "collectionItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/collectionItem"
+            }
+          }
+        }
+      }
+    }
+  }
 }

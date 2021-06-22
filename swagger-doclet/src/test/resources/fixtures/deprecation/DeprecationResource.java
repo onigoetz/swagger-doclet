@@ -16,6 +16,7 @@ public class DeprecationResource {
 	@SuppressWarnings("javadoc")
 	@Deprecated
 	@GET
+	@Path("deprecatedViaAnnotation")
 	public void deprecatedViaAnnotation() {
 		// noop
 	}
@@ -25,6 +26,7 @@ public class DeprecationResource {
 	 */
 	@SuppressWarnings("dep-ann")
 	@GET
+	@Path("deprecatedViaTag")
 	public void deprecatedViaTag() {
 		// noop
 	}

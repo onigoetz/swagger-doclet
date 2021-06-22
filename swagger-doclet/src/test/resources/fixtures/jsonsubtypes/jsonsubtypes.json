@@ -1,150 +1,291 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/jsonSubTypesResource",
-    "apis": [
-        {
-            "path": "/jsonSubTypesResource/animal1",
-            "operations": [
-            	{
-                    "method": "GET",
-                    "nickname": "getAnimal1",
-                    "type": "Animal1"
-                }
-            ]
-        },
-        {
-            "path": "/jsonSubTypesResource/animal2",
-            "operations": [
-            	{
-                    "method": "POST",
-                    "nickname": "postAnimal2",
-                    "type": "Response",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "animal",
-                            "type": "Animal2",
-                            "required": true
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/jsonSubTypesResource/animal3",
-            "operations": [
-            	{
-                    "method": "GET",
-                    "nickname": "getAnimal3",
-                    "type": "array",
-                    "items": {
-                    	"$ref": "Animal3"
-                    }
-                }
-            ]
-        }
-    ],
-    "models": {
-    	"Animal1": {
-            "id": "Animal1",
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            },
-            "required" : ["type"],
-            "subTypes" : ["Cat1", "Dog1"],
-            "discriminator" : "type"
-        },
-        "Cat1": {
-            "id": "Cat1",
-            "properties": {
-                "favoriteToy": {
-                    "type": "string"
-                }
-            }
-        },
-        "Dog1": {
-            "id": "Dog1",
-            "properties": {
-                "breed": {
-                    "type": "string"
-                },
-                "leashColor": {
-                    "type": "string"
-                }
-            }
-        },
-        "Animal2": {
-            "id": "Animal2",
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            },
-            "required" : ["type"],
-            "subTypes" : ["Cat2", "Dog2"],
-            "discriminator" : "type"
-        },
-        "Cat2": {
-            "id": "Cat2",
-            "properties": {
-                "favoriteToy": {
-                    "type": "string"
-                }
-            }
-        },
-        "Dog2": {
-            "id": "Dog2",
-            "properties": {
-                "breed": {
-                    "type": "string"
-                },
-                "leashColor": {
-                    "type": "string"
-                }
-            }
-        },
-        "Animal3": {
-            "id": "Animal3",
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            },
-            "required" : ["type"],
-            "subTypes" : ["Cat3", "Dog3"],
-            "discriminator" : "type"
-        },
-        "Cat3": {
-            "id": "Cat3",
-            "properties": {
-                "favoriteToy": {
-                    "type": "string"
-                }
-            }
-        },
-        "Dog3": {
-            "id": "Dog3",
-            "properties": {
-                "breed": {
-                    "type": "string"
-                },
-                "leashColor": {
-                    "type": "string"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/jsonSubTypesResource"
+    }
+  ],
+  "paths": {
+    "/jsonSubTypesResource/animal1": {
+      "get": {
+        "tags": ["/jsonSubTypesResource"],
+        "operationId": "getAnimal1",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Animal1___discriminatorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jsonSubTypesResource/animal2": {
+      "post": {
+        "tags": ["/jsonSubTypesResource"],
+        "operationId": "postAnimal2",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/Animal2"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "animal"
+      }
+    },
+    "/jsonSubTypesResource/animal3": {
+      "get": {
+        "tags": ["/jsonSubTypesResource"],
+        "operationId": "getAnimal3",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Animal3"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Animal1___discriminatorResponse": {
+        "required": ["type"],
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Cat1"
+          },
+          {
+            "$ref": "#/components/schemas/Dog1"
+          }
+        ],
+        "properties": {
+          "type": {
+            "type": "string"
+          }
+        },
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "Animal1": {
+        "required": ["type"],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "Animal2___discriminatorResponse": {
+        "required": ["type"],
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Cat2"
+          },
+          {
+            "$ref": "#/components/schemas/Dog2"
+          }
+        ],
+        "properties": {
+          "type": {
+            "type": "string"
+          }
+        },
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "Animal2": {
+        "required": ["type"],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "Cat3": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Animal3"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "favoriteToy": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "Cat2": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Animal2"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "favoriteToy": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "Animal3___discriminatorResponse": {
+        "required": ["type"],
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Cat3"
+          },
+          {
+            "$ref": "#/components/schemas/Dog3"
+          }
+        ],
+        "properties": {
+          "type": {
+            "type": "string"
+          }
+        },
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "Animal3": {
+        "required": ["type"],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "Cat1": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Animal1"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "favoriteToy": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "Dog1": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Animal1"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "breed": {
+                "type": "string"
+              },
+              "leashColor": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "Dog2": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Animal2"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "breed": {
+                "type": "string"
+              },
+              "leashColor": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "Dog3": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Animal3"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "breed": {
+                "type": "string"
+              },
+              "leashColor": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
 }

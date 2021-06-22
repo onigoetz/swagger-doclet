@@ -1,38 +1,47 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/b",
-    "apis": [
-    	{
-            "path": "/v1/b",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getB",
-                    "type": "void"
-                }
-            ]
-        },
-        {
-            "path": "/v1/y",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getY",
-                    "type": "void"
-                }
-            ]
-        },
-        {
-            "path": "/z",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getZ",
-                    "type": "void"
-                }
-            ]
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
+    }
+  ],
+  "paths": {
+    "/v1/b": {
+      "get": {
+        "tags": ["b"],
+        "operationId": "getB",
+        "responses": {
+          "default": {
+            "description": ""
+          }
         }
-    ]
+      }
+    },
+    "/v1/y": {
+      "get": {
+        "tags": ["b"],
+        "operationId": "getY",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/z": {
+      "get": {
+        "tags": ["b"],
+        "operationId": "getZ",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "components": {}
 }

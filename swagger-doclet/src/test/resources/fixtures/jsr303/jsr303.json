@@ -1,137 +1,166 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/jsr303",
-    "apis": [
-        {
-            "path": "/jsr303/1",
-            "operations": [
-                {
-                    "method": "PUT",
-                    "nickname": "putMinMax",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "query",
-                            "name": "p1",
-                            "type": "integer",
-                			"format" : "int32",
-                			"minimum": 5,
-                			"maximum": 15
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/jsr303/2",
-            "operations": [
-                {
-                    "method": "PUT",
-                    "nickname": "putDecimalMinMax",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "query",
-                            "name": "p1",
-                            "type": "number",
-                			"format" : "double",
-                			"minimum": 6.5,
-                			"maximum": 10
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/jsr303/3",
-            "operations": [
-                {
-                    "method": "PUT",
-                    "nickname": "putOptionalMandatory",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "query",
-                            "name": "p1",
-                            "type": "string",
-                            "required" : true
-                        },
-                        {
-                            "paramType": "body",
-                            "name": "p2",
-                            "type": "Data"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/jsr303/4",
-            "operations": [
-                {
-                    "method": "PUT",
-                    "nickname": "putStringMinMax",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "query",
-                            "name": "p1",
-                            "type": "string"
-                        }
-                    ]
-                }
-            ]
-        }
-    ],
-    "models": {
-        "Data": {
-            "id": "Data",
-            "properties": {
-            	"minDecimalField": {
-                	"type": "number",
-                	"format" : "double",
-                	"minimum": 5.1
-                },
-                "nullField": {
-                	"type": "string"
-                },
-                "minMaxDecimalField": {
-                	"type": "number",
-                	"format" : "double",
-                	"minimum": 5.1,
-                	"maximum": 6.2
-                },
-                "minMaxField": {
-                	"type": "integer",
-                	"format" : "int32",
-                	"minimum": 3,
-                	"maximum": 5
-                },
-                "minField": {
-                	"type": "integer",
-                	"format" : "int32",
-                	"minimum": 1
-                },
-                "maxDecimalField": {
-                	"type": "number",
-                	"format" : "double",
-                	"maximum": 5.2
-                },
-                "maxField": {
-                	"type": "integer",
-                	"format" : "int32",
-                	"maximum": 3
-                },
-                "stringSizeField" : {
-                	"type": "string"
-                },
-                "notNullField": {
-                	"type": "string"
-                }
-            },
-            "required" : ["notNullField"]
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/jsr303"
+    }
+  ],
+  "paths": {
+    "/jsr303/4": {
+      "put": {
+        "tags": ["/jsr303"],
+        "operationId": "putStringMinMax",
+        "parameters": [
+          {
+            "name": "p1",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/jsr303/3": {
+      "put": {
+        "tags": ["/jsr303"],
+        "operationId": "putOptionalMandatory",
+        "parameters": [
+          {
+            "name": "p1",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/Data"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "p2"
+      }
+    },
+    "/jsr303/2": {
+      "put": {
+        "tags": ["/jsr303"],
+        "operationId": "putDecimalMinMax",
+        "parameters": [
+          {
+            "name": "p1",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double",
+              "minimum": 6.5,
+              "maximum": 10
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/jsr303/1": {
+      "put": {
+        "tags": ["/jsr303"],
+        "operationId": "putMinMax",
+        "parameters": [
+          {
+            "name": "p1",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 5,
+              "maximum": 15
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Data": {
+        "required": ["notNullField"],
+        "type": "object",
+        "properties": {
+          "minDecimalField": {
+            "minimum": 5.1,
+            "type": "number",
+            "format": "double"
+          },
+          "nullField": {
+            "type": "string"
+          },
+          "minMaxDecimalField": {
+            "maximum": 6.2,
+            "minimum": 5.1,
+            "type": "number",
+            "format": "double"
+          },
+          "minMaxField": {
+            "maximum": 5,
+            "minimum": 3,
+            "type": "integer",
+            "format": "int32"
+          },
+          "minField": {
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxDecimalField": {
+            "maximum": 5.2,
+            "type": "number",
+            "format": "double"
+          },
+          "maxField": {
+            "maximum": 3,
+            "type": "integer",
+            "format": "int32"
+          },
+          "stringSizeField": {
+            "type": "string"
+          },
+          "notNullField": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
 }

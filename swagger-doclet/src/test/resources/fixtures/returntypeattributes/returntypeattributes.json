@@ -1,36 +1,68 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/returntypeattributes",
-    "apis": [
-        {
-            "path": "/returntypeattributes",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getEnum",
-                    "type": "string",
-                    "enum": [
-				        "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"
-				    	],
-				    "defaultValue" : "FRIDAY"
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "/returntypeattributes"
+    }
+  ],
+  "paths": {
+    "/returntypeattributes": {
+      "get": {
+        "tags": ["/returntypeattributes"],
+        "operationId": "getEnum",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "default": "FRIDAY",
+                  "enum": [
+                    "MONDAY",
+                    "TUESDAY",
+                    "WEDNESDAY",
+                    "THURSDAY",
+                    "FRIDAY",
+                    "SATURDAY",
+                    "SUNDAY"
+                  ]
                 }
-            ]
-        },
-        {
-            "path": "/returntypeattributes/1",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getMinMax",
-                    "type": "integer",
-                    "format" : "int32",
-                    "minimum": 5,
-                	"maximum": 15,
-                	"defaultValue" : 10
-                }
-            ]
+              }
+            }
+          }
         }
-    ]
+      }
+    },
+    "/returntypeattributes/1": {
+      "get": {
+        "tags": ["/returntypeattributes"],
+        "operationId": "getMinMax",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32",
+                  "minimum": 5,
+                  "maximum": 15,
+                  "default": 10
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }

@@ -1,9 +1,29 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "apis": [
-     	{
-            "path": "/r2.{format}"
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "/r2"
+    }
+  ],
+  "paths": {
+    "/r2/2": {
+      "get": {
+        "tags": ["/r2"],
+        "operationId": "get2",
+        "responses": {
+          "default": {
+            "description": ""
+          }
         }
-    ]
+      }
+    }
+  }
 }

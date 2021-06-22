@@ -1,115 +1,179 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/maps",
-    "apis": [
-        {
-            "path": "/maps/a",
-            "operations": [
-            	{
-                    "method": "GET",
-                    "nickname": "getA",
-                    "type": "ModelA"
-                }
-            ]
-        },
-        {
-            "path": "/maps/b",
-            "operations": [
-            	{
-                    "method": "GET",
-                    "nickname": "getB",
-                    "type": "ModelB"
-                }
-            ]
-        },
-        {
-            "path": "/maps/c",
-            "operations": [
-            	{
-                    "method": "GET",
-                    "nickname": "getC",
-                    "type": "ModelC"
-                }
-            ]
-        },
-        {
-            "path": "/maps/d",
-            "operations": [
-            	{
-                    "method": "GET",
-                    "nickname": "getD",
-                    "type": "ModelD"
-                }
-            ]
-        },
-        {
-            "path": "/maps/e",
-            "operations": [
-            	{
-                    "method": "GET",
-                    "nickname": "getE",
-                    "type": "Map"
-                }
-            ]
-        },
-        {
-            "path": "/maps/f",
-            "operations": [
-            	{
-                    "method": "GET",
-                    "nickname": "getF",
-                    "type": "Map"
-                }
-            ]
-        },
-        {
-            "path": "/maps/g",
-            "operations": [
-            	{
-                    "method": "GET",
-                    "nickname": "getG",
-                    "type": "Map"
-                }
-            ]
-        }
-    ],
-    "models": {
-    	"ModelA": {
-            "id": "ModelA",
-            "properties": {
-                "data": {
-                    "type": "Map"
-                }
-            }
-        },
-        "ModelB": {
-            "id": "ModelB",
-            "properties": {
-                "data": {
-                    "type": "Map"
-                }
-            }
-        },
-        "ModelC": {
-            "id": "ModelC",
-            "properties": {
-                "data": {
-                    "type": "Map"
-                }
-            }
-        },
-        "ModelD": {
-            "id": "ModelD",
-            "properties": {
-                "data": {
-                    "type": "Map"
-                },
-                "data2": {
-                    "type": "Map"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [{ "name": "/maps" }],
+  "paths": {
+    "/maps/a": {
+      "get": {
+        "tags": ["/maps"],
+        "operationId": "getA",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelA"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/maps/b": {
+      "get": {
+        "tags": ["/maps"],
+        "operationId": "getB",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelB"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/maps/c": {
+      "get": {
+        "tags": ["/maps"],
+        "operationId": "getC",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelC"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/maps/d": {
+      "get": {
+        "tags": ["/maps"],
+        "operationId": "getD",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelD"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/maps/e": {
+      "get": {
+        "tags": ["/maps"],
+        "operationId": "getE",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Map"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/maps/f": {
+      "get": {
+        "tags": ["/maps"],
+        "operationId": "getF",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Map"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/maps/g": {
+      "get": {
+        "tags": ["/maps"],
+        "operationId": "getG",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Map"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ModelA": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Map"
+          }
+        }
+      },
+      "ModelB": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Map"
+          }
+        }
+      },
+      "ModelC": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Map"
+          }
+        }
+      },
+      "ModelD": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Map"
+          },
+          "data2": {
+            "$ref": "#/components/schemas/Map"
+          }
+        }
+      }
+    }
+  }
 }

@@ -1,45 +1,62 @@
 {
-   "apiVersion":"0",
-   "swaggerVersion":"1.2",
-   "basePath":"http://localhost:8080",
-   "resourcePath":"/issue30b",
-   "apis":[
-      {
-         "path":"/issue30b",
-         "operations":[
-            {
-               "method":"GET",
-               "nickname":"getUser",
-               "type":"User-User.UserView",
-               "produces":[
-                  "application/json"
-               ]
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "/issue30b"
+    }
+  ],
+  "paths": {
+    "/issue30b": {
+      "get": {
+        "tags": ["/issue30b"],
+        "operationId": "getUser",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User-User.UserView"
+                }
+              }
             }
-         ]
+          }
+        }
       }
-   ],
-   "models":{
-      "User-User.UserView":{
-         "id":"User-User.UserView",
-         "properties":{
-            "name":{
-               "type":"string"
-            },
-            "comments":{
-               "type":"array",
-               "items":{
-                  "$ref":"Comment-User.UserView"
-               }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User-User.UserView": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "comments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Comment-User.UserView"
             }
-         }
+          }
+        }
       },
-      "Comment-User.UserView":{
-         "id":"Comment-User.UserView",
-         "properties":{
-            "text":{
-               "type":"string"
-            }
-         }
+      "Comment-User.UserView": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          }
+        }
       }
-   }
+    }
+  }
 }

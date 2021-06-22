@@ -1,72 +1,130 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/producesconsumes",
-    "apis": [
-        {
-            "path": "/producesconsumes",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getData",
-                    "type": "Data",
-                    "produces": [
-                    	"application/json", "application/xml"
-                    ],
-                    "consumes": [
-                    	"text/plain"
-                    ]
-                },
-                {
-                    "method": "POST",
-                    "nickname": "postData",
-                    "type": "Data",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "Data",
-                            "required" : true
-                        }
-                    ],
-                    "consumes": [
-                    	"application/json", "application/xml"
-                    ],
-                    "produces": [
-                    	"application/json", "application/xml"
-                    ]
-                },
-                {
-                    "method": "POST",
-                    "nickname": "postData2",
-                    "type": "Data",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "Data",
-                            "required" : true
-                        }
-                    ],
-                    "consumes": [
-                    	"text/plain"
-                    ],
-                    "produces": [
-                    	"text/plain"
-                    ]
-                }
-            ]
-        }
-    ],
-    "models": {
-        "Data": {
-            "id": "Data",
-            "properties": {
-                "value": {
-                    "type": "string"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/producesconsumes"
+    }
+  ],
+  "paths": {
+    "/producesconsumes": {
+      "get": {
+        "tags": ["/producesconsumes"],
+        "operationId": "getData",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/producesconsumes/postData": {
+      "post": {
+        "tags": ["/producesconsumes"],
+        "operationId": "postData",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Data"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "#/components/schemas/Data"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    },
+    "/producesconsumes/postData2": {
+      "post": {
+        "tags": ["/producesconsumes"],
+        "operationId": "postData2",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "$ref": "#/components/schemas/Data"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Data": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
 }

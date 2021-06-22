@@ -1,83 +1,98 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/listofenums",
-    "apis": [
-        {
-            "path": "/listofenums/animals",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getAnimals",
-                    "type": "Animal",
-                    "parameters": [
-                        {
-                            "paramType": "query",
-                            "name": "name",
-                            "type": "string"
-                        },
-                        {
-                            "paramType": "query",
-                            "name": "color",
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "enum": [
-                                    "BLACK",
-                                    "WHITE",
-                                    "RED",
-                                    "GREEN",
-                                    "BLUE"
-                                ]
-                            }
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "path": "/listofenums/colors",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getAnimalColors",
-                    "type": "array",
-                    "items": {
-                        "type": "string",
-                        "enum": [
-                            "BLACK",
-                            "WHITE",
-                            "RED",
-                            "GREEN",
-                            "BLUE"
-                        ]
-                    }
-                }
-            ]
-        }
-    ],
-    "models": {
-        "Animal": {
-            "id": "Animal",
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "colors": {
-                    "type": "array",
-                    "items": {
-                        "type": "string",
-                        "enum": [
-                            "BLACK",
-                            "WHITE",
-                            "RED",
-                            "GREEN",
-                            "BLUE"
-                        ]
-                    }
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/listofenums"
+    }
+  ],
+  "paths": {
+    "/listofenums/colors": {
+      "get": {
+        "tags": ["/listofenums"],
+        "operationId": "getAnimalColors",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": ["BLACK", "WHITE", "RED", "GREEN", "BLUE"]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/listofenums/animals": {
+      "get": {
+        "tags": ["/listofenums"],
+        "operationId": "getAnimals",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "color",
+            "in": "query",
+            "explode": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["BLACK", "WHITE", "RED", "GREEN", "BLUE"]
+              }
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Animal"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Animal": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "colors": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["BLACK", "WHITE", "RED", "GREEN", "BLUE"]
+            }
+          }
+        }
+      }
+    }
+  }
 }

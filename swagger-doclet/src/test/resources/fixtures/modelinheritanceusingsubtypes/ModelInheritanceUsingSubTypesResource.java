@@ -15,12 +15,14 @@ public class ModelInheritanceUsingSubTypesResource {
 
 	@SuppressWarnings("javadoc")
 	@GET
+	@Path("getSmallestVehicle")
 	public Vehicle getSmallestVehicle() {
 		return new Car("Fiat", "127");
 	}
         
         @SuppressWarnings("javadoc")
 	@GET
+	@Path("getMotorcycle")
 	public Motorcycle getMotorcycle() {
 		return new Motorcycle("Yamaha", "2000");
 	}

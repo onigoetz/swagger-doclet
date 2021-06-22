@@ -1,48 +1,72 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/variables",
-    "apis": [
-        {
-            "path": "/variables",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "postData",
-                    "type": "Data",
-                    "summary" : "This endpoint v1val is for v2val",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "Data",
-                            "required" : true
-                        },
-                        {
-                            "paramType": "query",
-                            "name": "enumValue",
-                            "type": "string",
-                            "enum": [
-						        "VALUE1",
-						        "VALUE2"
-						    	],
-						    "defaultValue" : "VALUE1"
-                        }
-                    ]
-                }
-            ]
-        }
-    ],
-    "models": {
-        "Data": {
-            "id": "Data",
-            "properties": {
-                "value": {
-                    "type": "string",
-                    "description": "v4val"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/variables"
+    }
+  ],
+  "paths": {
+    "/variables": {
+      "post": {
+        "tags": ["/variables"],
+        "summary": "This endpoint v1val is for v2val",
+        "operationId": "postData",
+        "parameters": [
+          {
+            "name": "enumValue",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "VALUE1",
+              "enum": ["VALUE1", "VALUE2"]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/Data"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Data": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "description": "v4val"
+          }
+        }
+      }
+    }
+  }
 }

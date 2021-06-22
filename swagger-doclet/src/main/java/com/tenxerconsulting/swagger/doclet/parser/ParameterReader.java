@@ -1,5 +1,7 @@
 package com.tenxerconsulting.swagger.doclet.parser;
 
+import static com.tenxerconsulting.swagger.doclet.parser.ParserHelper.createRef;
+
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -8,18 +10,16 @@ import java.util.stream.Collectors;
 
 import com.sun.javadoc.*;
 import com.tenxerconsulting.swagger.doclet.DocletOptions;
+import com.tenxerconsulting.swagger.doclet.model.FormItem;
 import com.tenxerconsulting.swagger.doclet.model.ModelWrapper;
+import com.tenxerconsulting.swagger.doclet.model.ParameterOrBody;
 import com.tenxerconsulting.swagger.doclet.model.PropertyWrapper;
 import com.tenxerconsulting.swagger.doclet.parser.ParserHelper.NumericTypeFilter;
 import com.tenxerconsulting.swagger.doclet.translator.Translator;
 import com.tenxerconsulting.swagger.doclet.translator.Translator.OptionalName;
-import io.swagger.models.ArrayModel;
-import io.swagger.models.Model;
-import io.swagger.models.ModelImpl;
-import io.swagger.models.RefModel;
-import io.swagger.models.parameters.*;
-import io.swagger.models.parameters.Parameter;
-import io.swagger.models.properties.*;
+import io.swagger.oas.models.media.*;
+import io.swagger.oas.models.parameters.Parameter;
+import io.swagger.oas.models.parameters.*;
 
 /**
  * The ParameterReader represents a utility class that supports reading api parameters
@@ -107,9 +107,9 @@ public class ParameterReader {
      * @param models The model set to add any new encountered models to
      * @return A list of class level api parameters
      */
-    public List<Parameter> readClassLevelParameters(Set<ModelWrapper> models) {
+    public List<ParameterOrBody> readClassLevelParameters(Set<ModelWrapper> models, List<String> consumes) {
 
-        List<Parameter> params = new ArrayList<>();
+        List<ParameterOrBody> params = new ArrayList<>();
 
         // add field path params
         FieldDoc[] fields = this.classDoc.fields(false);
@@ -124,7 +124,7 @@ public class ParameterReader {
 
                     // if this path param is one of the param names of the class path then add it
                     if (this.paramNames.contains(paramName)) {
-                        params.add(buildClassFieldApiParam(field));
+                        params.add(buildClassFieldApiParam(field, consumes));
                     }
                 }
             }
@@ -148,7 +148,7 @@ public class ParameterReader {
                         Set<String> rawParamNames = ParserHelper.getParamNames(constructor);
                         Set<String> allParamNames = new HashSet<String>(rawParamNames);
 
-                        params.addAll(buildApiParams(constructor, param, false, allParamNames, models));
+                        params.addAll(buildApiParams(constructor, param, false, allParamNames, models, consumes));
                     }
                 }
             }
@@ -167,8 +167,8 @@ public class ParameterReader {
      * @param models            The model set to add any new encountered models to
      * @return The list of parameters (can be multiple if bean params are encountered)
      */
-    public List<Parameter> buildApiParams(ExecutableMemberDoc method, com.sun.javadoc.Parameter parameter, boolean consumesMultipart, Set<String> allParamNames,
-                                                                       Set<ModelWrapper> models) {
+    public List<ParameterOrBody> buildApiParams(ExecutableMemberDoc method, com.sun.javadoc.Parameter parameter, boolean consumesMultipart, Set<String> allParamNames,
+                                                Set<ModelWrapper> models, List<String> consumes) {
 
         // TODO cache these constructor/method level params so they are not reprocessed for each parameter
 
@@ -208,23 +208,17 @@ public class ParameterReader {
         String paramCategory = ParserHelper.paramTypeOf(consumesMultipart, parameter, this.options);
         String paramName = parameter.name();
 
-        List<Parameter> res = new ArrayList<>();
+        List<ParameterOrBody> res = new ArrayList<>();
 
         // see if its a special composite type e.g. @BeanParam
         if ("composite".equals(paramCategory)) {
-
             ApiModelParser modelParser = new ApiModelParser(this.options, this.translator, paramType, consumesMultipart, true);
             Set<ModelWrapper> compositeModels = modelParser.parse();
             String rootModelId = modelParser.getRootModelId();
-            for (ModelWrapper modelWrapper : compositeModels) {
-                io.swagger.models.Model model = modelWrapper.getModel();
-
-                if (model.getReference().equals(rootModelId)) {
+            for (ModelWrapper<?> modelWrapper : compositeModels) {
+                if (rootModelId.equals(modelWrapper.getName())) {
 					for (Map.Entry<String, PropertyWrapper> entry : modelWrapper.getProperties().entrySet()) {
-                        io.swagger.models.properties.Property property = entry.getValue().getProperty();
-                        String rawFieldName = entry.getValue().getRawFieldName();
-
-                        res.add(getParameter(property, paramCategory, rawFieldName, csvParams));
+                        res.add(getParameter(entry.getValue(), entry.getKey(), consumes, requiredParams));
                     }
                 }
             }
@@ -262,10 +256,9 @@ public class ParameterReader {
         String defaultVal = null;
 
         // set to form param type if data type is File
-        if ("File".equals(typeName)) {
+        if ("internalFileSchema".equals(typeName)) {
             paramCategory = "form";
         } else {
-
             Type containerOf = ParserHelper.getContainerType(paramType, null, this.allClasses);
 
             if (this.options.isParseModels()) {
@@ -373,129 +366,71 @@ public class ParameterReader {
         // get description
         String description = this.options.replaceVars(commentForParameter(method, parameter));
 
+        boolean deprecated = ParserHelper.isDeprecated(parameter, this.options);
+
         // build parameter
-        Parameter param = buildParameter(paramCategory, renderedParamName, required, allowMultiple, typeName, format, description, itemsRef, itemsType,
-                itemsFormat, itemsAllowableValues, uniqueItems, allowableValues, minimum, maximum, defaultVal);
+        Schema schema = buildParameterSchema(paramCategory, allowMultiple, typeName, format, itemsRef,
+                itemsType, itemsFormat, itemsAllowableValues,
+                uniqueItems, allowableValues,
+                minimum, maximum, defaultVal);
+
+        ParameterOrBody param;
+        if (paramCategory.equals("form")) {
+            param = new ParameterOrBody(new FormItem(renderedParamName, schema, required));
+        } else {
+            param = buildParameter(paramCategory, renderedParamName, required, deprecated, schema, description, consumes);
+        }
 
         res.add(param);
 
         return res;
     }
 
-    private Parameter getParameter(io.swagger.models.properties.Property property, String paramCategory, String rawFieldName, List<String> csvParams) {
-        Boolean allowMultiple = getAllowMultiple(paramCategory, rawFieldName, csvParams);
+    /**
+     * This build a RequestBody for a form
+     * @param schema ObjectSchema for the form
+     * @param required
+     * @param description
+     * @return
+     */
+    public ParameterOrBody buildForm(Schema schema, Boolean required, String description, List<String> consumes) {
+        return new ParameterOrBody(buildRequestBody("form", required, schema, description, consumes));
+    }
+
+    private ParameterOrBody getParameter(PropertyWrapper propertyWrapper, String fieldName, List<String> consumes, Set<String> requiredParams) {
+        Schema property = propertyWrapper.getProperty();
+        String rawFieldName = propertyWrapper.getRawFieldName();
+        String paramCategory = propertyWrapper.getParamCategory();
 
         // see if there is a required javadoc tag directly on the bean param field, if so use that
         Boolean required;
-        if (property.getRequired()) {
+        if (Boolean.TRUE.equals(propertyWrapper.getRequired())) {
             required = true;
         } else {
-            required = getRequired(paramCategory, rawFieldName, property.getType(), null, null);
+            required = getRequired(paramCategory, rawFieldName, property.getType(), null, requiredParams);
         }
 
-        String itemsRef = null;// = property.getItems() == null ? null : property.getItems().getRef();
-        if (property instanceof RefProperty) {
-            itemsRef = ((RefProperty) property).get$ref();
-        }
-        String itemsType = null; //property.getItems() == null ? null : property.getItems().getType();
-        String itemsFormat = null; //property.getItems() == null ? null : property.getItems().getFormat();
-        List<String> itemsAllowableValues = null; //property.getItems() == null ? null : property.getItems().getAllowableValues();
-        boolean uniqueItems = false;
-        if (property instanceof ArrayProperty) {
-            ArrayProperty resolved = (ArrayProperty) property;
-            itemsType = resolved.getItems().getType();
-            itemsFormat = resolved.getItems().getFormat();
-            uniqueItems = resolved.getUniqueItems();
-            if (resolved.getItems() instanceof StringProperty) {
-                itemsAllowableValues = ((StringProperty) resolved.getItems()).getEnum();
-            }
+        ParameterOrBody param;
+        if (paramCategory.equals("form")) {
+            param = new ParameterOrBody(new FormItem(fieldName, property, required));
+        } else {
+            // Description is already on schema level
+            param = buildParameter(paramCategory, fieldName, required, propertyWrapper.getDeprecated(), property, null, consumes);
         }
 
-        String minimum = null;
-        String maximum = null;
-
-        if (property instanceof AbstractNumericProperty) {
-            AbstractNumericProperty resolved = (AbstractNumericProperty) property;
-            minimum = String.valueOf(resolved.getMinimum());
-            maximum = String.valueOf(resolved.getMaximum());
-        }
-
-        String defaultValue = null;
-        List<String> allowableValues = null;
-        if (property instanceof BooleanProperty) {
-            BooleanProperty resolved = (BooleanProperty) property;
-            defaultValue = String.valueOf(resolved.getDefault());
-            allowableValues = resolved.getEnum()
-                    .stream()
-                    .map(String::valueOf)
-                    .collect(Collectors.toList());
-        } else if (property instanceof IntegerProperty) {
-            IntegerProperty resolved = (IntegerProperty) property;
-            allowableValues = resolved.getEnum()
-                    .stream()
-                    .map(String::valueOf)
-                    .collect(Collectors.toList());
-        } else if (property instanceof LongProperty) {
-            LongProperty resolved = (LongProperty) property;
-            defaultValue = String.valueOf(resolved.getDefault());
-            allowableValues = resolved.getEnum()
-                    .stream()
-                    .map(String::valueOf)
-                    .collect(Collectors.toList());
-        } else if (property instanceof FloatProperty) {
-            FloatProperty resolved = (FloatProperty) property;
-            defaultValue = String.valueOf(resolved.getDefault());
-            allowableValues = resolved.getEnum()
-                    .stream()
-                    .map(String::valueOf)
-                    .collect(Collectors.toList());
-        } else if (property instanceof DoubleProperty) {
-            DoubleProperty resolved = (DoubleProperty) property;
-            defaultValue = String.valueOf(resolved.getDefault());
-            allowableValues = resolved.getEnum()
-                    .stream()
-                    .map(String::valueOf)
-                    .collect(Collectors.toList());
-        } else if (property instanceof UUIDProperty) {
-            UUIDProperty resolved = (UUIDProperty) property;
-            defaultValue = String.valueOf(resolved.getDefault());
-            allowableValues = resolved.getEnum()
-                    .stream()
-                    .map(String::valueOf)
-                    .collect(Collectors.toList());
-        } else if (property instanceof DateProperty) {
-            DateProperty resolved = (DateProperty) property;
-            allowableValues = resolved.getEnum()
-                    .stream()
-                    .map(String::valueOf)
-                    .collect(Collectors.toList());
-        } else if (property instanceof DateTimeProperty) {
-            DateTimeProperty resolved = (DateTimeProperty) property;
-            allowableValues = resolved.getEnum()
-                    .stream()
-                    .map(String::valueOf)
-                    .collect(Collectors.toList());
-        } else if (property instanceof StringProperty) {
-            StringProperty resolved = (StringProperty) property;
-            defaultValue = resolved.getDefault();
-            allowableValues = resolved.getEnum();
-        }
-
-        return buildParameter(paramCategory, property.getName(), required, allowMultiple, property.getType(),
-                property.getFormat(), property.getDescription(), itemsRef, itemsType, itemsFormat, itemsAllowableValues,
-                uniqueItems, allowableValues, minimum, maximum, defaultValue);
+        return param;
     }
 
     /**
      * This reads implicit params from the javadoc of the method or class using the @implicitParam tag
      *
      * @param method            The method to read
-     * @param consumesMultipart
+     * @param consumes
      * @param models            A set of models to add any custom param type to
      * @return A list of implicit method parameters
      */
-    public List<Parameter> readImplicitParameters(ExecutableMemberDoc method, boolean consumesMultipart, Set<ModelWrapper> models) {
-        List<Parameter> params = new ArrayList<>();
+    public List<ParameterOrBody> readImplicitParameters(ExecutableMemberDoc method, Set<ModelWrapper> models, List<String> consumes) {
+        List<ParameterOrBody> params = new ArrayList<>();
         // add on any extra parameters defined in the javadoc of the method
         List<String> implicitParamDefs = new ArrayList<>();
         List<String> methodImplicitParamDefs = ParserHelper.getInheritableTagValues(method, this.options.getImplicitParamTags(), this.options);
@@ -509,7 +444,7 @@ public class ParameterReader {
         }
 
         for (String implicitParamDef : implicitParamDefs) {
-            Parameter param = buildImplicitApiParam(implicitParamDef, models);
+            ParameterOrBody param = buildImplicitApiParam(implicitParamDef, models, consumes);
             if (param != null) {
                 params.add(param);
             }
@@ -517,7 +452,7 @@ public class ParameterReader {
         return params;
     }
 
-    private Parameter buildImplicitApiParam(String implicitParamDef, Set<ModelWrapper> models) {
+    private ParameterOrBody buildImplicitApiParam(String implicitParamDef, Set<ModelWrapper> models, List<String> consumes) {
         // format of param def is:
         // name|dataType|paramType|required|defaultValue|minValue|maxValue|allowableValues|allowMultiple|description
         // name, datatype are required; other fields can be left empty
@@ -578,8 +513,17 @@ public class ParameterReader {
         Boolean uniqueItems = null;
 
         // build parameter
-        Parameter param = buildParameter(paramCategory, paramName, required, allowMultiple, typeName, format, description, itemsRef, itemsType,
-                itemsFormat, itemsAllowableValues, uniqueItems, allowableValues, minimum, maximum, defaultVal);
+        Schema schema = buildParameterSchema(paramCategory, allowMultiple, typeName, format, itemsRef,
+                itemsType, itemsFormat, itemsAllowableValues,
+                uniqueItems, allowableValues,
+                minimum, maximum, defaultVal);
+
+        ParameterOrBody param;
+        if (paramCategory.equals("form")) {
+            param = new ParameterOrBody(new FormItem(paramName, schema, required));
+        } else {
+            param = buildParameter(paramCategory, paramName, required, false, schema, description, consumes);
+        }
 
         return param;
     }
@@ -593,7 +537,7 @@ public class ParameterReader {
         return false;
     }
 
-    private Parameter buildClassFieldApiParam(FieldDoc field) {
+    private ParameterOrBody buildClassFieldApiParam(FieldDoc field, List<String> consumes) {
 
         Type paramType = field.type();
 
@@ -602,7 +546,7 @@ public class ParameterReader {
         String format = paramTypeFormat.getFormat();
 
         Boolean allowMultiple = null;
-        List<String> allowableValues = null;
+        List<String> allowableValues;
         String itemsRef = null;
         String itemsType = null;
         String itemsFormat = null;
@@ -660,11 +604,12 @@ public class ParameterReader {
         String description = null;
 
         // build parameter
-        Parameter param = buildParameter("path", renderedParamName, required, allowMultiple, typeName, format, description, itemsRef, itemsType,
-                itemsFormat, itemsAllowableValues, uniqueItems, allowableValues, minimum, maximum, defaultVal);
+        Schema schema = buildParameterSchema("path", allowMultiple, typeName, format, itemsRef,
+                itemsType, itemsFormat, itemsAllowableValues,
+                uniqueItems, allowableValues,
+                minimum, maximum, defaultVal);
 
-        return param;
-
+        return buildParameter("path", renderedParamName, required, false, schema, description, consumes);
     }
 
     private String commentForParameter(ExecutableMemberDoc method, com.sun.javadoc.Parameter parameter) {
@@ -706,7 +651,7 @@ public class ParameterReader {
             // leave as null as this is equivalent to false but doesn't add to the json
         }
         // else if its a body or File param its required
-        else if ("body".equals(paramCategory) || ("File".equals(typeName) && "form".equals(paramCategory))) {
+        else if ("body".equals(paramCategory) || ("internalFileSchema".equals(typeName) && "form".equals(paramCategory))) {
             required = Boolean.TRUE;
         }
         // otherwise its optional
@@ -747,9 +692,125 @@ public class ParameterReader {
         return defaultType;
     }
 
-    private Parameter buildParameter(String paramCategory, String name, Boolean required, Boolean allowMultiple, String type, String format, String description,
-                                                                  String itemsRef, String itemsType, String itemsFormat, List<String> itemsAllowableValues, Boolean uniqueItems, List<String> allowableValues,
-                                                                  String minimum, String maximum, String defaultValue) {
+    private RequestBody buildRequestBody(String paramCategory, Boolean required, Schema schema, String description, List<String> consumes) {
+        MediaType mediaType = new MediaType();
+        mediaType.setSchema(schema);
+
+        Content content = new Content();
+
+        String defaultConsumes = paramCategory.equals("form") ? "multipart/form-data" : "*/*";
+
+        (consumes == null ? Collections.singletonList(defaultConsumes) : consumes).forEach(item -> content.addMediaType(item, mediaType));
+
+        RequestBody requestBody = new RequestBody();
+        requestBody.content(content);
+
+        if (Boolean.TRUE.equals(required)) {
+            requestBody.setRequired(required);
+        }
+
+        if (description != null && !description.isEmpty()) {
+            requestBody.description(description);
+        }
+
+        // Deprecated should go here but isn't supported on requestBody
+
+        return requestBody;
+    }
+
+    private Schema buildParameterSchema(String paramCategory, Boolean allowMultiple, String type, String format, String itemsRef,
+                                        String itemsType, String itemsFormat, List<String> itemsAllowableValues,
+                                        Boolean uniqueItems, List<String> allowableValues,
+                                        String minimum, String maximum, String defaultValue) {
+
+        if ("internalFileSchema".equals(type)) {
+            return new FileSchema();
+        }
+
+        if (paramCategory.equals("body") || paramCategory.equals("form")) {
+            if (ParserHelper.PRIMITIVES.contains(type)) {
+                Map<SchemaBuilder.PropertyId, Object> args = new HashMap<>();
+                args.put(SchemaBuilder.PropertyId.ENUM, allowableValues);
+                args.put(SchemaBuilder.PropertyId.DEFAULT, defaultValue);
+                if (minimum != null) {
+                    args.put(SchemaBuilder.PropertyId.MINIMUM, minimum);
+                }
+                if (maximum != null) {
+                    args.put(SchemaBuilder.PropertyId.MAXIMUM, maximum);
+                }
+                return SchemaBuilder.build(type, format, args);
+
+            }
+
+            if (ParserHelper.isArray(type) || ParserHelper.isCollection(type)) {
+
+                Map<SchemaBuilder.PropertyId, Object> args = new HashMap<>();
+                args.put(SchemaBuilder.PropertyId.ENUM, itemsAllowableValues);
+
+                Schema items = ParserHelper.buildItems(itemsRef, itemsType, itemsFormat, args);
+
+                ArraySchema arrayModel = new ArraySchema();
+                arrayModel.setType(type);
+                arrayModel.setItems(items);
+
+                if (Boolean.TRUE.equals(uniqueItems)) {
+                    arrayModel.uniqueItems(true);
+                }
+
+                return arrayModel;
+            }
+
+            return createRef(type);
+        }
+
+        Map<SchemaBuilder.PropertyId, Object> args = new HashMap<>();
+        if (minimum != null) {
+            args.put(SchemaBuilder.PropertyId.MINIMUM, minimum);
+        }
+        if (maximum != null) {
+            args.put(SchemaBuilder.PropertyId.MAXIMUM, maximum);
+        }
+        if (allowableValues != null) {
+            args.put(SchemaBuilder.PropertyId.ENUM, allowableValues);
+        }
+        if (defaultValue != null) {
+            args.put(SchemaBuilder.PropertyId.DEFAULT, defaultValue);
+        }
+
+        if (allowMultiple != null && allowMultiple || "array".equals(type)) {
+            ArraySchema arraySchema = new ArraySchema();
+
+            // TODO :: That might not be needed anymore
+            /*if (param instanceof FormParameter) {
+                arraySchema.setCollectionFormat("multi");
+            } else {
+                arraySchema.setCollectionFormat("csv");
+            }*/
+
+            if ("array".equals(type)) {
+                args.put(SchemaBuilder.PropertyId.ENUM, itemsAllowableValues);
+
+                if (Boolean.TRUE.equals(uniqueItems)) {
+                    arraySchema.uniqueItems(true);
+                }
+
+                Schema items = ParserHelper.buildItems(itemsRef, itemsType, itemsFormat, args);
+                arraySchema.setItems(items);
+            } else {
+                args.put(SchemaBuilder.PropertyId.ENUM, null);
+                args.put(SchemaBuilder.PropertyId.UNIQUE_ITEMS, null);
+
+                Schema multiParam = ParserHelper.buildItems(null, type, format, args);
+                arraySchema.setItems(multiParam);
+            }
+
+            return arraySchema;
+        }
+
+        return SchemaBuilder.build(type, format, args);
+    }
+
+    private ParameterOrBody buildParameter(String paramCategory, String name, Boolean required, boolean deprecated, Schema schema, String description, List<String> consumes) {
         Parameter param;
         switch (paramCategory) {
             case "path":
@@ -762,79 +823,34 @@ public class ParameterReader {
                 param = new HeaderParameter();
                 break;
             case "form":
-                param = new FormParameter();
-                break;
+            case "body":
+                return new ParameterOrBody(buildRequestBody(paramCategory, required, schema, description, consumes));
             default:
-                param = new BodyParameter();
-                break;
+                throw new IllegalStateException("Unknown paramCategory:" +  paramCategory);
         }
 
-        Property items = ParserHelper.buildItems(itemsRef, itemsType, itemsFormat, itemsAllowableValues, uniqueItems);
-
-        if (param instanceof AbstractSerializableParameter) {
-            AbstractSerializableParameter abstractSerializableParameter = (AbstractSerializableParameter) param;
-            if (allowMultiple != null && allowMultiple) {
-                abstractSerializableParameter.setType("array");
-
-                if (param instanceof FormParameter) {
-                    abstractSerializableParameter.setCollectionFormat("multi");
-                } else {
-                    abstractSerializableParameter.setCollectionFormat("csv");
-                }
-
-                Property multiParam = ParserHelper.buildItems(null, type, format, null, null);
-                abstractSerializableParameter.setItems(multiParam);
-            } else {
-                abstractSerializableParameter.setItems(items);
-                abstractSerializableParameter.setType(type);
-            }
-
-            if (minimum != null) {
-                abstractSerializableParameter.setMinimum(new BigDecimal(minimum));
-            }
-            if (maximum != null) {
-                abstractSerializableParameter.setMaximum(new BigDecimal(maximum));
-            }
-            abstractSerializableParameter.setEnum(allowableValues);
-            abstractSerializableParameter.setDefault(defaultValue);
-            abstractSerializableParameter.setFormat(format);
-
-        } else {
-            Model model;
-
-            if (ParserHelper.isPrimitive(type, this.options)) {
-                ModelImpl modelImpl = new ModelImpl()
-                        .format(format)
-                        .type(type)
-                        ._enum(allowableValues);
-                if (minimum != null) {
-                    modelImpl.minimum(new BigDecimal(minimum));
-                }
-                if (maximum != null) {
-                    modelImpl.maximum(new BigDecimal(maximum));
-                }
-                modelImpl.setDefaultValue(defaultValue);
-
-                model = modelImpl;
-            } else if (ParserHelper.isArray(type) || ParserHelper.isCollection(type)) {
-                ArrayModel arrayModel = new ArrayModel();
-                arrayModel.setType(type);
-                arrayModel.setItems(items);
-                model = arrayModel;
-            } else {
-                model = new RefModel(type);
-            }
-
-            ((BodyParameter) param).schema(model);
+        if (schema != null && "array".equals(schema.getType())) {
+            // Form style parameters defined by RFC6570.
+            // This option replaces collectionFormat with a csv (when explode is false)
+            // or multi (when explode is true) value from OpenAPI 2.0.
+            param.setExplode(false);
         }
 
-        if (required != null) {
+        param.setSchema(schema);
+
+        if (Boolean.TRUE.equals(required)) {
             param.setRequired(required);
         }
-        param.setDescription(description);
+        if (Boolean.TRUE.equals(deprecated)) {
+            param.setDeprecated(deprecated);
+        }
+        if (description != null && !description.isEmpty()) {
+            param.setDescription(description);
+        }
+
         param.setName(name);
 
-        return param;
+        return new ParameterOrBody(param);
     }
 
 }

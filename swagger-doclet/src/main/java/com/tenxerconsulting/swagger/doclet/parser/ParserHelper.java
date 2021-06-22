@@ -1,6 +1,6 @@
 package com.tenxerconsulting.swagger.doclet.parser;
 
-import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.Lists.transform;
 import static java.util.Arrays.asList;
 
@@ -28,10 +28,7 @@ import com.sun.javadoc.Type;
 import com.sun.javadoc.TypeVariable;
 import com.tenxerconsulting.swagger.doclet.DocletOptions;
 import com.tenxerconsulting.swagger.doclet.model.HttpMethod;
-import io.swagger.models.properties.Property;
-import io.swagger.models.properties.PropertyBuilder;
-import io.swagger.models.properties.RefProperty;
-import io.swagger.models.refs.RefType;
+import io.swagger.oas.models.media.Schema;
 
 /**
  * The ParserHelper represents a helper class for the parsers
@@ -2258,28 +2255,30 @@ public class ParserHelper {
     }
 
     /**
-     * This builds a {@link Property}
+     * This builds a {@link Schema}
      *
      * @param itemsRef
      * @param itemsType
      * @param itemsFormat
-     * @param itemsAllowableValues
-     * @param uniqueItems
+     * @param args
      * @return
      */
-    public static Property buildItems(String itemsRef, String itemsType, String itemsFormat, List<String> itemsAllowableValues, Boolean uniqueItems) {
-        io.swagger.models.properties.Property items = null;
+    public static Schema buildItems(String itemsRef, String itemsType, String itemsFormat, Map<SchemaBuilder.PropertyId, Object> args) {
         if (itemsRef != null) {
-            RefProperty refItems = new RefProperty(RefType.DEFINITION.getInternalPrefix() + itemsRef);
-            refItems.setFormat(itemsFormat);
-            items = refItems;
-        } else if (itemsType != null) {
-            Map<PropertyBuilder.PropertyId, Object> args = new HashMap<>();
-            args.put(PropertyBuilder.PropertyId.ENUM, itemsAllowableValues);
-            args.put(PropertyBuilder.PropertyId.UNIQUE_ITEMS, uniqueItems);
-            items = PropertyBuilder.build(itemsType, itemsFormat, args);
+            return createRef(itemsRef).format(itemsFormat);
         }
-        return items;
+
+        if (itemsType != null) {
+            return SchemaBuilder.build(itemsType, itemsFormat, args);
+        }
+
+        return null;
+    }
+
+    public static Schema<?> createRef(String ref) {
+        String prefix = "#/components/schemas/";
+
+        return new Schema().$ref(ref.indexOf(prefix) == 0 ? ref : prefix + ref);
     }
 
     public static boolean isJavaxType(String qualifiedTypeName) {

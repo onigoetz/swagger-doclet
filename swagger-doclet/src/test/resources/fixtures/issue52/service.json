@@ -1,9 +1,21 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "apis": [
-        {
-            "path": "/bidir.{format}"
-        }
-    ]
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "/bidir"
+    }
+  ],
+  "paths": {
+    "/bidir/a/b/get": {},
+    "/bidir/a/get": {}
+  },
+  "components": {}
 }

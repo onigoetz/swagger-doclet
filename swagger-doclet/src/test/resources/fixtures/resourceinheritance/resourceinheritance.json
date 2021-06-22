@@ -1,36 +1,64 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/foo",
-    "apis": [
-        {
-            "path": "/foo/bar",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "bar",
-                    "type": "string"
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "/foo"
+    }
+  ],
+  "paths": {
+    "/foo/bar": {
+      "get": {
+        "tags": ["/foo"],
+        "operationId": "bar",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
                 }
-            ]
-        },
-        {
-            "path": "/foo/{id}",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "getById",
-                    "type": "string",
-                    "parameters": [
-                        {
-                            "paramType": "path",
-                            "name": "id",
-                            "type": "string",
-                            "required" : true
-                        }
-                    ]
-                }
-            ]
+              }
+            }
+          }
         }
-    ]    
+      }
+    },
+    "/foo/{id}": {
+      "get": {
+        "tags": ["/foo"],
+        "operationId": "getById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }

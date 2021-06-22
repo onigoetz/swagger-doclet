@@ -1,45 +1,45 @@
 package com.tenxerconsulting.swagger.doclet.parser;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.Properties;
 
-import com.tenxerconsulting.swagger.doclet.parser.VariableReplacer;
-
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * The VariableReplacerTest represents
  * @version $Id$
  * @author conor.roche
  */
-public class VariableReplacerTest extends TestCase {
+public class VariableReplacerTest {
 
 	/**
 	 * This tests simple e.g. single level replacement
 	 */
+	@Test
 	public void testSimpleReplacement() {
-
 		Properties props = new Properties();
 		props.setProperty("a", "aval");
 		props.setProperty("b", "bval");
 
 		String val = "a ${a}";
-		super.assertEquals("a aval", VariableReplacer.replaceVariables(props, val));
+		assertEquals("a aval", VariableReplacer.replaceVariables(props, val));
 		val = "${a}";
-		super.assertEquals("aval", VariableReplacer.replaceVariables(props, val));
+		assertEquals("aval", VariableReplacer.replaceVariables(props, val));
 		val = "$a";
-		super.assertEquals("$a", VariableReplacer.replaceVariables(props, val));
+		assertEquals("$a", VariableReplacer.replaceVariables(props, val));
 		val = "${a}${b}";
-		super.assertEquals("avalbval", VariableReplacer.replaceVariables(props, val));
+		assertEquals("avalbval", VariableReplacer.replaceVariables(props, val));
 		val = "${a} $${b}";
-		super.assertEquals("aval $bval", VariableReplacer.replaceVariables(props, val));
+		assertEquals("aval $bval", VariableReplacer.replaceVariables(props, val));
 
 	}
 
 	/**
 	 * This tests multi level replacement where one value refers to other variables
 	 */
+	@Test
 	public void testMultiLevelReplacement() {
-
 		Properties props = new Properties();
 		props.setProperty("a", "aval");
 		props.setProperty("b", "${a}");
@@ -47,7 +47,7 @@ public class VariableReplacerTest extends TestCase {
 		props.setProperty("d", "a:${a} b:${b} c:${c} e:${e}");
 
 		String val = "res${d}";
-		super.assertEquals("resa:aval b:aval c:caval e:${e}", VariableReplacer.replaceVariables(props, val));
+		assertEquals("resa:aval b:aval c:caval e:${e}", VariableReplacer.replaceVariables(props, val));
 	}
 
 }

@@ -1,51 +1,45 @@
 package com.tenxerconsulting.swagger.doclet.apidocs;
 
-import static com.tenxerconsulting.swagger.doclet.apidocs.FixtureLoader.loadFixture;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Collections;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.sun.javadoc.RootDoc;
 import com.tenxerconsulting.swagger.doclet.DocletOptions;
+import com.tenxerconsulting.swagger.doclet.JSONCompare;
 import com.tenxerconsulting.swagger.doclet.Recorder;
-import com.tenxerconsulting.swagger.doclet.model.ResourceListing;
 import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
 
 /**
  * The ResourceInclusionTest represents a test for resource class inclusion
- * @version $Id$
+ *
  * @author conor.roche
+ * @version $Id$
  */
 @SuppressWarnings("javadoc")
 public class ResourceInclusionTest {
 
-	private Recorder recorderMock;
-	private DocletOptions options;
+    private Recorder recorderMock;
+    private DocletOptions options;
 
-	@Before
-	public void setup() {
-		this.recorderMock = mock(Recorder.class);
-		this.options = new DocletOptions().setRecorder(this.recorderMock).setIncludeSwaggerUi(false).setSortResourcesByPath(true)
-				.setIncludeResourcePrefixes(Arrays.asList(new String[] { "fixtures.resourceinclusion.pkg2" }))
-				.setExcludeResourcePrefixes(Arrays.asList(new String[] { "fixtures.resourceinclusion.pkg2.Res3" }));
-	}
+    @BeforeEach
+    public void setup() {
+        this.recorderMock = mock(Recorder.class);
+        this.options = new DocletOptions().setRecorder(this.recorderMock).setIncludeSwaggerUi(false).setSortResourcesByPath(true)
+                .setIncludeResourcePrefixes(Collections.singletonList("fixtures.resourceinclusion.pkg2"))
+                .setExcludeResourcePrefixes(Collections.singletonList("fixtures.resourceinclusion.pkg2.Res3"));
+    }
 
-	@Test
-	public void testStart() throws IOException {
+    @Test
+    public void testStart() throws IOException {
+        final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.resourceinclusion");
+        new JaxRsAnnotationParser(this.options, rootDoc).run();
 
-		final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.resourceinclusion");
-		new JaxRsAnnotationParser(this.options, rootDoc).run();
-
-		final ResourceListing expectedListing = loadFixture("/fixtures/resourceinclusion/resourceinclusion.json", ResourceListing.class);
-		verify(this.recorderMock).record(any(File.class), eq(expectedListing));
-	}
+        JSONCompare.compare("/fixtures/resourceinclusion/resourceinclusion.json", recorderMock);
+    }
 
 }

@@ -1,82 +1,142 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/httpmethods",
-    "apis": [
-        {
-            "path": "/httpmethods",
-            "operations": [
-                {
-                    "method": "POST",
-                    "nickname": "post",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "Data",
-                            "required" : true
-                        }
-                    ]
-                },
-                {
-                    "method": "PUT",
-                    "nickname": "put",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "Data",
-                            "required" : true
-                        }
-                    ]
-                },
-                {
-                    "method": "PATCH",
-                    "nickname": "patch",
-                    "type": "void",
-                    "parameters": [
-                        {
-                            "paramType": "body",
-                            "name": "data",
-                            "type": "Data",
-                            "required" : true
-                        }
-                    ]
-                },
-                {
-                    "method": "OPTIONS",
-                    "nickname": "options",
-                    "type": "Data"
-                },
-                {
-                    "method": "GET",
-                    "nickname": "get",
-                    "type": "Data"
-                },
-                {
-                    "method": "DELETE",
-                    "nickname": "delete",
-                    "type": "void"
-                },
-                {
-                    "method": "HEAD",
-                    "nickname": "head",
-                    "type": "void"
-                }
-            ]
-        }
-    ],
-    "models": {
-        "Data": {
-            "id": "Data",
-            "properties": {
-                "value": {
-                    "type": "string"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/httpmethods"
+    }
+  ],
+  "paths": {
+    "/httpmethods": {
+      "get": {
+        "tags": ["/httpmethods"],
+        "operationId": "get",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["/httpmethods"],
+        "operationId": "put",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/Data"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      },
+      "post": {
+        "tags": ["/httpmethods"],
+        "operationId": "post",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/Data"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      },
+      "delete": {
+        "tags": ["/httpmethods"],
+        "operationId": "delete",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "options": {
+        "tags": ["/httpmethods"],
+        "operationId": "options",
+        "responses": {
+          "default": {
+            "description": "",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data"
+                }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "tags": ["/httpmethods"],
+        "operationId": "head",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "patch": {
+        "tags": ["/httpmethods"],
+        "operationId": "patch",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/Data"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Data": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
 }

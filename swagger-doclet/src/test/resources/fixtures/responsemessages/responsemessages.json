@@ -1,83 +1,109 @@
 {
-    "apiVersion": "0",
-    "swaggerVersion": "1.2",
-    "basePath": "http://localhost:8080",
-    "resourcePath": "/responsemessages",
-    "apis": [
-        {
-            "path": "/responsemessages",
-            "operations": [
-                {
-                    "method": "GET",
-                    "nickname": "swagger11",
-                    "type": "void",
-                    "responseMessages": [
-                        {
-                            "code": 404,
-                            "message": "not found",
-                            "responseModel" : "Response2"
-                        }
-                    ]
-                },
-                {
-                    "method": "GET",
-                    "nickname": "swagger12",
-                    "type": "void",
-                    "responseMessages": [
-                        {
-                            "code": 200,
-                            "message": "ok"
-                        },
-                        {
-                            "code": 404,
-                            "message": "not found",
-                            "responseModel" : "Response1"
-                        }
-                    ]
-                },
-                {
-                    "method": "GET",
-                    "nickname": "tenxer",
-                    "type": "void",
-                    "responseMessages": [
-                        {
-                            "code": 200,
-                            "message": "ok"
-                        },
-                        {
-                            "code": 401,
-                            "message": "not authA<br>not authB<br>not_authC|If user not authenticated",
-                            "responseModel" : "Response3"
-                        }
-                    ]
-                }
-            ]
-        }
-    ],
-    "models": {
-        "Response2": {
-            "id": "Response2",
-            "properties": {
-                "value": {
-                    "type": "string"
-                }
-            }
-        },
-        "Response1": {
-            "id": "Response1",
-            "properties": {
-                "value": {
-                    "type": "string"
-                }
-            }
-        },
-        "Response3": {
-            "id": "Response3",
-            "properties": {
-                "value": {
-                    "type": "string"
-                }
-            }
-        }
+  "openapi": "3.0",
+  "info": {
+    "version": "0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
     }
+  ],
+  "tags": [
+    {
+      "name": "/responsemessages"
+    }
+  ],
+  "paths": {
+    "/responsemessages/swagger11": {
+      "get": {
+        "tags": ["/responsemessages"],
+        "operationId": "swagger11",
+        "responses": {
+          "404": {
+            "description": "not found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response2"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/responsemessages/swagger12": {
+      "get": {
+        "tags": ["/responsemessages"],
+        "operationId": "swagger12",
+        "responses": {
+          "200": {
+            "description": "ok"
+          },
+          "404": {
+            "description": "not found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response1"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/responsemessages/tenxer": {
+      "get": {
+        "tags": ["/responsemessages"],
+        "operationId": "tenxer",
+        "responses": {
+          "200": {
+            "description": "ok"
+          },
+          "401": {
+            "description": "not authA<br>not authB<br>not_authC|If user not authenticated",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response3"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Response2": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "Response1": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "Response3": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
 }
