@@ -123,10 +123,9 @@
 		<profile>
 			<id>default-tools.jar</id>
 			<activation>
-				<property>
-					<name>java.vendor</name>
-					<value>Oracle Corporation</value>
-				</property>
+				<file>
+					<exists>${java.home}/../lib/tools.jar</exists>
+				</file>
 			</activation>
 			<dependencies>
 				<dependency>
