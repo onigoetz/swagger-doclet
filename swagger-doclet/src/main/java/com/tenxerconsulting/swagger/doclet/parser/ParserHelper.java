@@ -1,19 +1,8 @@
 package com.tenxerconsulting.swagger.doclet.parser;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.Lists.transform;
-import static java.util.Arrays.asList;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import com.google.common.base.Function;
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.ExecutableMemberDoc;
@@ -22,7 +11,6 @@ import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.Parameter;
 import com.sun.javadoc.ParameterizedType;
 import com.sun.javadoc.ProgramElementDoc;
-import com.sun.javadoc.SeeTag;
 import com.sun.javadoc.Tag;
 import com.sun.javadoc.Type;
 import com.sun.javadoc.TypeVariable;
@@ -45,7 +33,7 @@ public class ParserHelper {
     private static final String SPRING_MVC_PATH_VARIABLE = "org.springframework.web.bind.annotation.PathVariable";
     private static final String SPRING_MVC_REQUEST_PARAM = "org.springframework.web.bind.annotation.RequestParam";
 
-    private static final Set<String> _JAXRS_PARAM_ANNOTATIONS = new HashSet<String>();
+    private static final Set<String> _JAXRS_PARAM_ANNOTATIONS = new HashSet<>();
 
     static {
         // TODO support cookie and matrix params...
@@ -66,8 +54,8 @@ public class ParserHelper {
     private static final String JAX_RS_ANNOTATION_PACKAGE = "javax.ws.rs";
     private static final String SPRING_MVC_ANNOTATION_PACKAGE = "org.springframework.web.bind.annotation";
 
-    private static final Set<String> JAX_RS_PREFIXES = new HashSet<String>();
-    private static final Set<String> SPRING_MVC_PREFIXES = new HashSet<String>();
+    private static final Set<String> JAX_RS_PREFIXES = new HashSet<>();
+    private static final Set<String> SPRING_MVC_PREFIXES = new HashSet<>();
 
     static {
         JAX_RS_PREFIXES.add(JAX_RS_ANNOTATION_PACKAGE);
@@ -84,7 +72,6 @@ public class ParserHelper {
 
     @SuppressWarnings("serial")
     static final List<String> PRIMITIVES = new ArrayList<String>() {
-
         {
             add("byte");
             add("boolean");
@@ -112,15 +99,15 @@ public class ParserHelper {
         // TODO use translator to support @XmlEnum values...
         List<String> allowableValues = null;
         if (typeClassDoc != null && typeClassDoc.isEnum()) {
-            allowableValues = transform(asList(typeClassDoc.enumConstants()), new Function<FieldDoc, String>() {
-
-                public String apply(FieldDoc input) {
-                    if (input == null) {
-                        return null;
-                    }
-                    return input.name();
-                }
-            });
+            allowableValues = Arrays
+                    .stream(typeClassDoc.enumConstants())
+                    .map(input -> {
+                        if (input == null) {
+                            return null;
+                        }
+                        return input.name();
+                    })
+                    .collect(Collectors.toList());
         }
         return allowableValues;
     }
@@ -505,29 +492,29 @@ public class ParserHelper {
      */
     public static String[] primitiveTypeOf(String javaType, DocletOptions options) {
 
-        if (javaType.toLowerCase().equals("byte") || javaType.equalsIgnoreCase("java.lang.Byte")) {
+        if (javaType.equalsIgnoreCase("byte") || javaType.equalsIgnoreCase("java.lang.Byte")) {
             return new String[]{"string", "byte"};
-        } else if (javaType.toLowerCase().equals("int") || javaType.toLowerCase().equals("integer") || javaType.equalsIgnoreCase("java.lang.Integer")) {
+        } else if (javaType.equalsIgnoreCase("int") || javaType.equalsIgnoreCase("integer") || javaType.equalsIgnoreCase("java.lang.Integer")) {
             return new String[]{"integer", "int32"};
-        } else if (javaType.toLowerCase().equals("short") || javaType.equalsIgnoreCase("java.lang.Short")) {
+        } else if (javaType.equalsIgnoreCase("short") || javaType.equalsIgnoreCase("java.lang.Short")) {
             return new String[]{"integer", "int32"};
-        } else if (javaType.toLowerCase().equals("long") || javaType.equalsIgnoreCase("java.lang.Long") || javaType.equalsIgnoreCase("java.math.BigInteger")) {
+        } else if (javaType.equalsIgnoreCase("long") || javaType.equalsIgnoreCase("java.lang.Long") || javaType.equalsIgnoreCase("java.math.BigInteger")) {
             return new String[]{"integer", "int64"};
-        } else if (javaType.toLowerCase().equals("float") || javaType.equalsIgnoreCase("java.lang.Float")) {
+        } else if (javaType.equalsIgnoreCase("float") || javaType.equalsIgnoreCase("java.lang.Float")) {
             return new String[]{"number", "float"};
-        } else if (javaType.toLowerCase().equals("double") || javaType.equalsIgnoreCase("java.lang.Double")
+        } else if (javaType.equalsIgnoreCase("double") || javaType.equalsIgnoreCase("java.lang.Double")
                 || javaType.equalsIgnoreCase("java.math.BigDecimal")) {
             return new String[]{"number", "double"};
-        } else if (javaType.toLowerCase().equals("string") || javaType.equalsIgnoreCase("java.lang.String")) {
+        } else if (javaType.equalsIgnoreCase("string") || javaType.equalsIgnoreCase("java.lang.String")) {
             return new String[]{"string", null};
-        } else if (javaType.toLowerCase().equals("char") || javaType.equalsIgnoreCase("java.lang.Character")) {
+        } else if (javaType.equalsIgnoreCase("char") || javaType.equalsIgnoreCase("java.lang.Character")) {
             return new String[]{"string", null};
-        } else if (javaType.toLowerCase().equals("boolean") || javaType.equalsIgnoreCase("java.lang.Boolean")) {
+        } else if (javaType.equalsIgnoreCase("boolean") || javaType.equalsIgnoreCase("java.lang.Boolean")) {
             return new String[]{"boolean", null};
         } else if (javaType.equalsIgnoreCase("java.net.URI") || javaType.equalsIgnoreCase("java.net.URL")) {
             return new String[]{"string", null};
 
-        } else if (javaType.toLowerCase().equals("uuid") || javaType.equalsIgnoreCase("java.util.UUID")) {
+        } else if (javaType.equalsIgnoreCase("uuid") || javaType.equalsIgnoreCase("java.util.UUID")) {
             return new String[]{"string", "uuid"};
         }
 
@@ -577,7 +564,7 @@ public class ParserHelper {
                 || javaType.equalsIgnoreCase("org.joda.time.Minutes") || javaType.equalsIgnoreCase("org.joda.time.Seconds")) {
             return new String[]{"integer", "int32"};
 
-        } else if (javaType.toLowerCase().equals("date") || javaType.equalsIgnoreCase("java.util.Date") || javaType.equalsIgnoreCase("java.sql.Date")
+        } else if (javaType.equalsIgnoreCase("date") || javaType.equalsIgnoreCase("java.util.Date") || javaType.equalsIgnoreCase("java.sql.Date")
                 || javaType.equalsIgnoreCase("java.util.Calendar") || javaType.equalsIgnoreCase("java.time.LocalDateTime")
                 || javaType.equalsIgnoreCase("java.time.OffsetDateTime") || javaType.equalsIgnoreCase("java.time.ZonedDateTime")
                 || javaType.equalsIgnoreCase("org.joda.time.DateMidnight") || javaType.equalsIgnoreCase("org.joda.time.DateTime")
@@ -694,7 +681,7 @@ public class ParserHelper {
         return result;
     }
 
-    private static Map<String, Class<?>> CLASSES = new HashMap<String, Class<?>>();
+    private static Map<String, Class<?>> CLASSES = new HashMap<>();
 
     private static Class<?> lookupClass(String javaType) throws ClassNotFoundException {
         if (CLASSES.containsKey(javaType)) {
@@ -715,7 +702,7 @@ public class ParserHelper {
     public static Type getVarType(TypeVariable var, Map<String, Type> varsToTypes) {
         Type res = null;
         if (var != null && varsToTypes != null) {
-            Set<Type> processedTypes = new HashSet<Type>();
+            Set<Type> processedTypes = new HashSet<>();
             Type type = varsToTypes.get(var.qualifiedTypeName());
             while (type != null && !processedTypes.contains(type)) {
                 res = type;
@@ -726,7 +713,7 @@ public class ParserHelper {
         return res;
     }
 
-    private static Map<String, Boolean> SET_TYPES = new HashMap<String, Boolean>();
+    private static Map<String, Boolean> SET_TYPES = new HashMap<>();
 
     /**
      * This gets whether the given type is a Set
@@ -770,7 +757,7 @@ public class ParserHelper {
         return (javaType.equals("array") || javaType.endsWith("[]"));
     }
 
-    private static final Map<String, Boolean> COLLECTION_TYPES = new HashMap<String, Boolean>();
+    private static final Map<String, Boolean> COLLECTION_TYPES = new HashMap<>();
 
     /**
      * This gets whether the given type is a Collection
@@ -792,7 +779,7 @@ public class ParserHelper {
         }
     }
 
-    private static final Map<String, Boolean> MAP_TYPES = new HashMap<String, Boolean>();
+    private static final Map<String, Boolean> MAP_TYPES = new HashMap<>();
 
     /**
      * This gets whether the given type is a Map
@@ -1311,11 +1298,9 @@ public class ParserHelper {
             String swaggerType = typeFormat[0];
             String format = typeFormat[1];
 
-            if (swaggerType.equals("integer")) {
-                return true;
-            } else if (swaggerType.equals("number")) {
-                return true;
-            } else if (format != null && format.equals("byte")) {
+            if (swaggerType.equals("integer")
+                    || swaggerType.equals("number")
+                    || (format != null && format.equals("byte"))) {
                 return true;
             }
         }
@@ -1364,7 +1349,7 @@ public class ParserHelper {
      * @return the names of the method parameters or an empty set if the method had none
      */
     public static Set<String> getParamNames(ExecutableMemberDoc method) {
-        Set<String> params = new HashSet<String>();
+        Set<String> params = new HashSet<>();
         for (Parameter parameter : method.parameters()) {
             params.add(parameter.name());
         }
@@ -1384,7 +1369,7 @@ public class ParserHelper {
     public static Set<String> getMatchingParams(ExecutableMemberDoc method, Set<String> params, Collection<String> javadocTags, Collection<String> annotations,
                                                 DocletOptions options) {
 
-        Set<String> res = new HashSet<String>();
+        Set<String> res = new HashSet<>();
 
         // find params based on javadoc tags
         List<String> javaDocParams = getCsvParams(method, params, javadocTags, options);
@@ -1398,7 +1383,7 @@ public class ParserHelper {
     }
 
     private static Set<String> getInheritableParametersWithAnnotation(ExecutableMemberDoc methodDoc, Collection<String> annotations) {
-        Set<String> result = new HashSet<String>();
+        Set<String> result = new HashSet<>();
         while (methodDoc != null) {
             Set<String> subResult = getParametersWithAnnotation(methodDoc, annotations);
             result.addAll(subResult);
@@ -1415,7 +1400,7 @@ public class ParserHelper {
      * @return A set of param names with the given annotations
      */
     private static Set<String> getParametersWithAnnotation(ExecutableMemberDoc method, Collection<String> annotations) {
-        Set<String> res = new HashSet<String>();
+        Set<String> res = new HashSet<>();
         for (Parameter p : method.parameters()) {
             for (AnnotationDesc annotation : p.annotations()) {
                 String qName = annotation.annotationType().qualifiedTypeName();
@@ -1427,13 +1412,10 @@ public class ParserHelper {
         return res;
     }
 
-    @SuppressWarnings("javadoc")
-    public static interface TypeFilter {
-
+    public interface TypeFilter {
         boolean matches(Type t);
     }
 
-    @SuppressWarnings("javadoc")
     public static class NumericTypeFilter implements TypeFilter {
 
         private final DocletOptions options;
@@ -1446,7 +1428,6 @@ public class ParserHelper {
         public boolean matches(Type t) {
             return ParserHelper.isNumber(t, this.options);
         }
-
     }
 
     /**
@@ -1482,7 +1463,7 @@ public class ParserHelper {
      */
     public static Map<String, String> getParameterValues(ExecutableMemberDoc method, Set<String> params, Collection<String> matchTags,
                                                          Collection<String> annotations, TypeFilter annotationTypes, DocletOptions options, String... valueKeys) {
-        Map<String, String> res = new HashMap<String, String>();
+        Map<String, String> res = new HashMap<>();
         // first add values from javadoc tags
         Map<String, String> javadocVals = getMethodParamNameValuePairs(method, params, matchTags, options);
         res.putAll(javadocVals);
@@ -1504,7 +1485,7 @@ public class ParserHelper {
      */
     public static Map<String, String> getParameterValuesWithAnnotation(ExecutableMemberDoc methodDoc, Collection<String> annotations,
                                                                        TypeFilter annotationTypes, DocletOptions options, String... valueKeys) {
-        Map<String, String> res = new HashMap<String, String>();
+        Map<String, String> res = new HashMap<>();
         while (methodDoc != null) {
             for (Parameter p : methodDoc.parameters()) {
                 String value = new AnnotationParser(p, options).getAnnotationValue(annotations, valueKeys);
@@ -1549,7 +1530,7 @@ public class ParserHelper {
                                     + parts.length
                                     + " whitespace seperated parts when it was expected to have name value pairs for each parameter, e.g. the number of parts should have been even.");
                 }
-                Map<String, String> res = new HashMap<String, String>();
+                Map<String, String> res = new HashMap<>();
                 for (int i = 0; i < parts.length; i += 2) {
                     String name = parts[i];
                     if (!params.contains(name)) {
@@ -1598,7 +1579,7 @@ public class ParserHelper {
                                     + parts.length
                                     + " whitespace seperated parts when it was expected to have name value pairs for each parameter, e.g. the number of parts should have been even.");
                 }
-                Map<String, List<String>> res = new HashMap<String, List<String>>();
+                Map<String, List<String>> res = new HashMap<>();
                 for (int i = 0; i < parts.length; i += 2) {
                     String name = parts[i];
                     if (!params.contains(name)) {
@@ -1609,7 +1590,7 @@ public class ParserHelper {
 
                     List<String> vals = res.get(name);
                     if (vals == null) {
-                        vals = new ArrayList<String>();
+                        vals = new ArrayList<>();
                         res.put(name, vals);
                     }
                     vals.add(val);
@@ -1663,7 +1644,7 @@ public class ParserHelper {
         if (value != null) {
             String[] vals = value.split(",");
             if (vals != null && vals.length > 0) {
-                List<String> res = new ArrayList<String>();
+                List<String> res = new ArrayList<>();
                 for (String val : vals) {
                     if (val != null && val.trim().length() > 0) {
                         res.add(options.replaceVars(val.trim()));
@@ -1801,11 +1782,9 @@ public class ParserHelper {
      */
     private static MethodDoc findInterfaceMethod(ClassDoc object, MethodDoc method) {
         for (MethodDoc intfMethod : object.methods()) {
-            if (intfMethod.name().equals(method.name())) {
-                if (intfMethod.flatSignature().equals(method.flatSignature())) {
-                    // xxx: do we need to consider more compllicated cases like contravariance?
-                    return intfMethod;
-                }
+            if (intfMethod.name().equals(method.name()) && intfMethod.flatSignature().equals(method.flatSignature())) {
+                // xxx: do we need to consider more compllicated cases like contravariance?
+                return intfMethod;
             }
         }
         return null;
@@ -1870,7 +1849,7 @@ public class ParserHelper {
                 for (Tag tag : tags) {
                     if (matchTags.contains(tag.name().substring(1))) {
                         if (res == null) {
-                            res = new ArrayList<String>();
+                            res = new ArrayList<>();
                         }
                         String customValue = tag.text().trim();
                         if (customValue.length() > 0) {
@@ -1953,8 +1932,8 @@ public class ParserHelper {
         return options.replaceVars(customValue);
     }
 
-    private static final Set<String> DEPRECATED_TAGS = new HashSet<String>();
-    private static final Set<String> DEPRECATED_ANNOTATIONS = new HashSet<String>();
+    private static final Set<String> DEPRECATED_TAGS = new HashSet<>();
+    private static final Set<String> DEPRECATED_ANNOTATIONS = new HashSet<>();
 
     static {
         DEPRECATED_TAGS.add("deprecated");
@@ -2097,26 +2076,7 @@ public class ParserHelper {
         return hasAnnotation(parameter, DEPRECATED_ANNOTATIONS, options);
     }
 
-    /**
-     * This builds a map of FQN to type for all see annotations
-     * on the given items javadoc
-     *
-     * @param item The item to get the see types of
-     * @return A map of see types or an empty map if there were no see tags.
-     */
-    public static Map<String, Type> readSeeTypes(com.sun.javadoc.ProgramElementDoc item) {
-        Map<String, Type> types = new HashMap<String, Type>();
-        SeeTag[] seeTags = item.seeTags();
-        if (seeTags != null) {
-            for (SeeTag seeTag : seeTags) {
-                Type type = seeTag.referencedClass();
-                types.put(seeTag.referencedClassName(), type);
-            }
-        }
-        return types;
-    }
-
-    static final Map<String, String> PRIMITIVE_TO_CLASS = new HashMap<String, String>();
+    static final Map<String, String> PRIMITIVE_TO_CLASS = new HashMap<>();
 
     static {
         PRIMITIVE_TO_CLASS.put("int", java.lang.Integer.class.getName());
@@ -2249,7 +2209,10 @@ public class ParserHelper {
             if (customType == null) {
                 ApiMethodParser.raiseCustomTypeNotFoundError(customTypeName);
             }
-            return firstNonNull(ApiModelParser.getReturnType(options, customType), customType);
+
+            Type preciseCustomType = ApiModelParser.getReturnType(options, customType);
+
+            return preciseCustomType == null ? customType : preciseCustomType;
         }
         return null;
     }

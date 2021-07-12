@@ -84,7 +84,11 @@
         "parameters": [
           {
             "in": "query",
-            "name": "name"
+            "name": "name",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
           }
         ],
         "responses": {

@@ -10,6 +10,8 @@ import java.util.Properties;
  */
 public final class VariableReplacer {
 
+        private VariableReplacer() {}
+
 	/**
 	 * This does a replacement of variable references in the given value
 	 * where references should be in the form ${propertyname}. It supports dereferencing the
@@ -19,14 +21,14 @@ public final class VariableReplacer {
 	 * @return The replaced value
 	 */
 	public static final String replaceVariables(Properties properties, String value) {
-		if (value == null || value.indexOf("${") == -1) {
+                if (value == null || !value.contains("${")) {
 			return value;
 		}
 		String prev;
 		while (true) {
 			prev = value;
-			value = _replaceVariables(properties, value);
-			if (prev.equals(value) || value.indexOf("${") == -1) {
+                        value = innerReplaceVariables(properties, value);
+                        if (prev.equals(value) || !value.contains("${")) {
 				break;
 			}
 		}
@@ -41,7 +43,7 @@ public final class VariableReplacer {
 	 * @param value The value to replace
 	 * @return The replaced value
 	 */
-	private static final String _replaceVariables(Properties properties, String value) {
+        private static final String innerReplaceVariables(Properties properties, String value) {
 		// this does a single pass over the value replacing any properties it finds
 		if (value != null && value.length() > 3) {
 			boolean inVar = false;

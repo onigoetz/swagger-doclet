@@ -1,9 +1,9 @@
 package com.tenxerconsulting.swagger.doclet;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.copyOfRange;
 
+import javax.ws.rs.core.Application;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,47 +37,32 @@ public class DocletOptions {
 
 	private static <T> T loadModelFromJson(String option, String path, Class<T> resourceClass) {
 		File file = new File(path);
-		checkArgument(file.isFile(), "Path for " + option + " (" + file.getAbsolutePath() + ") is expected to be an existing file!");
+                if (!file.isFile()) {
+                        throw new IllegalArgumentException("Path for " + option + " (" + file.getAbsolutePath() + ") is expected to be an existing file!");
+                }
+
 		// load it as json and build the object from it
-		InputStream is = null;
-		try {
-			is = new BufferedInputStream(new FileInputStream(file));
+                try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.registerModule(new MapperModule());
 			return mapper.readValue(is, resourceClass);
 		} catch (Exception ex) {
 			throw new IllegalArgumentException("Failed to read model file: " + path + ", error : " + ex.getMessage(), ex);
-		} finally {
-			if (is != null) {
-				try {
-					is.close();
-				} catch (Exception ex) {
-					// ignore
-				}
-			}
 		}
 	}
 
 	private static <T> T loadModelFromJson(String option, String path, MapType resourceClass) {
 		File file = new File(path);
-		checkArgument(file.isFile(), "Path for " + option + " (" + file.getAbsolutePath() + ") is expected to be an existing file!");
+                if (!file.isFile()) {
+                        throw new IllegalArgumentException("Path for " + option + " (" + file.getAbsolutePath() + ") is expected to be an existing file!");
+                }
 		// load it as json and build the object from it
-		InputStream is = null;
-		try {
-			is = new BufferedInputStream(new FileInputStream(file));
+                try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.registerModule(new MapperModule());
 			return mapper.readValue(is, resourceClass);
 		} catch (Exception ex) {
 			throw new IllegalArgumentException("Failed to read model file: " + path + ", error : " + ex.getMessage(), ex);
-		} finally {
-			if (is != null) {
-				try {
-					is.close();
-				} catch (Exception ex) {
-					// ignore
-				}
-			}
 		}
 	}
 
@@ -120,22 +105,11 @@ public class DocletOptions {
 					throw new IllegalStateException("Unable to read variables file: " + varFile.getAbsolutePath() + " check it exists and is readable.");
 				}
 				Properties props = new Properties();
-				InputStream is = null;
-				try {
-					is = new FileInputStream(varFile);
+                                try (InputStream is = new FileInputStream(varFile)) {
 					props.load(is);
 					parsedOptions.variableReplacements = props;
 				} catch (IOException ex) {
 					throw new IllegalStateException("Failed to read variables file: " + varFile.getAbsolutePath(), ex);
-				} finally {
-					if (is != null) {
-						try {
-							is.close();
-						} catch (IOException ex) {
-							// ignore
-							ex.printStackTrace();
-						}
-					}
 				}
 			} else if (option[0].equals("-servers")) {
 				if (!clearedDefaultServers) {
@@ -752,7 +726,7 @@ public class DocletOptions {
 		this.servers = new ArrayList<>();
 		this.servers.add("http://localhost:8080/");
 
-		this.responseMessageTags = new ArrayList<String>();
+                this.responseMessageTags = new ArrayList<>();
 		this.responseMessageTags.add("responseMessage");
 		this.responseMessageTags.add("status");
 		this.responseMessageTags.add("errorResponse");
@@ -760,7 +734,7 @@ public class DocletOptions {
 		this.responseMessageTags.add("successResponse");
 		this.responseMessageTags.add("successCode");
 
-		this.excludeModelPrefixes = new ArrayList<String>();
+                this.excludeModelPrefixes = new ArrayList<>();
 		this.excludeModelPrefixes.add("org.joda.time.DateTime");
 		this.excludeModelPrefixes.add("java.util.UUID");
 		this.excludeModelPrefixes.add("java.io.");
@@ -769,258 +743,259 @@ public class DocletOptions {
 		this.excludeModelPrefixes.add("org.jboss.resteasy.plugins.providers.multipart.");
 
 		// custom types which are mapped to longs
-		this.longTypePrefixes = new ArrayList<String>();
+                this.longTypePrefixes = new ArrayList<>();
 
 		// custom types which are mapped to ints
-		this.intTypePrefixes = new ArrayList<String>();
+                this.intTypePrefixes = new ArrayList<>();
 
 		// custom types which are mapped to floats
-		this.floatTypePrefixes = new ArrayList<String>();
+                this.floatTypePrefixes = new ArrayList<>();
 
 		// custom types which are mapped to doubles
-		this.doubleTypePrefixes = new ArrayList<String>();
+                this.doubleTypePrefixes = new ArrayList<>();
 
 		// custom types which are mapped to strings
-		this.stringTypePrefixes = new ArrayList<String>();
+                this.stringTypePrefixes = new ArrayList<>();
 		this.stringTypePrefixes.add("com.sun.jersey.core.header.");
 
 		// types which simply wrap an entity
-		this.genericWrapperTypes = new ArrayList<String>();
+                this.genericWrapperTypes = new ArrayList<>();
+                // TODO :: add Java Optional
 		this.genericWrapperTypes.add("com.sun.jersey.api.JResponse");
 		this.genericWrapperTypes.add("com.google.common.base.Optional");
 		this.genericWrapperTypes.add("jersey.repackaged.com.google.common.base.Optional");
 
 		// annotations and types which are mapped to File data type,
 		// NOTE these only apply for multipart resources
-		this.fileParameterAnnotations = new ArrayList<String>();
+                this.fileParameterAnnotations = new ArrayList<>();
 		this.fileParameterAnnotations.add("org.jboss.resteasy.annotations.providers.multipart.MultipartForm");
 
-		this.fileParameterTypes = new ArrayList<String>();
+                this.fileParameterTypes = new ArrayList<>();
 		this.fileParameterTypes.add("java.io.File");
 		this.fileParameterTypes.add("java.io.InputStream");
 		this.fileParameterTypes.add("byte[]");
 		this.fileParameterTypes.add("org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput");
 
 		// annotations and types which are mapped to form parameter type
-		this.formParameterAnnotations = new ArrayList<String>();
+                this.formParameterAnnotations = new ArrayList<>();
 		this.formParameterAnnotations.add("com.sun.jersey.multipart.FormDataParam");
 		this.formParameterAnnotations.add("javax.ws.rs.FormParam");
 
-		this.formParameterTypes = new ArrayList<String>();
+                this.formParameterTypes = new ArrayList<>();
 		this.formParameterTypes.add("com.sun.jersey.core.header.FormDataContentDisposition");
 
 		// overrides for parameter names
-		this.paramsNameTags = new ArrayList<String>();
+                this.paramsNameTags = new ArrayList<>();
 		this.paramsNameTags.add("paramsName");
 		this.paramsNameTags.add("overrideParamsName");
 
 		// annotations to use for parameter names
-		this.parameterNameAnnotations = new ArrayList<String>();
+                this.parameterNameAnnotations = new ArrayList<>();
 		for (String annotation : ParserHelper.JAXRS_PARAM_ANNOTATIONS) {
 			this.parameterNameAnnotations.add(annotation);
 		}
 		this.parameterNameAnnotations.add("com.sun.jersey.multipart.FormDataParam");
 
 		// annotations/types to use for composite param objects
-		this.compositeParamAnnotations = new ArrayList<String>();
+                this.compositeParamAnnotations = new ArrayList<>();
 		this.compositeParamAnnotations.add("javax.ws.rs.BeanParam");
-		this.compositeParamTypes = new ArrayList<String>();
+                this.compositeParamTypes = new ArrayList<>();
 
-		this.discriminatorAnnotations = new ArrayList<String>();
+                this.discriminatorAnnotations = new ArrayList<>();
 		this.discriminatorAnnotations.add("com.fasterxml.jackson.annotation.JsonTypeInfo");
 
-		this.subTypesAnnotations = new ArrayList<String>();
+                this.subTypesAnnotations = new ArrayList<>();
 		this.subTypesAnnotations.add("com.fasterxml.jackson.annotation.JsonSubTypes");
 
-		this.excludeResourcePrefixes = new ArrayList<String>();
-		this.includeResourcePrefixes = new ArrayList<String>();
+                this.excludeResourcePrefixes = new ArrayList<>();
+                this.includeResourcePrefixes = new ArrayList<>();
 
-		this.excludeClassTags = new ArrayList<String>();
+                this.excludeClassTags = new ArrayList<>();
 		this.excludeClassTags.add("hidden");
 		this.excludeClassTags.add("hide");
 		this.excludeClassTags.add("exclude");
 
-		this.excludeClassAnnotations = new ArrayList<String>();
+                this.excludeClassAnnotations = new ArrayList<>();
 
-		this.excludeOperationTags = new ArrayList<String>();
+                this.excludeOperationTags = new ArrayList<>();
 		this.excludeOperationTags.add("hidden");
 		this.excludeOperationTags.add("hide");
 		this.excludeOperationTags.add("exclude");
 
-		this.excludeOperationAnnotations = new ArrayList<String>();
+                this.excludeOperationAnnotations = new ArrayList<>();
 
-		this.excludeFieldTags = new ArrayList<String>();
+                this.excludeFieldTags = new ArrayList<>();
 		this.excludeFieldTags.add("hidden");
 		this.excludeFieldTags.add("hide");
 		this.excludeFieldTags.add("exclude");
 
-		this.excludeFieldAnnotations = new ArrayList<String>();
+                this.excludeFieldAnnotations = new ArrayList<>();
 
-		this.excludeParamsTags = new ArrayList<String>();
+                this.excludeParamsTags = new ArrayList<>();
 		this.excludeParamsTags.add("excludeParams");
 		this.excludeParamsTags.add("hiddenParams");
 		this.excludeParamsTags.add("hideParams");
 
-		this.excludeParamAnnotations = new ArrayList<String>();
+                this.excludeParamAnnotations = new ArrayList<>();
 		this.excludeParamAnnotations.add("javax.ws.rs.core.Context");
 		this.excludeParamAnnotations.add("javax.ws.rs.CookieParam");
 		this.excludeParamAnnotations.add("javax.ws.rs.MatrixParam");
 		this.excludeParamAnnotations.add("javax.ws.rs.container.Suspended");
 
-		this.csvParamsTags = new ArrayList<String>();
+                this.csvParamsTags = new ArrayList<>();
 		this.csvParamsTags.add("csvParams");
 
-		this.implicitParamTags = new ArrayList<String>();
+                this.implicitParamTags = new ArrayList<>();
 		this.implicitParamTags.add("implicitParam");
 		this.implicitParamTags.add("additionalParam");
 		this.implicitParamTags.add("extraParam");
 
-		this.paramsFormatTags = new ArrayList<String>();
+                this.paramsFormatTags = new ArrayList<>();
 		this.paramsFormatTags.add("paramsFormat");
 		this.paramsFormatTags.add("formats");
 
-		this.paramsMinValueTags = new ArrayList<String>();
+                this.paramsMinValueTags = new ArrayList<>();
 		this.paramsMinValueTags.add("paramsMinValue");
 		this.paramsMinValueTags.add("paramsMinimumValue");
 		this.paramsMinValueTags.add("minValues");
 
-		this.paramsMaxValueTags = new ArrayList<String>();
+                this.paramsMaxValueTags = new ArrayList<>();
 		this.paramsMaxValueTags.add("paramsMaxValue");
 		this.paramsMaxValueTags.add("paramsMaximumValue");
 		this.paramsMaxValueTags.add("maxValues");
 
-		this.paramsDefaultValueTags = new ArrayList<String>();
+                this.paramsDefaultValueTags = new ArrayList<>();
 		this.paramsDefaultValueTags.add("paramsDefaultValue");
 		this.paramsDefaultValueTags.add("defaultValues");
 
-		this.paramsAllowableValuesTags = new ArrayList<String>();
+                this.paramsAllowableValuesTags = new ArrayList<>();
 		this.paramsAllowableValuesTags.add("paramsAllowableValues");
 		this.paramsAllowableValuesTags.add("allowableValues");
 
-		this.resourceTags = new ArrayList<String>();
+                this.resourceTags = new ArrayList<>();
 		this.resourceTags.add("resourceTag");
 		this.resourceTags.add("parentEndpointName");
 		this.resourceTags.add("resource");
 
-		this.responseTypeTags = new ArrayList<String>();
+                this.responseTypeTags = new ArrayList<>();
 		this.responseTypeTags.add("responseType");
 		this.responseTypeTags.add("outputType");
 		this.responseTypeTags.add("returnType");
 
-		this.inputTypeTags = new ArrayList<String>();
+                this.inputTypeTags = new ArrayList<>();
 		this.inputTypeTags.add("inputType");
 		this.inputTypeTags.add("bodyType");
 
-		this.defaultErrorTypeTags = new ArrayList<String>();
+                this.defaultErrorTypeTags = new ArrayList<>();
 		this.defaultErrorTypeTags.add("defaultErrorType");
 
-		this.apiDescriptionTags = new ArrayList<String>();
+                this.apiDescriptionTags = new ArrayList<>();
 		this.apiDescriptionTags.add("apiDescription");
 
-		this.operationNotesTags = new ArrayList<String>();
+                this.operationNotesTags = new ArrayList<>();
 		this.operationNotesTags.add("description");
 		this.operationNotesTags.add("comment");
 		this.operationNotesTags.add("notes");
 
-		this.operationSummaryTags = new ArrayList<String>();
+                this.operationSummaryTags = new ArrayList<>();
 		this.operationSummaryTags.add("summary");
 		this.operationSummaryTags.add("endpointName");
 
-		this.fieldDescriptionTags = new ArrayList<String>();
+                this.fieldDescriptionTags = new ArrayList<>();
 		this.fieldDescriptionTags.add("description");
 		this.fieldDescriptionTags.add("comment");
 		this.fieldDescriptionTags.add("return");
 
-		this.fieldFormatTags = new ArrayList<String>();
+                this.fieldFormatTags = new ArrayList<>();
 		this.fieldFormatTags.add("format");
 
-		this.fieldMinTags = new ArrayList<String>();
+                this.fieldMinTags = new ArrayList<>();
 		this.fieldMinTags.add("min");
 		this.fieldMinTags.add("minimum");
 
-		this.fieldMaxTags = new ArrayList<String>();
+                this.fieldMaxTags = new ArrayList<>();
 		this.fieldMaxTags.add("max");
 		this.fieldMaxTags.add("maximum");
 
-		this.fieldDefaultTags = new ArrayList<String>();
+                this.fieldDefaultTags = new ArrayList<>();
 		this.fieldDefaultTags.add("default");
 		this.fieldDefaultTags.add("defaultValue");
 
-		this.fieldAllowableValuesTags = new ArrayList<String>();
+                this.fieldAllowableValuesTags = new ArrayList<>();
 		this.fieldAllowableValuesTags.add("allowableValues");
 		this.fieldAllowableValuesTags.add("values");
 		this.fieldAllowableValuesTags.add("enum");
 
-		this.requiredParamsTags = new ArrayList<String>();
+                this.requiredParamsTags = new ArrayList<>();
 		this.requiredParamsTags.add("requiredParams");
 
-		this.optionalParamsTags = new ArrayList<String>();
+                this.optionalParamsTags = new ArrayList<>();
 		this.optionalParamsTags.add("optionalParams");
 
-		this.requiredFieldTags = new ArrayList<String>();
+                this.requiredFieldTags = new ArrayList<>();
 		this.requiredFieldTags.add("required");
 		this.requiredFieldTags.add("requiredField");
 
-		this.optionalFieldTags = new ArrayList<String>();
+                this.optionalFieldTags = new ArrayList<>();
 		this.optionalFieldTags.add("optional");
 		this.optionalFieldTags.add("optionalField");
 
 		// JSR 303
 
-		this.paramMinValueAnnotations = new ArrayList<String>();
+                this.paramMinValueAnnotations = new ArrayList<>();
 		this.paramMinValueAnnotations.add("javax.validation.constraints.Size");
 		this.paramMinValueAnnotations.add("javax.validation.constraints.DecimalMin");
 
-		this.paramMaxValueAnnotations = new ArrayList<String>();
+                this.paramMaxValueAnnotations = new ArrayList<>();
 		this.paramMaxValueAnnotations.add("javax.validation.constraints.Size");
 		this.paramMaxValueAnnotations.add("javax.validation.constraints.DecimalMax");
 
-		this.fieldMinAnnotations = new ArrayList<String>();
+                this.fieldMinAnnotations = new ArrayList<>();
 		this.fieldMinAnnotations.add("javax.validation.constraints.Size");
 		this.fieldMinAnnotations.add("javax.validation.constraints.DecimalMin");
 
-		this.fieldMaxAnnotations = new ArrayList<String>();
+                this.fieldMaxAnnotations = new ArrayList<>();
 		this.fieldMaxAnnotations.add("javax.validation.constraints.Size");
 		this.fieldMaxAnnotations.add("javax.validation.constraints.DecimalMax");
 
-		this.requiredParamAnnotations = new ArrayList<String>();
+                this.requiredParamAnnotations = new ArrayList<>();
 		this.requiredParamAnnotations.add("javax.validation.constraints.NotNull");
 
-		this.optionalParamAnnotations = new ArrayList<String>();
+                this.optionalParamAnnotations = new ArrayList<>();
 		this.optionalParamAnnotations.add("javax.validation.constraints.Null");
 
-		this.requiredFieldAnnotations = new ArrayList<String>();
+                this.requiredFieldAnnotations = new ArrayList<>();
 		this.requiredFieldAnnotations.add("javax.validation.constraints.NotNull");
 
-		this.optionalFieldAnnotations = new ArrayList<String>();
+                this.optionalFieldAnnotations = new ArrayList<>();
 		this.optionalFieldAnnotations.add("javax.validation.constraints.Null");
 
-		this.unauthOperationTags = new ArrayList<String>();
+                this.unauthOperationTags = new ArrayList<>();
 		this.unauthOperationTags.add("noAuth");
 		this.unauthOperationTags.add("unauthorized");
 
-		this.authOperationTags = new ArrayList<String>();
+                this.authOperationTags = new ArrayList<>();
 		this.authOperationTags.add("authentication");
 		this.authOperationTags.add("authorization");
 
-		this.unauthOperationTagValues = new ArrayList<String>();
+                this.unauthOperationTagValues = new ArrayList<>();
 		this.unauthOperationTagValues.add("not required");
 		this.unauthOperationTagValues.add("off");
 		this.unauthOperationTagValues.add("false");
 		this.unauthOperationTagValues.add("none");
 
-		this.operationScopeTags = new ArrayList<String>();
+                this.operationScopeTags = new ArrayList<>();
 		this.operationScopeTags.add("scope");
 		this.operationScopeTags.add("oauth2Scope");
 
-		this.authOperationScopes = new ArrayList<String>();
+                this.authOperationScopes = new ArrayList<>();
 
-		this.resourcePriorityTags = new ArrayList<String>();
+                this.resourcePriorityTags = new ArrayList<>();
 		this.resourcePriorityTags.add("resourcePriority");
 		this.resourcePriorityTags.add("resourceOrder");
 		this.resourcePriorityTags.add("priority");
 
-		this.resourceDescriptionTags = new ArrayList<String>();
+                this.resourceDescriptionTags = new ArrayList<>();
 		this.resourceDescriptionTags.add("resourceDescription");
 
 		this.responseMessageSortMode = ResponseMessageSortMode.CODE_ASC;

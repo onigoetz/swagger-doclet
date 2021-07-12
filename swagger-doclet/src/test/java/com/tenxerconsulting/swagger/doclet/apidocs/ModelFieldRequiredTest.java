@@ -19,8 +19,7 @@ import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
  * @author conor.roche
  * @version $Id$
  */
-@SuppressWarnings("javadoc")
-public class ModelFieldRequiredTest {
+class ModelFieldRequiredTest {
 
     private Recorder recorderMock;
     private DocletOptions options;
@@ -32,7 +31,7 @@ public class ModelFieldRequiredTest {
     }
 
     @Test
-    public void testModelFieldNotRequiredByDefault() throws IOException {
+    void testModelFieldNotRequiredByDefault() throws IOException {
         this.options.setModelFieldsRequiredByDefault(false);
 
         final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.modelfieldrequired");
@@ -42,7 +41,7 @@ public class ModelFieldRequiredTest {
     }
 
     @Test
-    public void testModelFieldRequiredByDefault() throws IOException {
+    void testModelFieldRequiredByDefault() throws IOException {
         this.options.setModelFieldsRequiredByDefault(true);
 
         final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.modelfieldrequired");

@@ -13,8 +13,7 @@ import com.tenxerconsulting.swagger.doclet.JSONCompare;
 import com.tenxerconsulting.swagger.doclet.Recorder;
 import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
 
-@SuppressWarnings("javadoc")
-public class ArraysTest {
+class ArraysTest {
 
     private Recorder recorderMock;
     private DocletOptions options;
@@ -29,7 +28,7 @@ public class ArraysTest {
     }
 
     @Test
-    public void testStart() throws IOException {
+    void testStart() throws IOException {
         final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.arrays");
 
         JaxRsAnnotationParser parser = new JaxRsAnnotationParser(this.options, rootDoc);

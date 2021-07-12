@@ -1,24 +1,14 @@
 package com.tenxerconsulting.swagger.doclet.parser;
 
-import static com.google.common.base.Strings.emptyToNull;
-import static com.google.common.collect.Maps.uniqueIndex;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.Tag;
 import com.sun.javadoc.Type;
 import com.tenxerconsulting.swagger.doclet.DocletOptions;
-import com.tenxerconsulting.swagger.doclet.json.MapperModule;
 import com.tenxerconsulting.swagger.doclet.model.*;
 import io.swagger.oas.models.*;
 import io.swagger.oas.models.media.Schema;
@@ -105,6 +95,14 @@ public class CrossClassApiParser {
         this.parentMethod = parentMethod;
     }
 
+    static boolean stringIsNullOrEmpty(String string) {
+        return string == null || string.isEmpty();
+    }
+
+    static String emptyToNull(String string) {
+        return stringIsNullOrEmpty(string) ? null : string;
+    }
+
     /**
      * This gets the root jaxrs path of the api resource class
      *
@@ -120,8 +118,7 @@ public class CrossClassApiParser {
      * @param declarations The map of resource name to declaration which will be added to
      */
     public void parse(Paths declarations) {
-
-        Collection<ClassDoc> allClasses = new ArrayList<ClassDoc>();
+        Collection<ClassDoc> allClasses = new ArrayList<>();
         allClasses.addAll(this.classes);
         allClasses.addAll(this.typeClasses);
 
@@ -256,7 +253,7 @@ public class CrossClassApiParser {
                     tag.description(tagDescription);
                     TagWrapper tagWrapper = new TagWrapper(tag, tagPriority);
 
-                    if (!tags.stream().anyMatch(t -> tag.getName().equals(t.getTag().getName()))) {
+                    if (tags.stream().noneMatch(t -> tag.getName().equals(t.getTag().getName()))) {
                         // TODO :: merge tags if they already exists, might get a missing description
                         this.tags.add(tagWrapper);
                     }
@@ -304,9 +301,9 @@ public class CrossClassApiParser {
 
         if (this.options.getResourceTags() != null) {
             for (String javadocResourceTag : this.options.getResourceTags()) {
-                Tag[] tags = method.tags(javadocResourceTag);
-                if (tags != null && tags.length > 0) {
-                    resourceTag = tags[0].text();
+                Tag[] resourceTags = method.tags(javadocResourceTag);
+                if (resourceTags != null && resourceTags.length > 0) {
+                    resourceTag = resourceTags[0].text();
                     resourceTag = resourceTag.trim().replace(" ", "_");
                     break;
                 }
@@ -374,11 +371,7 @@ public class CrossClassApiParser {
     }
 
     private void addOperation(Method method, PathItem path, String tag) {
-        // read api level description
-//		String apiDescription = ParserHelper.getInheritableTagValue(cmethod, this.options.getApiDescriptionTags(), this.options);
-//
         io.swagger.oas.models.Operation operation = new io.swagger.oas.models.Operation();
-//		operation.description(this.options.replaceVars(apiDescription));
 
         operation.setOperationId(emptyToNull(method.getMethodName()));
         operation.setRequestBody(method.getRequestBody());
@@ -399,10 +392,8 @@ public class CrossClassApiParser {
                 ? parentMethod.getMethod().getOpenapiMethod()
                 : method.getMethod().getOpenapiMethod();
 
-        if (path.readOperationsMap().containsKey(httpMethod)) {
-            if (!path.readOperationsMap().get(httpMethod).getOperationId().equals(method.getMethodName())) {
-                log.error("An operation for '" + httpMethod.name() + " " + method.getPath() + "' already exists. Replacing '" + path.readOperationsMap().get(httpMethod).getOperationId() + "' with '" + method.getMethodName() + "'");
-            }
+        if (path.readOperationsMap().containsKey(httpMethod) && !path.readOperationsMap().get(httpMethod).getOperationId().equals(method.getMethodName())) {
+            log.error("An operation for '" + httpMethod.name() + " " + method.getPath() + "' already exists. Replacing '" + path.readOperationsMap().get(httpMethod).getOperationId() + "' with '" + method.getMethodName() + "'");
         }
 
         path.operation(httpMethod, operation);

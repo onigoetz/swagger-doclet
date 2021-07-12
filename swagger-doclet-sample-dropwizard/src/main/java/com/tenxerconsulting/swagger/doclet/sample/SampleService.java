@@ -16,10 +16,7 @@ import com.tenxerconsulting.swagger.doclet.sample.resources.ResponseResource;
 import com.tenxerconsulting.swagger.doclet.sample.resources.SubResource;
 import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.assets.AssetsBundle;
-import com.yammer.dropwizard.auth.AuthenticationException;
-import com.yammer.dropwizard.auth.Authenticator;
 import com.yammer.dropwizard.auth.basic.BasicAuthProvider;
-import com.yammer.dropwizard.auth.basic.BasicCredentials;
 import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Configuration;
 import com.yammer.dropwizard.config.Environment;
@@ -37,12 +34,7 @@ public class SampleService extends Service<Configuration> {
 
 	@Override
 	public void run(Configuration configuration, Environment environment) throws Exception {
-		environment.addProvider(new BasicAuthProvider<String>(new Authenticator<BasicCredentials, String>() {
-
-			public Optional<String> authenticate(BasicCredentials basicCredentials) throws AuthenticationException {
-				return Optional.of("USERNAME");
-			}
-		}, "AuthResource Realm"));
+                environment.addProvider(new BasicAuthProvider<String>(basicCredentials -> Optional.of("USERNAME"), "AuthResource Realm"));
 
 		environment.addFilter(CrossOriginFilter.class, "/*").setInitParam("allowedOrigins", "*")
 				.setInitParam("allowedHeaders", "X-Requested-With,Content-Type,Accept,Origin")

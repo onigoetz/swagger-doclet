@@ -13,8 +13,7 @@ import com.tenxerconsulting.swagger.doclet.JSONCompare;
 import com.tenxerconsulting.swagger.doclet.Recorder;
 import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
 
-@SuppressWarnings("javadoc")
-public class ModelFqnTest {
+class ModelFqnTest {
 
     private Recorder recorderMock;
     private DocletOptions options;
@@ -26,7 +25,7 @@ public class ModelFqnTest {
     }
 
     @Test
-    public void testShortModelId() throws IOException {
+    void testShortModelId() throws IOException {
 
         this.options.setUseFullModelIds(false);
 
@@ -37,7 +36,7 @@ public class ModelFqnTest {
     }
 
     @Test
-    public void testFullModelId() throws IOException {
+    void testFullModelId() throws IOException {
 
         this.options.setUseFullModelIds(true);
 

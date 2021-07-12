@@ -13,8 +13,7 @@ import com.tenxerconsulting.swagger.doclet.JSONCompare;
 import com.tenxerconsulting.swagger.doclet.Recorder;
 import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
 
-@SuppressWarnings("javadoc")
-public class StringTypePrefixTest {
+class StringTypePrefixTest {
 
     private Recorder recorderMock;
     private DocletOptions options;
@@ -27,7 +26,7 @@ public class StringTypePrefixTest {
     }
 
     @Test
-    public void testGenericSuperclass() throws IOException {
+    void testGenericSuperclass() throws IOException {
         final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.stringtypeprefix");
         new JaxRsAnnotationParser(this.options, rootDoc).run();
 

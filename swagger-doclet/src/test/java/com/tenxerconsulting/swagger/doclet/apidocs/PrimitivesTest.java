@@ -13,8 +13,7 @@ import com.tenxerconsulting.swagger.doclet.JSONCompare;
 import com.tenxerconsulting.swagger.doclet.Recorder;
 import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
 
-@SuppressWarnings("javadoc")
-public class PrimitivesTest {
+class PrimitivesTest {
 
     private Recorder recorderMock;
     private DocletOptions options;
@@ -28,7 +27,7 @@ public class PrimitivesTest {
     }
 
     @Test
-    public void testStart() throws IOException {
+    void testStart() throws IOException {
         final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.primitives");
         new JaxRsAnnotationParser(this.options, rootDoc).run();
 

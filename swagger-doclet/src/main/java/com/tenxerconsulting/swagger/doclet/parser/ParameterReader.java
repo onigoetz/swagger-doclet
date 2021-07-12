@@ -529,12 +529,7 @@ public class ParameterReader {
     }
 
     private boolean hasValAtPos(String[] parts, int pos) {
-        if (pos < parts.length) {
-            if (parts[pos] != null && !parts[pos].trim().isEmpty()) {
-                return true;
-            }
-        }
-        return false;
+        return pos < parts.length && parts[pos] != null && !parts[pos].trim().isEmpty();
     }
 
     private ParameterOrBody buildClassFieldApiParam(FieldDoc field, List<String> consumes) {
@@ -586,10 +581,8 @@ public class ParameterReader {
             }
         }
 
-        if (typeName.equals("array")) {
-            if (ParserHelper.isSet(paramType.qualifiedTypeName())) {
-                uniqueItems = Boolean.TRUE;
-            }
+        if (typeName.equals("array") && ParserHelper.isSet(paramType.qualifiedTypeName())) {
+            uniqueItems = Boolean.TRUE;
         }
 
         // get whether required

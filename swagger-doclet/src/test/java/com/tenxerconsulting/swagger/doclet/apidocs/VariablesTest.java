@@ -21,8 +21,7 @@ import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
  * @author conor.roche
  * @version $Id$
  */
-@SuppressWarnings("javadoc")
-public class VariablesTest {
+class VariablesTest {
 
     private Recorder recorderMock;
     private DocletOptions options;
@@ -39,7 +38,7 @@ public class VariablesTest {
     }
 
     @Test
-    public void testStart() throws IOException {
+    void testStart() throws IOException {
         final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.variables");
         new JaxRsAnnotationParser(this.options, rootDoc).run();
 

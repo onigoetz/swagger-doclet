@@ -66,7 +66,7 @@ public enum HttpMethod {
 			        methods = ParserHelper.listValues(method.containingClass(), ParserHelper.SPRING_MVC_REQUEST_MAPPING, "method", options);   
 			    }
 			    
-			    if (methods != null && methods.size() > 0) {
+                            if (methods != null && !methods.isEmpty()) {
 			        // FIXME: Spring MVC supports multile methods
 			        String m = methods.get(0);
 			    

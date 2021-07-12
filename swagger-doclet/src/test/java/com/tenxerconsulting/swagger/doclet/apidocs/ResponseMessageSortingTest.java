@@ -14,8 +14,7 @@ import com.tenxerconsulting.swagger.doclet.Recorder;
 import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
 import com.tenxerconsulting.swagger.doclet.parser.ResponseMessageSortMode;
 
-@SuppressWarnings("javadoc")
-public class ResponseMessageSortingTest {
+class ResponseMessageSortingTest {
 
     private Recorder recorderMock;
     private DocletOptions options;
@@ -27,7 +26,7 @@ public class ResponseMessageSortingTest {
     }
 
     @Test
-    public void testDefaultSorting() throws IOException {
+    void testDefaultSorting() throws IOException {
         final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.responsemessagesorting");
         new JaxRsAnnotationParser(this.options, rootDoc).run();
 
@@ -35,7 +34,7 @@ public class ResponseMessageSortingTest {
     }
 
     @Test
-    public void testAscSortingViaOption() throws IOException {
+    void testAscSortingViaOption() throws IOException {
 
         this.options.setResponseMessageSortMode(ResponseMessageSortMode.CODE_ASC);
 
@@ -46,7 +45,7 @@ public class ResponseMessageSortingTest {
     }
 
     @Test
-    public void testAsAppearsSorting() throws IOException {
+    void testAsAppearsSorting() throws IOException {
 
         this.options.setResponseMessageSortMode(ResponseMessageSortMode.AS_APPEARS);
 
@@ -57,7 +56,7 @@ public class ResponseMessageSortingTest {
     }
 
     @Test
-    public void testDescSorting() throws IOException {
+    void testDescSorting() throws IOException {
 
         this.options.setResponseMessageSortMode(ResponseMessageSortMode.CODE_DESC);
 

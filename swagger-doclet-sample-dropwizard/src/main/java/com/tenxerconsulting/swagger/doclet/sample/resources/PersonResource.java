@@ -30,7 +30,7 @@ public class PersonResource {
 		person.setName("conor");
 		person.setAddress("conor-address");
 		person.setAge(35);
-		Collection<Person> res = new ArrayList<Person>();
+                Collection<Person> res = new ArrayList<>();
 		res.add(person);
 		return res;
 	}

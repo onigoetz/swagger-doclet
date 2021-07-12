@@ -19,8 +19,7 @@ import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
  * @author conor.roche
  * @version $Id$
  */
-@SuppressWarnings("javadoc")
-public class GenericResponseResourceTest {
+class GenericResponseResourceTest {
 
     private Recorder recorderMock;
     private DocletOptions options;
@@ -32,7 +31,7 @@ public class GenericResponseResourceTest {
     }
 
     @Test
-    public void testStart() throws IOException {
+    void testStart() throws IOException {
         final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.genericresponse");
         new JaxRsAnnotationParser(this.options, rootDoc).run();
 

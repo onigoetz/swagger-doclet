@@ -15,7 +15,7 @@ import com.tenxerconsulting.swagger.doclet.JSONCompare;
 import com.tenxerconsulting.swagger.doclet.Recorder;
 import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
 
-public class JsonSubTypesParentReferenceResourceTest {
+class JsonSubTypesParentReferenceResourceTest {
     private Recorder recorderMock;
     private DocletOptions options;
 
@@ -31,7 +31,7 @@ public class JsonSubTypesParentReferenceResourceTest {
     }
 
     @Test
-    public void testStart() throws IOException {
+    void testStart() throws IOException {
         final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.jsonsubtypesparentreference");
         assertNotNull(rootDoc);
         boolean result = new JaxRsAnnotationParser(this.options, rootDoc).run();

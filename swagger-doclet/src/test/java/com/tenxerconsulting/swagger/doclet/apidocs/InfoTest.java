@@ -15,8 +15,7 @@ import com.tenxerconsulting.swagger.doclet.Recorder;
 import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
 import io.swagger.oas.models.info.Info;
 
-@SuppressWarnings("javadoc")
-public class InfoTest {
+class InfoTest {
 
     private Recorder recorderMock;
     private DocletOptions options;
@@ -31,7 +30,7 @@ public class InfoTest {
     }
 
     @Test
-    public void testStart() throws IOException {
+    void testStart() throws IOException {
         final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.info");
         new JaxRsAnnotationParser(this.options, rootDoc).run();
 

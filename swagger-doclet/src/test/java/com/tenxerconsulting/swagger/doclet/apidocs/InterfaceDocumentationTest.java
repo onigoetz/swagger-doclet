@@ -13,8 +13,7 @@ import com.tenxerconsulting.swagger.doclet.JSONCompare;
 import com.tenxerconsulting.swagger.doclet.Recorder;
 import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
 
-@SuppressWarnings("javadoc")
-public class InterfaceDocumentationTest {
+class InterfaceDocumentationTest {
 
     private Recorder recorderMock;
     private DocletOptions options;
@@ -26,7 +25,7 @@ public class InterfaceDocumentationTest {
     }
 
     @Test
-    public void testInterfaceDocumentation() throws IOException {
+    void testInterfaceDocumentation() throws IOException {
         final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.interfacedocumentation");
         new JaxRsAnnotationParser(this.options, rootDoc).run();
 

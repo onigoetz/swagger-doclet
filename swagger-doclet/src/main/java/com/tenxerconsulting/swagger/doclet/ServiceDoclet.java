@@ -12,6 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ServiceDoclet {
 
+        private ServiceDoclet() {
+        }
+
 	/**
 	 * Generate documentation here.
 	 * This method is required for all doclets.
@@ -80,7 +83,7 @@ public class ServiceDoclet {
 	 *         option not known. Negative value means error occurred.
 	 */
 	public static int optionLength(String option) {
-		Map<String, Integer> options = new HashMap<String, Integer>();
+                Map<String, Integer> options = new HashMap<>();
 		options.put("-d", 2);
 		options.put("-docBasePath", 2);
 		options.put("-host", 2);

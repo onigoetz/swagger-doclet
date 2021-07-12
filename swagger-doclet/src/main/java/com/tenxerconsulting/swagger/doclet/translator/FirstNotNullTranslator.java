@@ -3,8 +3,8 @@ package com.tenxerconsulting.swagger.doclet.translator;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 
-import com.google.common.base.Function;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
@@ -25,7 +25,7 @@ public class FirstNotNullTranslator implements Translator {
 	 * This creates a FirstNotNullTranslator with no links
 	 */
 	public FirstNotNullTranslator() {
-		this.chain = new ArrayList<Translator>();
+                this.chain = new ArrayList<>();
 	}
 
 	/**

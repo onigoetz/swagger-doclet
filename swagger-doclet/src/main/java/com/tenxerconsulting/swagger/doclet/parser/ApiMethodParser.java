@@ -1,6 +1,5 @@
 package com.tenxerconsulting.swagger.doclet.parser;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.tenxerconsulting.swagger.doclet.parser.ParserHelper.createRef;
 
 import java.util.*;
@@ -181,7 +180,10 @@ public class ApiMethodParser {
 		// ************************************
 		Type returnType = this.methodDoc.returnType();
 		// first check if its a wrapper type and if so replace with the wrapped type
-		returnType = firstNonNull(ApiModelParser.getReturnType(this.options, returnType), returnType);
+                Type alternateReturnType = ApiModelParser.getReturnType(this.options, returnType);
+                if (alternateReturnType != null) {
+                        returnType = alternateReturnType;
+                }
 
 		OptionalName returnTypeOName = this.translator.typeName(returnType, this.options.isUseFullModelIds());
 
@@ -753,11 +755,9 @@ public class ApiMethodParser {
 		}
 
 		for (ParameterOrBody apiParam : paramsToAdd) {
-			if (apiParam.getParameter() != null) {
-				if (!addedParamNames.contains(apiParam.getParameter().getName())) {
-					addedParamNames.add(apiParam.getParameter().getName());
-					targetList.getParameters().add(apiParam.getParameter());
-				}
+                        if (apiParam.getParameter() != null && !addedParamNames.contains(apiParam.getParameter().getName())) {
+                                addedParamNames.add(apiParam.getParameter().getName());
+                                targetList.getParameters().add(apiParam.getParameter());
 			}
 
 			if (apiParam.getBody() != null) {
@@ -871,7 +871,10 @@ public class ApiMethodParser {
 			    	log.debug("Warning: couldn't find model for customType {}", customTypeName);
 				}
 			} else {
-				customType = firstNonNull(ApiModelParser.getReturnType(this.options, customType), customType);
+                                Type alternateCustomType = ApiModelParser.getReturnType(this.options, customType);
+                                if (alternateCustomType != null) {
+                                        customType = alternateCustomType;
+                                }
 
 				// build map of var names to parameters if applicable
 				Map<String, Type> varsToTypes = null;

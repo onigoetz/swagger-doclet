@@ -13,8 +13,7 @@ import com.tenxerconsulting.swagger.doclet.JSONCompare;
 import com.tenxerconsulting.swagger.doclet.Recorder;
 import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
 
-@SuppressWarnings("javadoc")
-public class SubModelTest {
+class SubModelTest {
 
     private Recorder recorderMock;
     private DocletOptions options;
@@ -26,7 +25,7 @@ public class SubModelTest {
     }
 
     @Test
-    public void testStart() throws IOException {
+    void testStart() throws IOException {
         final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.submodel");
         new JaxRsAnnotationParser(this.options, rootDoc).run();
 

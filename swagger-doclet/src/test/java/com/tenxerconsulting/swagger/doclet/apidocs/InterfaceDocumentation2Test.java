@@ -16,8 +16,7 @@ import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
 /**
  * Like the InterfaceDocumentation, but the JaxRS annotations are on the base class instead of on the interface.
  */
-@SuppressWarnings("javadoc")
-public class InterfaceDocumentation2Test {
+class InterfaceDocumentation2Test {
 
     private Recorder recorderMock;
     private DocletOptions options;
@@ -29,7 +28,7 @@ public class InterfaceDocumentation2Test {
     }
 
     @Test
-    public void testInterfaceDocumentation() throws IOException {
+    void testInterfaceDocumentation() throws IOException {
         final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.interfacedocumentation2");
         new JaxRsAnnotationParser(this.options, rootDoc).run();
 

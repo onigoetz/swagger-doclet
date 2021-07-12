@@ -20,8 +20,7 @@ import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
  * @author conor.roche
  * @version $Id$
  */
-@SuppressWarnings("javadoc")
-public class CrossClassResourceListingTest {
+class CrossClassResourceListingTest {
 
     private Recorder recorderMock;
     private DocletOptions options;
@@ -33,7 +32,7 @@ public class CrossClassResourceListingTest {
     }
 
     @Test
-    public void testDefaultOrder() throws IOException {
+    void testDefaultOrder() throws IOException {
         this.options.setSortResourcesByPath(false);
         this.options.setSortResourcesByPriority(false);
 
@@ -44,7 +43,7 @@ public class CrossClassResourceListingTest {
     }
 
     @Test
-    public void testPriorityOrder() throws IOException {
+    void testPriorityOrder() throws IOException {
         this.options.setSortResourcesByPath(false);
         this.options.setSortResourcesByPriority(true);
 
@@ -55,7 +54,7 @@ public class CrossClassResourceListingTest {
     }
 
     @Test
-    public void testPathOrder() throws IOException {
+    void testPathOrder() throws IOException {
         this.options.setSortResourcesByPath(true);
         this.options.setSortResourcesByPriority(false);
 
@@ -64,5 +63,4 @@ public class CrossClassResourceListingTest {
 
         JSONCompare.compareListing("/fixtures/crossclassresourcelisting/service3.json", recorderMock);
     }
-
 }

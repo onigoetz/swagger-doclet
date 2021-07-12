@@ -14,8 +14,7 @@ import com.tenxerconsulting.swagger.doclet.JSONCompare;
 import com.tenxerconsulting.swagger.doclet.Recorder;
 import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
 
-@SuppressWarnings("javadoc")
-public class SubResourceBTest {
+class SubResourceBTest {
 
     private Recorder recorderMock;
     private DocletOptions options;
@@ -27,7 +26,7 @@ public class SubResourceBTest {
     }
 
     @Test
-    public void testStart() throws IOException {
+    void testStart() throws IOException {
         final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.subresourceb");
 
         boolean parsingResult = new JaxRsAnnotationParser(this.options, rootDoc).run();

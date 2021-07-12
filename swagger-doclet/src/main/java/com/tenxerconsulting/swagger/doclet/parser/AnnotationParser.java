@@ -10,11 +10,13 @@ import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.Parameter;
 import com.sun.javadoc.ProgramElementDoc;
 import com.tenxerconsulting.swagger.doclet.DocletOptions;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The AnnotationParser represents a utility class for reading values from annotations
  * @version $Id$
  */
+@Slf4j
 public class AnnotationParser {
 
 	private final AnnotationDesc[] annotations;
@@ -89,8 +91,7 @@ public class AnnotationParser {
 	private ClassDoc getAnnotationClassDocValue(AnnotationDesc annotation, String key) {
 		for (AnnotationDesc.ElementValuePair evp : annotation.elementValues()) {
 			if (evp.element().name().equals(key)) {
-				ClassDoc val = (ClassDoc) evp.value().value();
-				return val;
+                                return (ClassDoc) evp.value().value();
 			}
 		}
 		return null;
@@ -175,7 +176,7 @@ public class AnnotationParser {
 			if (evp.element().name().equals(key)) {
 				Object val = evp.value().value();
 				AnnotationValue[] vals = (AnnotationValue[]) val;
-				List<ClassDoc> res = new ArrayList<ClassDoc>();
+                                List<ClassDoc> res = new ArrayList<>();
 				for (AnnotationValue annotationVal : vals) {
 					AnnotationDesc subAnnotation = (AnnotationDesc) annotationVal.value();
 					ClassDoc classDoc = getAnnotationClassDocValue(subAnnotation, "value");
@@ -215,7 +216,7 @@ public class AnnotationParser {
 		for (AnnotationDesc annotation : this.annotations) {
 			try {
 				if (startsWith) {
-					if (annotation.annotationType().qualifiedTypeName().indexOf(qualifiedAnnotationType) > -1) {
+                                        if (annotation.annotationType().qualifiedTypeName().contains(qualifiedAnnotationType)) {
 						found = annotation;
 						break;
 					}
@@ -224,7 +225,7 @@ public class AnnotationParser {
 					break;
 				}
 			} catch (RuntimeException e) {
-				System.err.println(annotation + " has invalid javadoc: " + e.getClass() + ": " + e.getMessage());
+                                log.error("{} has invalid javadoc: {}: {}", annotation, e.getClass(), e.getMessage());
 			}
 		}
 		return found;

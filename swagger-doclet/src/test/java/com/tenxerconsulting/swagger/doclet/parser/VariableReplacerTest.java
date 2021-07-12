@@ -11,13 +11,13 @@ import org.junit.jupiter.api.Test;
  * @version $Id$
  * @author conor.roche
  */
-public class VariableReplacerTest {
+class VariableReplacerTest {
 
 	/**
 	 * This tests simple e.g. single level replacement
 	 */
 	@Test
-	public void testSimpleReplacement() {
+        void testSimpleReplacement() {
 		Properties props = new Properties();
 		props.setProperty("a", "aval");
 		props.setProperty("b", "bval");
@@ -39,7 +39,7 @@ public class VariableReplacerTest {
 	 * This tests multi level replacement where one value refers to other variables
 	 */
 	@Test
-	public void testMultiLevelReplacement() {
+        void testMultiLevelReplacement() {
 		Properties props = new Properties();
 		props.setProperty("a", "aval");
 		props.setProperty("b", "${a}");

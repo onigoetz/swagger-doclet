@@ -96,8 +96,7 @@ public class AnnotationAwareTranslator implements Translator {
 		if (multipart) {
 			boolean isFileDataType = ParserHelper.isFileParameterDataType(parameter, this.options);
 			if (isFileDataType) {
-				OptionalName res = presentOrMissing("internalFileSchema");
-				return res;
+                                return presentOrMissing("internalFileSchema");
 			}
 		}
 
@@ -143,11 +142,11 @@ public class AnnotationAwareTranslator implements Translator {
 	}
 
 	private OptionalName nameFor(String annotation, String property, ProgramElementDoc doc, boolean processIgnore) {
-		AnnotationParser element = new AnnotationParser(doc, this.options);
-		if (processIgnore && element.isAnnotatedBy(this.ignore)) {
+                AnnotationParser annotationParser = new AnnotationParser(doc, this.options);
+                if (processIgnore && annotationParser.isAnnotatedBy(this.ignore)) {
 			return ignored();
 		}
-		String name = element.getAnnotationValue(annotation, property);
+                String name = annotationParser.getAnnotationValue(annotation, property);
 		return presentOrMissing(name);
 	}
 

@@ -13,21 +13,17 @@
     </description>
 
 	<properties>
-		<swagger.version>2.0.0-rc2</swagger.version>
-		<dropwizard.version>0.6.2</dropwizard.version>
-		<jetty.version>11.0.3</jetty.version>
 		<orig.jackson.version>1.9.13</orig.jackson.version>
 		<jackson.version>2.12.3</jackson.version>
 		<guava.version>30.1.1-jre</guava.version>
 		<jersey.version>1.19.4</jersey.version>
-		<jersey2.version>3.0.2</jersey2.version>
-		<resteasy.version>4.6.1.Beta2</resteasy.version>
+                <jersey2.version>2.24</jersey2.version>
 	</properties>
 
 	<modules>
 		<module>swagger-doclet</module>
-		<!--<module>swagger-doclet-sample-dropwizard</module>-->
-		<!--<module>swagger-doclet-sample-jersey2</module>-->
+                <module>swagger-doclet-sample-dropwizard</module>
+                <module>swagger-doclet-sample-jersey2</module>
 	</modules>
 
 	<developers>
@@ -120,134 +116,10 @@
 							</execution>
 						</executions>
 					</plugin>
-
 				</plugins>
 			</build>
 		</profile>
 	</profiles>
-
-	<dependencies>
-		<!-- jaxrs doclet -->
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>${jackson.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>${guava.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.swagger</groupId>
-			<artifactId>swagger-models</artifactId>
-			<version>${swagger.version}</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<!-- Jersey 1 -->
-		<dependency>
-			<groupId>com.sun.jersey</groupId>
-			<artifactId>jersey-core</artifactId>
-			<version>${jersey.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.jersey.contribs</groupId>
-			<artifactId>jersey-multipart</artifactId>
-			<version>${jersey.version}</version>
-			<scope>test</scope>
-		</dependency>
-
-		<!-- Jersey 2 -->
-		<dependency>
-			<groupId>org.glassfish.jersey.containers</groupId>
-			<artifactId>jersey-container-jdk-http</artifactId>
-			<version>${jersey2.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.glassfish.jersey.core</groupId>
-			<artifactId>jersey-client</artifactId>
-			<version>${jersey2.version}</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.glassfish.jersey.media</groupId>
-			<artifactId>jersey-media-json-jackson</artifactId>
-			<version>${jersey2.version}</version>
-			<scope>test</scope>
-		</dependency>
-
-		<!-- JPA -->
-		<dependency>
-			<groupId>org.hibernate.javax.persistence</groupId>
-			<artifactId>hibernate-jpa-2.0-api</artifactId>
-			<version>1.0.1.Final</version>
-			<scope>test</scope>
-		</dependency>
-
-		<!-- resteasy -->
-		<dependency>
-			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-multipart-provider</artifactId>
-			<version>${resteasy.version}</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter</artifactId>
-			<version>5.8.0-M1</version>
-			<scope>test</scope>
-		</dependency>
-
-		<!-- dropwizard samples -->
-		<dependency>
-			<groupId>com.yammer.dropwizard</groupId>
-			<artifactId>dropwizard-core</artifactId>
-			<version>${dropwizard.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.yammer.dropwizard</groupId>
-			<artifactId>dropwizard-auth</artifactId>
-			<version>${dropwizard.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-  			<groupId>org.eclipse.jetty</groupId>
-  			<artifactId>jetty-servlets</artifactId>
-  			<version>${jetty.version}</version>
-  			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>joda-time</groupId>
-			<artifactId>joda-time</artifactId>
-			<version>2.10.10</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>javax.ws.rs</groupId>
-			<artifactId>jsr311-api</artifactId>
-			<version>1.1.1</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-mapper-asl</artifactId>
-			<version>${orig.jackson.version}</version>
-			<type>jar</type>
-			<optional>true</optional>
-			<scope>test</scope>
-		</dependency>
-
-	</dependencies>
 
 	<build>
 		<plugins>
@@ -283,7 +155,7 @@
 				<configuration>
 					<effort>Max</effort>
 					<xmlOutput>true</xmlOutput>
-					<excludeFilterFile>spotbugs-exclude.xml</excludeFilterFile>
+                                        <excludeFilterFile>${maven.multiModuleProjectDirectory}/spotbugs-exclude.xml</excludeFilterFile>
 				</configuration>
 				<executions>
 					<execution>
@@ -305,7 +177,6 @@
 					<autoReleaseAfterClose>false</autoReleaseAfterClose>
 				</configuration>
 			</plugin>
-			
 		</plugins>
 	</build>
 </project>

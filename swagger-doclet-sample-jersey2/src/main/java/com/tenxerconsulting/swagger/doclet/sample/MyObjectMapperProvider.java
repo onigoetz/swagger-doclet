@@ -24,11 +24,7 @@ public class MyObjectMapperProvider implements ContextResolver<ObjectMapper> {
 
 	@Override
 	public ObjectMapper getContext(final Class<?> type) {
-		// if (type == CombinedAnnotationBean.class) {
 		return this.combinedObjectMapper;
-		// } else {
-		// return this.defaultObjectMapper;
-		// }
 	}
 
 	private static ObjectMapper createCombinedObjectMapper() {

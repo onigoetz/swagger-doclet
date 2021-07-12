@@ -1,13 +1,12 @@
 package com.tenxerconsulting.swagger.doclet.translator;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
-import com.google.common.base.Strings;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.Parameter;
 import com.sun.javadoc.Type;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 public interface Translator {
 
@@ -21,8 +20,9 @@ public interface Translator {
 
 	OptionalName methodName(MethodDoc method);
 
+        @EqualsAndHashCode(of = {"status", "name"})
+        @ToString
 	class OptionalName {
-
 		private final Status status;
 		private final String name;
 		private final String format;
@@ -34,18 +34,18 @@ public interface Translator {
 		}
 
 		public static OptionalName presentOrMissing(String name) {
-			if (!Strings.isNullOrEmpty(name)) {
-				return new OptionalName(Status.PRESENT, name, null);
-			} else {
+                        if ( name == null || name.isEmpty()) {
 				return new OptionalName(Status.MISSING, null, null);
+                        } else {
+                                return new OptionalName(Status.PRESENT, name, null);
 			}
 		}
 
 		public static OptionalName presentOrMissing(String name, String format) {
-			if (!Strings.isNullOrEmpty(name)) {
-				return new OptionalName(Status.PRESENT, name, format);
-			} else {
+                        if ( name == null || name.isEmpty()) {
 				return new OptionalName(Status.MISSING, null, format);
+                        } else {
+                                return new OptionalName(Status.PRESENT, name, format);
 			}
 		}
 
@@ -73,32 +73,10 @@ public interface Translator {
 			return this.status == Status.MISSING;
 		}
 
-		private static enum Status {
+                private enum Status {
 			PRESENT,
 			IGNORED,
 			MISSING
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (this == o) {
-				return true;
-			}
-			if (o == null || getClass() != o.getClass()) {
-				return false;
-			}
-			OptionalName that = (OptionalName) o;
-			return Objects.equal(this.status, that.status) && Objects.equal(this.name, that.name);
-		}
-
-		@Override
-		public int hashCode() {
-			return Objects.hashCode(this.status, this.name);
-		}
-
-		@Override
-		public String toString() {
-			return MoreObjects.toStringHelper(this).add("status", this.status).add("name", this.name).toString();
 		}
 	}
 

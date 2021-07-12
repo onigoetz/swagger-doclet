@@ -12,8 +12,7 @@ import com.tenxerconsulting.swagger.doclet.JSONCompare;
 import com.tenxerconsulting.swagger.doclet.Recorder;
 import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
 
-@SuppressWarnings("javadoc")
-public class Issue66Test {
+class Issue66Test {
 
     private Recorder recorderMock;
     private DocletOptions options;
@@ -25,11 +24,10 @@ public class Issue66Test {
     }
 
     @Test
-    public void testStart() throws IOException {
+    void testStart() throws IOException {
         final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.issue66");
         new JaxRsAnnotationParser(this.options, rootDoc).run();
 
         JSONCompare.compare("/fixtures/issue66/issue66.json", recorderMock);
     }
-
 }

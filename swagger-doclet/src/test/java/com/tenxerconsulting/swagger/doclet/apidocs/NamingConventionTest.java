@@ -14,8 +14,7 @@ import com.tenxerconsulting.swagger.doclet.Recorder;
 import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
 import com.tenxerconsulting.swagger.doclet.parser.NamingConvention;
 
-@SuppressWarnings("javadoc")
-public class NamingConventionTest {
+class NamingConventionTest {
 
     private Recorder recorderMock;
     private DocletOptions options;
@@ -26,7 +25,7 @@ public class NamingConventionTest {
     }
 
     @Test
-    public void testLowerUnderscore() throws IOException {
+    void testLowerUnderscore() throws IOException {
 
         this.options = new DocletOptions().setRecorder(this.recorderMock).setIncludeSwaggerUi(false)
                 .setModelFieldsNamingConvention(NamingConvention.LOWER_UNDERSCORE);
@@ -38,7 +37,7 @@ public class NamingConventionTest {
     }
 
     @Test
-    public void testLowerUnderscoreUnless() throws IOException {
+    void testLowerUnderscoreUnless() throws IOException {
 
         this.options = new DocletOptions().setRecorder(this.recorderMock).setIncludeSwaggerUi(false)
                 .setModelFieldsNamingConvention(NamingConvention.LOWER_UNDERSCORE_UNLESS_OVERRIDDEN);
@@ -50,7 +49,7 @@ public class NamingConventionTest {
     }
 
     @Test
-    public void testLower() throws IOException {
+    void testLower() throws IOException {
 
         this.options = new DocletOptions().setRecorder(this.recorderMock).setIncludeSwaggerUi(false).setModelFieldsNamingConvention(NamingConvention.LOWERCASE);
 
@@ -61,7 +60,7 @@ public class NamingConventionTest {
     }
 
     @Test
-    public void testLowerUnless() throws IOException {
+    void testLowerUnless() throws IOException {
 
         this.options = new DocletOptions().setRecorder(this.recorderMock).setIncludeSwaggerUi(false)
                 .setModelFieldsNamingConvention(NamingConvention.LOWERCASE_UNLESS_OVERRIDDEN);
@@ -73,7 +72,7 @@ public class NamingConventionTest {
     }
 
     @Test
-    public void testUpper() throws IOException {
+    void testUpper() throws IOException {
 
         this.options = new DocletOptions().setRecorder(this.recorderMock).setIncludeSwaggerUi(false).setModelFieldsNamingConvention(NamingConvention.UPPERCASE);
 
@@ -84,7 +83,7 @@ public class NamingConventionTest {
     }
 
     @Test
-    public void testUpperUnless() throws IOException {
+    void testUpperUnless() throws IOException {
 
         this.options = new DocletOptions().setRecorder(this.recorderMock).setIncludeSwaggerUi(false)
                 .setModelFieldsNamingConvention(NamingConvention.UPPERCASE_UNLESS_OVERRIDDEN);

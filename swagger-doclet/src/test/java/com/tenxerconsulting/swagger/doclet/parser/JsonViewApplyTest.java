@@ -23,11 +23,10 @@ import com.tenxerconsulting.swagger.doclet.parser.jsonview.Views;
  * @version $Id$
  * @author conor.roche
  */
-@SuppressWarnings("javadoc")
-public class JsonViewApplyTest {
+class JsonViewApplyTest {
 
 	@Test
-	public void testIsItemPartOfView() throws IOException {
+        void testIsItemPartOfView() throws IOException {
 
 		final RootDoc rootDoc = RootDocLoader.fromPath("src/test/java", "com.tenxerconsulting.swagger.doclet.parser.jsonview");
 
@@ -75,7 +74,7 @@ public class JsonViewApplyTest {
 	 * this tests the json view behaviour against the actual model classes for the issue30b test
 	 */
 	@Test
-	public void testIsItemPartOfViewIssue30b() throws IOException {
+        void testIsItemPartOfViewIssue30b() throws IOException {
 
 		final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.issue30b");
 
@@ -92,7 +91,7 @@ public class JsonViewApplyTest {
 	 * this tests the json view behaviour of a copy of the model classes for the issue30b test
 	 */
 	@Test
-	public void testIsItemPartOfViewIssue30bCopy() throws IOException {
+        void testIsItemPartOfViewIssue30bCopy() throws IOException {
 
 		final RootDoc rootDoc = RootDocLoader.fromPath("src/test/java", "com.tenxerconsulting.swagger.doclet.parser.jsonview");
 
@@ -138,7 +137,7 @@ public class JsonViewApplyTest {
 	 * \@cviebig how it works for him...
 	 */
 	@Test
-	public void testJackson() throws Exception {
+        void testJackson() throws Exception {
 
 		// NOTE the model we test against here is a copy of the ones in src/test/resources/fixtures/issue30b
 

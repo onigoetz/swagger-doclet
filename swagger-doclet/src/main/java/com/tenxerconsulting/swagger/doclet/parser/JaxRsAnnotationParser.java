@@ -10,7 +10,6 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import com.google.common.io.ByteStreams;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.RootDoc;
@@ -55,7 +54,7 @@ public class JaxRsAnnotationParser {
 
             // setup additional classes needed for processing, generally these are java ones such as java.lang.String
             // adding them here allows them to be used in @outputType
-            Collection<ClassDoc> typeClasses = new ArrayList<ClassDoc>();
+            Collection<ClassDoc> typeClasses = new ArrayList<>();
             addIfNotNull(typeClasses, this.rootDoc.classNamed(java.lang.String.class.getName()));
             addIfNotNull(typeClasses, this.rootDoc.classNamed(java.lang.Integer.class.getName()));
             addIfNotNull(typeClasses, this.rootDoc.classNamed(java.lang.Boolean.class.getName()));
@@ -92,7 +91,7 @@ public class JaxRsAnnotationParser {
             addIfNotNull(typeClasses, this.rootDoc.classNamed(java.net.URL.class.getName()));
 
             // filter the classes to process
-            Collection<ClassDoc> docletClasses = new ArrayList<ClassDoc>();
+            Collection<ClassDoc> docletClasses = new ArrayList<>();
             for (ClassDoc classDoc : this.rootDoc.classes()) {
 
                 // see if excluded via its FQN
@@ -299,8 +298,7 @@ public class JaxRsAnnotationParser {
             }
             return true;
         } catch (IOException e) {
-            System.err.println("Failed to write api docs, err msg: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Failed to write api docs, err msg: " + e.getMessage(), e);
             return false;
         }
     }
@@ -362,18 +360,10 @@ public class JaxRsAnnotationParser {
                         throw new RuntimeException("Unable to create directory: " + swaggerFile);
                     }
                 } else {
-
-                    FileOutputStream outputStream = null;
-                    try {
-                        outputStream = new FileOutputStream(swaggerFile);
-                        ByteStreams.copy(swaggerZip, outputStream);
+                    try (FileOutputStream outputStream = new FileOutputStream(swaggerFile)) {
+                        copy(swaggerZip, outputStream);
                         outputStream.flush();
-                    } finally {
-                        if (outputStream != null) {
-                            outputStream.close();
-                        }
                     }
-
                 }
 
                 entry = swaggerZip.getNextEntry();
@@ -386,12 +376,18 @@ public class JaxRsAnnotationParser {
         }
     }
 
+    private void copy(InputStream source, OutputStream target) throws IOException {
+        byte[] buf = new byte[8192];
+        int length;
+        while ((length = source.read(buf)) > 0) {
+            target.write(buf, 0, length);
+        }
+    }
+
     private void copyDirectory(Recorder recorder, File uiPathFile, File sourceLocation, File targetLocation) throws IOException {
         if (sourceLocation.isDirectory()) {
-            if (!targetLocation.exists()) {
-                if (!targetLocation.mkdirs()) {
-                    throw new IOException("Failed to create the dir: " + targetLocation.getAbsolutePath());
-                }
+            if (!targetLocation.exists() && !targetLocation.mkdirs()) {
+                throw new IOException("Failed to create the dir: " + targetLocation.getAbsolutePath());
             }
 
             String[] children = sourceLocation.list();
@@ -401,30 +397,9 @@ public class JaxRsAnnotationParser {
                 }
             }
         } else {
-
-            InputStream in = null;
-            OutputStream out = null;
-            try {
-                in = new FileInputStream(sourceLocation);
-                out = new FileOutputStream(targetLocation);
-                ByteStreams.copy(in, out);
+            try (InputStream in = new FileInputStream(sourceLocation); OutputStream out = new FileOutputStream(targetLocation);) {
+                copy(in, out);
                 out.flush();
-
-            } finally {
-                if (in != null) {
-                    try {
-                        in.close();
-                    } catch (IOException ex) {
-                        // ignore
-                    }
-                }
-                if (out != null) {
-                    try {
-                        out.close();
-                    } catch (IOException ex) {
-                        // ignore
-                    }
-                }
             }
         }
     }

@@ -20,8 +20,7 @@ import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
  * @author conor.roche
  * @version $Id$
  */
-@SuppressWarnings("javadoc")
-public class ResourceInclusionTest {
+class ResourceInclusionTest {
 
     private Recorder recorderMock;
     private DocletOptions options;
@@ -35,7 +34,7 @@ public class ResourceInclusionTest {
     }
 
     @Test
-    public void testStart() throws IOException {
+    void testStart() throws IOException {
         final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.resourceinclusion");
         new JaxRsAnnotationParser(this.options, rootDoc).run();
 

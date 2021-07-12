@@ -19,8 +19,7 @@ import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
  * @author conor.roche
  * @version $Id$
  */
-@SuppressWarnings("javadoc")
-public class XmlAccessTypeTest {
+class XmlAccessTypeTest {
 
     private Recorder recorderMock;
     private DocletOptions options;
@@ -32,7 +31,7 @@ public class XmlAccessTypeTest {
     }
 
     @Test
-    public void testStart() throws IOException {
+    void testStart() throws IOException {
         final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.xmlaccesstype");
         new JaxRsAnnotationParser(this.options, rootDoc).run();
 

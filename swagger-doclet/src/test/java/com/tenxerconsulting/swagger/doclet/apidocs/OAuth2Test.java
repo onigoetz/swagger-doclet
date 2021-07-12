@@ -19,8 +19,7 @@ import com.tenxerconsulting.swagger.doclet.Recorder;
 import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
 import io.swagger.oas.models.security.SecurityScheme;
 
-@SuppressWarnings("javadoc")
-public class OAuth2Test {
+class OAuth2Test {
 
     private Recorder recorderMock;
     private DocletOptions options;
@@ -38,7 +37,7 @@ public class OAuth2Test {
     }
 
     @Test
-    public void testStart() throws IOException {
+    void testStart() throws IOException {
         final RootDoc rootDoc = RootDocLoader.fromPath("src/test/resources", "fixtures.oauth2");
         new JaxRsAnnotationParser(this.options, rootDoc).run();
 

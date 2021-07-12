@@ -13,14 +13,14 @@ import org.junit.jupiter.api.Test;
  * @version $Id$
  * @author conor.roche
  */
-public class ParameterReaderTest {
+class ParameterReaderTest {
 
 	/**
 	 * This tests the add path params method can successfull
 	 * extract parameters from an expression
 	 */
 	@Test
-	public void testAddPathParams() {
+        void testAddPathParams() {
 		ParameterReader r = new ParameterReader(null, null);
 
 		List<String> items = new ArrayList<>();

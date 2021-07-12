@@ -29,12 +29,4 @@ public class QualifiedType {
 		this.type = type;
 		this.typeName = type == null ? null : this.type.qualifiedTypeName();
 	}
-
-	/**
-	 * This creates a QualifiedType
-	 * @param type
-	 */
-	public QualifiedType(Type type) {
-		this(null, type);
-	}
 }

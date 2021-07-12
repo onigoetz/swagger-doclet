@@ -13,8 +13,7 @@ import com.tenxerconsulting.swagger.doclet.JSONCompare;
 import com.tenxerconsulting.swagger.doclet.Recorder;
 import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
 
-@SuppressWarnings("javadoc")
-public class MultipleParamsTest {
+class MultipleParamsTest {
 
     private Recorder recorderMock;
     private DocletOptions options;
@@ -26,7 +25,7 @@ public class MultipleParamsTest {
     }
 
     @Test
-    public void testStart() throws IOException {
+    void testStart() throws IOException {
         this.options.setExcludeDeprecatedOperations(true);
         this.options.setExcludeDeprecatedParams(true);
         this.options.setExcludeDeprecatedFields(true);

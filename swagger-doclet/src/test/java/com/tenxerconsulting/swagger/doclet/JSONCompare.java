@@ -24,6 +24,7 @@ import io.swagger.oas.models.media.ArraySchema;
 import io.swagger.oas.models.media.ObjectSchema;
 import io.swagger.oas.models.parameters.Parameter;
 import io.swagger.oas.models.responses.ApiResponses;
+import io.swagger.oas.models.tags.Tag;
 
 public class JSONCompare {
     public static void compareListing(String file, Recorder recorder) throws IOException {
@@ -49,6 +50,10 @@ public class JSONCompare {
     }
 
     public static void sort(OpenAPI toSort) {
+        if (toSort.getTags() != null) {
+            toSort.getTags().sort(Comparator.comparing(Tag::getName));
+        }
+
         // Order properties in schemas
         if (toSort.getComponents() != null && toSort.getComponents().getSchemas() != null) {
             toSort.getComponents().setSchemas(sortMap(toSort.getComponents().getSchemas()));

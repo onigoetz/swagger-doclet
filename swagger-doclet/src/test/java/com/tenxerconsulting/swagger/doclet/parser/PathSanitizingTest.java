@@ -9,16 +9,14 @@ import org.junit.jupiter.api.Test;
  * @version $Id$
  * @author conor.roche
  */
-public class PathSanitizingTest {
+class PathSanitizingTest {
 
 	/**
 	 * This tests the api path sanitization
 	 */
 	@Test
-	public void testSanitizePath() {
-
+        void testSanitizePath() {
 		assertEquals("/api/test/{id}", ParserHelper.sanitizePath("/api/test/{id }"));
-
 		assertEquals("/api", ParserHelper.sanitizePath("/api"));
 		assertEquals("/api/test", ParserHelper.sanitizePath("/api/test"));
 		assertEquals("/api/test{id}", ParserHelper.sanitizePath("/api/test{id}"));
@@ -36,8 +34,7 @@ public class PathSanitizingTest {
 	 * This tests the file name for the resource listing is generated correctly from a resource path
 	 */
 	@Test
-	public void testGenerateResourceFilename() {
-
+        void testGenerateResourceFilename() {
 		assertEquals("api", ParserHelper.generateResourceFilename("/api"));
 		assertEquals("api_test", ParserHelper.generateResourceFilename("/api/test"));
 		assertEquals("api_test_id", ParserHelper.generateResourceFilename("/api/test{id}"));

@@ -19,8 +19,7 @@ import com.tenxerconsulting.swagger.doclet.parser.JaxRsAnnotationParser;
  * @author conor.roche
  * @version $Id$
  */
-@SuppressWarnings("javadoc")
-public class ResourceListingTest {
+class ResourceListingTest {
 
     private Recorder recorderMock;
     private DocletOptions options;
@@ -33,7 +32,7 @@ public class ResourceListingTest {
     }
 
     @Test
-    public void testPriorityOrder() throws IOException {
+    void testPriorityOrder() throws IOException {
         this.options.getResourceDescriptionTags().add("resourceDescription");
         this.options.getResourcePriorityTags().add("resourcePriority");
         this.options.setSortResourcesByPath(false);
@@ -46,7 +45,7 @@ public class ResourceListingTest {
     }
 
     @Test
-    public void testPathOrder() throws IOException {
+    void testPathOrder() throws IOException {
         this.options.getResourceDescriptionTags().add("resourceDescription");
         this.options.getResourcePriorityTags().add("resourcePriority");
         this.options.setSortResourcesByPath(true);

@@ -55,11 +55,7 @@ public class SchemaDeserializer extends StdDeserializer<Schema<?>> {
             case "number":
                 return mapper.treeToValue(node, NumberSchema.class);
             case "object":
-                //if (node.has("defaultObject")) {
                 return mapper.treeToValue(node, ObjectSchema.class);
-            //    return mapper.treeToValue(node, MapSchema.class);
-            //} else {
-            //}
             case "string":
                 switch (format) {
                     case "password":

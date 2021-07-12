@@ -25,10 +25,10 @@ public class SchemaBuilder {
         if (processor == null) {
             return null;
         }
-        final Map<PropertyId, Object> safeArgs = args == null ? Collections.<PropertyId, Object>emptyMap() : args;
+        final Map<PropertyId, Object> safeArgs = args == null ? Collections.emptyMap() : args;
         final Map<PropertyId, Object> fixedArgs;
         if (format != null) {
-            fixedArgs = new EnumMap<PropertyId, Object>(PropertyId.class);
+            fixedArgs = new EnumMap<>(PropertyId.class);
             fixedArgs.putAll(safeArgs);
             fixedArgs.put(PropertyId.FORMAT, format);
         } else {
@@ -281,10 +281,8 @@ public class SchemaBuilder {
 
             @Override
             public Schema toModel(Schema property) {
-                final Schema resolved = (Schema) property;
-
-                final Schema model = createRef(resolved.get$ref());
-                model.setDescription(resolved.getDescription());
+                final Schema model = createRef(property.get$ref());
+                model.setDescription(property.getDescription());
                 return model;
             }
         },
@@ -552,7 +550,7 @@ public class SchemaBuilder {
                 property.setReadOnly(PropertyId.READ_ONLY.<Boolean>findValue(args));
             }
             if (property.getFormat() == null) {
-                property.setFormat(PropertyId.FORMAT.<String>findValue(args));
+                property.setFormat(PropertyId.FORMAT.findValue(args));
             }
             if (args.containsKey(PropertyId.TITLE)) {
                 final String value = PropertyId.TITLE.findValue(args);
